@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0111)file:///C:/Users/user/Downloads/%EC%B6%9C%EC%9E%A5%EB%B9%84%EC%A0%95%EC%82%B0%EA%B4%80%EB%A6%AC_firebase_1.html -->
+<!-- saved from url=(0111)file:///C:/Users/user/Downloads/%EC%B6%9C%EC%9E%A5%EB%B9%84%EC%A0%95%EC%82%B0%EA%B4%80%EB%A6%AC_firebase_2.html -->
 <html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -93,7 +93,7 @@ tr:hover td{background:#fafaf8;}
     <div class="topbar-sub">출장비 정산 관리</div>
   </div>
   <div class="topbar-actions">
-    <span id="sync-status" class="sync-status sync-ok">✓ 연결됨</span>
+    <span id="sync-status" class="sync-status sync-ok">✓ 동기화됨</span>
     <button class="btn-outline" onclick="exportCSV()">📥 엑셀 내보내기</button>
     <button class="btn-outline" onclick="backupData()">💾 백업</button>
     <button class="btn-outline" onclick="document.getElementById(&#39;loadFile&#39;).click()">📂 복원</button>
@@ -112,18 +112,197 @@ tr:hover td{background:#fafaf8;}
   </div>
 
   <div id="pane-dash" class="pane on">
-    <div id="d-banner"><div class="banner">🚌 <strong>찾아가는 일자리버스(소통공간)</strong></div></div>
+    <div id="d-banner"><div class="banner">🚌 <strong>찾아가는 일자리버스(소통공간)</strong> &nbsp;·&nbsp; 담당: 김새별 &nbsp;·&nbsp; 월 한도 6,240,000원</div></div>
     <div class="metric-row" id="d-metrics">
-    <div class="mc"><div class="mc-lbl">전체 출장 건수</div><div class="mc-val">0건</div></div>
-    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">0만원</div><div class="mc-sub">0건</div></div>
-    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">0만원</div><div class="mc-sub">0건</div></div>
-    <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">0건</div></div>
-    <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">0건</div></div>
+    <div class="mc"><div class="mc-lbl">전체 출장 건수</div><div class="mc-val">57건</div></div>
+    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">98만원</div><div class="mc-sub" style="color:#c62828;font-weight:500;">976,900원</div><div class="mc-sub">23건</div></div>
+    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">171만원</div><div class="mc-sub" style="color:#2e7d32;font-weight:500;">1,707,190원</div><div class="mc-sub">34건</div></div>
+    <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">25건</div></div>
+    <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">32건</div></div>
   </div>
     <div class="sec">내 사업 예산 현황</div>
-    <div id="d-mybiz"><div style="color:#aaa;font-size:13px;padding:8px 0;">설정 탭에서 월 예산 한도를 입력하면 사용률을 볼 수 있어요</div></div>
+    <div id="d-mybiz">
+      <div class="card">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+          <span style="font-weight:600;font-size:13px;">찾아가는 일자리버스(소통공간)</span>
+          <span style="font-size:12px;color:#888;">51건 출장</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;">
+          <span>사용 2,345,880원</span><span>한도 6,240,000원</span>
+        </div>
+        <div class="bar-wrap"><div class="bar-fill" style="width:38%;background:#1976d2;"></div></div>
+        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
+          <span style="color:#aaa;">38% 사용</span>
+          <span style="color:#888;">잔액  3,894,120원</span>
+        </div>
+      </div></div>
     <div class="sec" style="margin-top:20px;">미정산 출장 전체</div>
-    <div id="d-pend"><div class="empty">✅ 미정산 출장이 없어요</div></div>
+    <div id="d-pend">
+    <div class="tbl-wrap"><table>
+      <thead><tr><th>출장자</th><th>사업</th><th>차량</th><th>날짜</th><th>금액</th><th></th></tr></thead>
+      <tbody><tr>
+        <td>이정엽</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">03-17</td>
+        <td style="font-weight:600;">70,400원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(114)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">03-31</td>
+        <td style="font-weight:600;">0원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(122)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">04-10</td>
+        <td style="font-weight:600;">0원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(130)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-06</td>
+        <td style="font-weight:600;">60,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(142)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-07</td>
+        <td style="font-weight:600;">37,500원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(143)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-07</td>
+        <td style="font-weight:600;">37,500원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(144)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-11</td>
+        <td style="font-weight:600;">37,500원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(145)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-11</td>
+        <td style="font-weight:600;">37,500원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(146)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-12</td>
+        <td style="font-weight:600;">63,200원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(147)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-12</td>
+        <td style="font-weight:600;">29,100원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(148)">정산</button></td>
+      </tr><tr>
+        <td>한희철</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-12</td>
+        <td style="font-weight:600;">45,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(149)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-13</td>
+        <td style="font-weight:600;">60,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(150)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-14</td>
+        <td style="font-weight:600;">68,400원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(151)">정산</button></td>
+      </tr><tr>
+        <td>오영주</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-14</td>
+        <td style="font-weight:600;">50,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(152)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-19</td>
+        <td style="font-weight:600;">57,600원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(153)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-other">파일럿</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-20</td>
+        <td style="font-weight:600;">10,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(154)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-20</td>
+        <td style="font-weight:600;">29,100원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(155)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-22</td>
+        <td style="font-weight:600;">60,000원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(156)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-27</td>
+        <td style="font-weight:600;">29,100원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(157)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-27</td>
+        <td style="font-weight:600;">29,100원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(158)">정산</button></td>
+      </tr><tr>
+        <td>김새별</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-28</td>
+        <td style="font-weight:600;">68,400원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(159)">정산</button></td>
+      </tr><tr>
+        <td>한송이</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-own">자차</span></td>
+        <td style="font-size:11px;">05-28</td>
+        <td style="font-weight:600;">68,400원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(160)">정산</button></td>
+      </tr><tr>
+        <td>김민영</td>
+        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
+        <td><span class="badge b-gov">관차</span></td>
+        <td style="font-size:11px;">05-28</td>
+        <td style="font-weight:600;">29,100원</td>
+        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(161)">정산</button></td>
+      </tr></tbody>
+    </table></div></div>
   </div>
 
   <div id="pane-monthly" class="pane">
@@ -350,8 +529,8 @@ function renderDash(){
   const tDone=done.reduce((s,t)=>s+t.settled,0);
   document.getElementById('d-metrics').innerHTML=`
     <div class="mc"><div class="mc-lbl">전체 출장 건수</div><div class="mc-val">${trips.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">${Math.round(tPend/10000)}만원</div><div class="mc-sub">${pend.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">${Math.round(tDone/10000)}만원</div><div class="mc-sub">${done.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:#c62828;font-weight:500;">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:#2e7d32;font-weight:500;">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
     <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='관차').length}건</div></div>
     <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='자차').length}건</div></div>
   `;
