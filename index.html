@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<!-- saved from url=(0111)file:///C:/Users/user/Downloads/%EC%B6%9C%EC%9E%A5%EB%B9%84%EC%A0%95%EC%82%B0%EA%B4%80%EB%A6%AC_firebase_2.html -->
+<!-- saved from url=(0111)file:///C:/Users/user/Downloads/%EC%B6%9C%EC%9E%A5%EB%B9%84%EC%A0%95%EC%82%B0%EA%B4%80%EB%A6%AC_firebase_1.html -->
 <html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -413,8 +413,32 @@ tr:hover td{background:#fafaf8;}
   </div>
 </div>
 
-<div class="modal-bg" id="modal-wrap">
-  <div id="modal-inner"></div>
+<div class="modal-bg" id="modal-wrap" style="display: none;">
+  <div id="modal-inner">
+    <div class="modal-box-sm">
+      <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터를 선택하지 않으면 전체 내보내기</div>
+      <div class="fg"><label>📅 월 선택</label>
+        <select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 월</option><option value="2026-02">2026년 2월</option><option value="2026-03">2026년 3월</option><option value="2026-04">2026년 4월</option><option value="2026-05">2026년 5월</option>
+        </select>
+      </div>
+      <div class="fg"><label>👤 출장자 선택</label>
+        <select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 출장자</option><option value="김민영">김민영</option><option value="김새별">김새별</option><option value="오영주">오영주</option><option value="이성희">이성희</option><option value="이정엽">이정엽</option><option value="이정현">이정현</option><option value="한송이">한송이</option><option value="한희철">한희철</option>
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업 선택</label>
+        <select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 사업</option><option value="my">찾아가는 일자리버스(소통공간)</option><option value="100">어울림프로젝트</option><option value="101">파일럿</option><option value="102">브릿지온</option><option value="103">충전</option><option value="104">충남종합센터</option>
+        </select>
+      </div>
+      <div id="ex-count" style="font-size:12px;color:#666;margin-bottom:14px;">→ 57건 내보내기 예정</div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="doExportCSV()">📥 내보내기</button>
+        <button class="btn-outline" onclick="closeModal()">취소</button>
+      </div>
+    </div></div>
 </div>
 
 <!-- Firebase SDK -->
@@ -940,31 +964,117 @@ window.loadData=async function(e){
   e.target.value='';
 }
 
+function fmtDate(d){
+  if(!d)return '';
+  const parts=d.split('-');
+  if(parts.length!==3)return d;
+  return parts[0].slice(2)+'-'+parts[1]+'-'+parts[2];
+}
+function fmtBiz(id){
+  if(id==='my'){const n=myBiz.name||'소통공간';if(n.includes('소통공간'))return '소통공간';return n;}
+  const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
+}
+
 window.exportCSV=function(){
   if(!trips.length){alert('출장 내역이 없어요.');return;}
+
+  // 필터 옵션 구성
+  const months=[...new Set(trips.map(t=>t.start.slice(0,7)))].sort();
+  const people=[...new Set(trips.map(t=>t.person))].sort();
+
+  const monthOpts=months.map(m=>{
+    const[y,mo]=m.split('-');
+    return `<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;
+  }).join('');
+
+  const personOpts=people.map(p=>`<option value="${p}">${p}</option>`).join('');
+  const bizOpts=allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
+
+  document.getElementById('modal-inner').innerHTML=`
+    <div class="modal-box-sm">
+      <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터를 선택하지 않으면 전체 내보내기</div>
+      <div class="fg"><label>📅 월 선택</label>
+        <select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 월</option>${monthOpts}
+        </select>
+      </div>
+      <div class="fg"><label>👤 출장자 선택</label>
+        <select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 출장자</option>${personOpts}
+        </select>
+      </div>
+      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업 선택</label>
+        <select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 사업</option>${bizOpts}
+        </select>
+      </div>
+      <div id="ex-count" style="font-size:12px;color:#666;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn" onclick="doExportCSV()">📥 내보내기</button>
+        <button class="btn-outline" onclick="closeModal()">취소</button>
+      </div>
+    </div>`;
+  document.getElementById('modal-wrap').style.display='flex';
+
+  // 실시간 건수 표시
+  function updateCount(){
+    const mf=document.getElementById('ex-month').value;
+    const pf=document.getElementById('ex-person').value;
+    const bf=document.getElementById('ex-biz').value;
+    const cnt=trips.filter(t=>{
+      const mm=!mf||t.start.startsWith(mf);
+      const mp=!pf||t.person===pf;
+      const mb=!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf));
+      return mm&&mp&&mb;
+    }).length;
+    document.getElementById('ex-count').textContent=`→ ${cnt}건 내보내기 예정`;
+  }
+  setTimeout(()=>{
+    document.getElementById('ex-month').addEventListener('change',updateCount);
+    document.getElementById('ex-person').addEventListener('change',updateCount);
+    document.getElementById('ex-biz').addEventListener('change',updateCount);
+    updateCount();
+  },50);
+}
+
+window.doExportCSV=function(){
+  const mf=document.getElementById('ex-month').value;
+  const pf=document.getElementById('ex-person').value;
+  const bf=document.getElementById('ex-biz').value;
+
+  let filtered=[...trips].filter(t=>{
+    const mm=!mf||t.start.startsWith(mf);
+    const mp=!pf||t.person===pf;
+    const mb=!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf));
+    return mm&&mp&&mb;
+  }).sort((a,b)=>a.start.localeCompare(b.start));
+
+  if(!filtered.length){alert('해당 조건의 출장 내역이 없어요.');return;}
+
   const BOM='\uFEFF';
-  function fmtDate(d){
-    if(!d)return '';
-    const parts=d.split('-');
-    if(parts.length!==3)return d;
-    return parts[0].slice(2)+'-'+parts[1]+'-'+parts[2];
-  }
-  function fmtBiz(id){
-    if(id==='my'){const n=myBiz.name||'소통공간';if(n.includes('소통공간'))return '소통공간';return n;}
-    const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
-  }
   const header=['출장구분','사업비','출장시작일자','출장종료일자','출장지','목적','일비','식비','교통비','합계'];
-  const rows=[...trips].sort((a,b)=>a.start.localeCompare(b.start)).map(t=>[
+  const rows=filtered.map(t=>[
     '국내/관외',fmtBiz(t.bizId),fmtDate(t.start),fmtDate(t.end),
     t.dest,t.purpose||'',t.da||0,t.me||0,t.tr||0,total(t)
   ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+
   const csv=BOM+[header.join(','),...rows].join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download=`출장비내역_${new Date().toISOString().slice(0,10)}.csv`;
+
+  // 파일명에 필터 조건 반영
+  let fname='출장비내역';
+  if(mf){const[y,mo]=mf.split('-');fname+=`_${y.slice(2)}년${parseInt(mo)}월`;}
+  if(pf)fname+=`_${pf}`;
+  if(bf)fname+=`_${bizLabel(bf==='my'?'my':parseInt(bf))}`;
+  fname+=`_${new Date().toISOString().slice(0,10)}`;
+
+  a.download=`${fname}.csv`;
   a.click();
   URL.revokeObjectURL(a.href);
+  closeModal();
 }
 
 </script>
