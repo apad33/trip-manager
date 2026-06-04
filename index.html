@@ -5,110 +5,167 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>출장 관리</title>
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:14px;line-height:1.6;}
+:root{
+  --bg:#F8F7F4;--surface:#fff;--surface2:#F2F0EC;
+  --border:#E4E0D8;--border2:#D0CCC4;
+  --text:#1C1A16;--text2:#6B6560;--text3:#A09A94;
+  --blue:#1A6FD4;--blue-bg:#EBF3FD;
+  --green:#2E7D32;--green-bg:#E8F5E9;
+  --amber:#B45309;--amber-bg:#FEF3C7;
+  --red:#C62828;--red-bg:#FFEBEE;
+}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.6;min-height:100vh;}
 
-/* 로그인 화면 */
+/* 로그인 */
 .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
-.login-card{background:#fff;border:1px solid #e5e5e2;border-radius:16px;padding:40px 36px;width:360px;max-width:100%;text-align:center;}
+.login-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:40px 36px;width:360px;max-width:100%;text-align:center;}
 .login-logo{font-size:36px;margin-bottom:12px;}
 .login-title{font-size:22px;font-weight:700;margin-bottom:6px;}
-.login-sub{font-size:13px;color:#888;margin-bottom:28px;}
-.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 20px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;}
-.btn-google:hover{background:#f5f5f3;}
+.login-sub{font-size:13px;color:var(--text2);margin-bottom:28px;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 20px;border:1px solid var(--border2);border-radius:10px;background:var(--surface);font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;font-family:inherit;}
+.btn-google:hover{background:var(--surface2);}
 .btn-google img{width:20px;height:20px;}
 
-/* 앱 */
-.topbar{background:#fff;border-bottom:1px solid #e5e5e2;padding:0 24px;display:flex;align-items:center;height:52px;gap:12px;position:sticky;top:0;z-index:100;}
-.topbar-title{font-size:14px;font-weight:600;color:#1a1a18;}
-.topbar-sub{font-size:12px;color:#888;}
-.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
-.user-info{display:flex;align-items:center;gap:8px;}
-.user-avatar{width:28px;height:28px;border-radius:50%;border:1px solid #ddd;}
-.user-name{font-size:12px;color:#666;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+/* 상단바 */
+.topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;gap:12px;position:sticky;top:0;z-index:100;}
+.topbar-logo{font-size:15px;font-weight:700;color:var(--blue);}
+.topbar-biz{font-size:12px;color:var(--text3);}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.user-avatar{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);}
+.user-name{font-size:12px;color:var(--text2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .sync-badge{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:500;}
-.sync-ok{background:#e8f5e9;color:#2e7d32;}
-.sync-ing{background:#e3f0fd;color:#1565c0;}
-.sync-err{background:#fff3e0;color:#e65100;}
-.wrap{max-width:960px;margin:0 auto;padding:24px 16px;}
-.tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid #e5e5e2;overflow-x:auto;}
-.tab{padding:9px 16px;font-size:13px;font-weight:500;color:#666;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
-.tab.on{color:#1a1a18;border-bottom-color:#1a1a18;}
-.tab:hover:not(.on){color:#1a1a18;}
+.sync-ok{background:var(--green-bg);color:var(--green);}
+.sync-ing{background:var(--blue-bg);color:var(--blue);}
+.sync-err{background:var(--red-bg);color:var(--red);}
+
+/* 앱 탭 (출장관리 / 운영일정) */
+.app-tabs{background:var(--surface);border-bottom:2px solid var(--border);padding:0 20px;display:flex;gap:0;}
+.app-tab{padding:12px 24px;font-size:14px;font-weight:600;color:var(--text2);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;margin-bottom:-2px;}
+.app-tab.on{color:var(--blue);border-bottom-color:var(--blue);}
+.app-tab:hover:not(.on){color:var(--text);}
+
+/* 서브탭 */
+.sub-tabs{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;overflow-x:auto;}
+.sub-tab{padding:9px 16px;font-size:13px;font-weight:500;color:var(--text2);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
+.sub-tab.on{color:var(--text);border-bottom-color:var(--text);}
+.sub-tab:hover:not(.on){color:var(--text);}
+
+.wrap{max-width:1100px;margin:0 auto;padding:20px 16px;}
 .pane{display:none;}.pane.on{display:block;}
-.metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:20px;}
-.mc{background:#fff;border:1px solid #e5e5e2;border-radius:10px;padding:14px 16px;}
-.mc-lbl{font-size:12px;color:#888;margin-bottom:5px;}
-.mc-val{font-size:22px;font-weight:600;color:#1a1a18;}
-.mc-sub{font-size:11px;color:#aaa;margin-top:3px;}
-.sec{font-size:11px;font-weight:600;color:#888;letter-spacing:.06em;text-transform:uppercase;margin:20px 0 10px;}
+
+/* 공통 컴포넌트 */
+.metric-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:20px;}
+.mc{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.mc-lbl{font-size:12px;color:var(--text2);margin-bottom:5px;}
+.mc-val{font-size:21px;font-weight:700;}
+.mc-sub{font-size:11px;color:var(--text3);margin-top:3px;}
+.sec{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:.06em;text-transform:uppercase;margin:20px 0 10px;}
 .sec:first-child{margin-top:0;}
-.card{background:#fff;border:1px solid #e5e5e2;border-radius:12px;padding:16px 20px;margin-bottom:10px;}
-.fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
-.fg label{font-size:12px;color:#666;font-weight:500;}
-.fg input,.fg select{font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a18;outline:none;transition:border-color .15s;font-family:inherit;}
-.fg input:focus,.fg select:focus{border-color:#555;}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px 20px;margin-bottom:10px;}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:12px;}
+.fg label{font-size:12px;color:var(--text2);font-weight:500;}
+.fg input,.fg select,.fg textarea{font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--text);outline:none;font-family:inherit;}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--blue);}
+.fg textarea{resize:vertical;min-height:56px;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 @media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr 1fr;}}
 @media(max-width:400px){.grid2,.grid3{grid-template-columns:1fr;}}
-.btn{background:#1a1a18;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
-.btn:hover{background:#333;}
-.btn-outline{background:#fff;color:#1a1a18;border:1px solid #ddd;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;}
-.btn-outline:hover{background:#f5f5f3;}
-.btn-red{background:#fff;color:#a32d2d;border:1px solid #f0c0c0;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;}
-.btn-red:hover{background:#fff5f5;}
-.btn-edit{background:#fff;color:#1a5276;border:1px solid #aed6f1;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;}
-.btn-edit:hover{background:#eaf4fb;}
+.btn{background:var(--text);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
+.btn:hover{opacity:.85;}
+.btn-sm{background:var(--surface);color:var(--text);border:1px solid var(--border2);padding:5px 12px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;}
+.btn-sm:hover{background:var(--surface2);}
+.btn-red{color:var(--red);border-color:#F9ABAB;}
+.btn-red:hover{background:var(--red-bg);}
+.btn-blue{color:var(--blue);border-color:#9DC4F5;}
+.btn-blue:hover{background:var(--blue-bg);}
+.btn-green{color:var(--green);border-color:#86EFAC;}
+.btn-green:hover{background:var(--green-bg);}
 .tbl-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
-th{font-weight:600;color:#888;padding:8px 10px;border-bottom:1px solid #e5e5e2;text-align:left;font-size:11px;background:#fafaf8;}
-td{padding:9px 10px;border-bottom:1px solid #f0f0ee;color:#1a1a18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
-tr:hover td{background:#fafaf8;}
-.badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
+th{font-weight:600;color:var(--text2);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:11px;background:var(--surface2);}
+td{padding:9px 10px;border-bottom:1px solid #f0f0ee;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+tr:hover td{background:var(--surface2);}
+.badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
 .b-pend{background:#fff3e0;color:#7c4d00;}
 .b-done{background:#e8f5e9;color:#1b5e20;}
 .b-mine{background:#e3f0fd;color:#0d47a1;}
 .b-other{background:#ede7f6;color:#311b92;}
 .b-gov{background:#e8f5e9;color:#1b5e20;}
 .b-own{background:#fff3e0;color:#7c4d00;}
-.bar-wrap{height:7px;background:#eee;border-radius:4px;margin-top:6px;}
+.b-plan{background:var(--blue-bg);color:var(--blue);}
+.b-confirm{background:var(--amber-bg);color:var(--amber);}
+.b-sdone{background:var(--green-bg);color:var(--green);}
+.b-consult{background:#DCFCE7;color:#166534;}
+.b-pr{background:#F3E8FF;color:#7E22CE;}
+.b-other2{background:var(--surface2);color:var(--text2);}
+.b-bus{background:#DBEAFE;color:#1e40af;}
+.bar-wrap{height:7px;background:var(--border);border-radius:4px;margin-top:6px;}
 .bar-fill{height:7px;border-radius:4px;transition:width .3s;}
-.empty{text-align:center;padding:3rem 0;color:#aaa;font-size:13px;}
+.empty{text-align:center;padding:3rem 0;color:var(--text3);font-size:13px;}
 .msg{font-size:12px;margin-left:8px;}
-.msg.ok{color:#2e7d32;}.msg.err{color:#c62828;}
-.banner{background:#e3f0fd;border:1px solid #90c2f7;border-radius:10px;padding:11px 16px;font-size:13px;color:#0d47a1;margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
-.modal-box{background:#fff;border-radius:14px;padding:24px;width:480px;max-width:100%;margin:auto;}
-.modal-box-sm{background:#fff;border-radius:14px;padding:24px;width:380px;max-width:100%;margin:auto;}
-.divider{border:none;border-top:1px solid #f0f0ee;margin:12px 0;}
-.month-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;margin-bottom:20px;}
-.month-card{background:#fff;border:1px solid #e5e5e2;border-radius:12px;padding:14px 18px;}
-.month-card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.month-card-title{font-size:14px;font-weight:700;}
-.month-card-total{font-size:15px;font-weight:700;}
-.month-detail-row{display:flex;justify-content:space-between;font-size:12px;color:#666;padding:3px 0;}
-.month-detail-row span:last-child{font-weight:500;color:#1a1a18;}
+.msg.ok{color:var(--green);}.msg.err{color:var(--red);}
+.banner{background:var(--blue-bg);border:1px solid #90c2f7;border-radius:10px;padding:11px 16px;font-size:13px;color:var(--blue);margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.divider{border:none;border-top:1px solid var(--border);margin:12px 0;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto;}
+.modal-box{background:var(--surface);border-radius:14px;padding:24px;width:520px;max-width:100%;margin:auto;}
+.modal-sm{background:var(--surface);border-radius:14px;padding:24px;width:380px;max-width:100%;margin:auto;}
 .action-btns{display:flex;gap:5px;}
-.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
-.spinner{width:36px;height:36px;border:3px solid #eee;border-top-color:#1a1a18;border-radius:50%;animation:spin .7s linear infinite;}
+.progress-bar{height:8px;background:var(--border);border-radius:4px;margin-top:6px;}
+.progress-fill{height:8px;border-radius:4px;transition:width .3s;}
+
+/* 달력 */
+.cal-header{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.cal-nav{background:var(--surface);border:1px solid var(--border2);width:32px;height:32px;border-radius:8px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;font-family:inherit;}
+.cal-nav:hover{background:var(--surface2);}
+.cal-title{font-size:18px;font-weight:700;}
+.cal-legend{display:flex;gap:8px;margin-left:auto;flex-wrap:wrap;}
+.leg{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text2);}
+.leg-dot{width:10px;height:10px;border-radius:3px;}
+.cal-grid-hd{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:3px;}
+.cal-dow{text-align:center;font-size:11px;font-weight:600;color:var(--text3);padding:6px 0;}
+.cal-dow:first-child{color:#EF4444;}
+.cal-dow:last-child{color:#3B82F6;}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
+.cal-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;min-height:90px;padding:5px;cursor:pointer;transition:border-color .15s;}
+.cal-cell:hover{border-color:var(--blue);}
+.cal-cell.today{border-color:var(--blue);background:var(--blue-bg);}
+.cal-cell.other-month{opacity:.4;}
+.cal-date{font-size:11px;font-weight:600;margin-bottom:3px;}
+.cal-cell.is-sun .cal-date{color:#EF4444;}
+.cal-cell.is-sat .cal-date{color:#3B82F6;}
+.cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cal-more{font-size:10px;color:var(--text3);}
+.month-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px;}
+.month-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;}
+.month-card-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
+.month-detail-row{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);padding:3px 0;}
+.month-detail-row span:last-child{font-weight:500;color:var(--text);}
+.lecturer-item{display:flex;gap:8px;align-items:center;margin-bottom:8px;}
+.lecturer-item input{font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;background:var(--surface);color:var(--text);outline:none;font-family:inherit;flex:1;}
+.time-calc{font-size:12px;color:var(--blue);margin-top:3px;font-weight:500;}
+.detail-row{display:flex;gap:8px;padding:8px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.detail-key{color:var(--text2);min-width:80px;font-weight:500;flex-shrink:0;}
+.loading-overlay{position:fixed;inset:0;background:rgba(248,247,244,.9);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
 
-<!-- 로딩 -->
 <div id="loading-overlay" class="loading-overlay">
   <div class="spinner"></div>
-  <div style="font-size:13px;color:#888;">불러오는 중...</div>
+  <div style="font-size:13px;color:var(--text2);">불러오는 중...</div>
 </div>
 
-<!-- 로그인 화면 -->
+<!-- 로그인 -->
 <div id="login-screen" class="login-screen" style="display:none;">
   <div class="login-card">
     <div class="login-logo">🚌</div>
     <div class="login-title">출장 관리</div>
-    <div class="login-sub">Google 계정으로 로그인하면<br>어디서든 내 출장 데이터를 확인할 수 있어요</div>
+    <div class="login-sub">Google 계정으로 로그인하면<br>어디서든 내 데이터를 확인할 수 있어요</div>
     <button class="btn-google" onclick="signIn()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
       Google로 로그인
@@ -120,179 +177,237 @@ tr:hover td{background:#fafaf8;}
 <div id="app-screen" style="display:none;">
   <div class="topbar">
     <div>
-      <div class="topbar-title">출장 관리</div>
-      <div class="topbar-sub" id="topbar-biz">사업명 로딩 중...</div>
+      <div class="topbar-logo">🚌 출장 관리</div>
+      <div class="topbar-biz" id="topbar-biz"></div>
     </div>
     <div class="topbar-actions">
       <span id="sync-status" class="sync-badge sync-ing">연결 중...</span>
-      <button class="btn-outline" onclick="exportCSV()">📥 엑셀</button>
-      <button class="btn-outline" onclick="backupData()">💾 백업</button>
-      <button class="btn-outline" onclick="document.getElementById('loadFile').click()">📂 복원</button>
-      <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadData(event)">
-      <div class="user-info">
-        <img id="user-avatar" class="user-avatar" src="" alt="">
-        <span id="user-name" class="user-name"></span>
-        <button class="btn-outline" onclick="signOut()" style="font-size:11px;padding:5px 10px;">로그아웃</button>
+      <img id="user-avatar" class="user-avatar" src="" alt="" style="display:none;">
+      <span id="user-name" class="user-name"></span>
+      <button class="btn-sm" onclick="signOut()" style="font-size:11px;">로그아웃</button>
+    </div>
+  </div>
+
+  <!-- 앱 탭 -->
+  <div class="app-tabs">
+    <button class="app-tab on" onclick="switchApp('trip')">💼 출장 관리</button>
+    <button class="app-tab" onclick="switchApp('sched')">📅 운영일정</button>
+  </div>
+
+  <!-- ===== 출장 관리 ===== -->
+  <div id="app-trip">
+    <div class="sub-tabs">
+      <button class="sub-tab on" onclick="goTrip('dash')">📊 대시보드</button>
+      <button class="sub-tab" onclick="goTrip('monthly')">📅 월별 합계</button>
+      <button class="sub-tab" onclick="goTrip('setup')">⚙️ 설정</button>
+      <button class="sub-tab" onclick="goTrip('add')">➕ 출장 등록</button>
+      <button class="sub-tab" onclick="goTrip('list')">📋 출장 목록</button>
+      <button class="sub-tab" onclick="goTrip('settle')">🧾 정산 현황</button>
+    </div>
+    <div class="wrap">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-sm" onclick="exportTripCSV()">📥 엑셀</button>
+        <button class="btn-sm" onclick="backupTrip()">💾 백업</button>
+        <button class="btn-sm" onclick="document.getElementById('loadTripFile').click()">📂 복원</button>
+        <input type="file" id="loadTripFile" accept=".json" style="display:none" onchange="loadTripData(event)">
+      </div>
+      <div id="tp-dash" class="pane on">
+        <div id="d-banner"></div>
+        <div class="metric-row" id="d-metrics"></div>
+        <div class="sec">내 사업 예산 현황</div>
+        <div id="d-mybiz"></div>
+        <div class="sec" style="margin-top:20px;">미정산 출장</div>
+        <div id="d-pend"></div>
+      </div>
+      <div id="tp-monthly" class="pane">
+        <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
+          <select id="m-biz" onchange="renderMonthly()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
+          <select id="m-person" onchange="renderMonthly()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 출장자</option></select>
+        </div>
+        <div id="monthly-content"></div>
+      </div>
+      <div id="tp-setup" class="pane">
+        <div class="sec">내 사업 설정</div>
+        <div class="card">
+          <div class="banner"><span>🏢</span><span id="cur-mybiz-text">내 사업 미설정</span></div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>내 사업명</label><input type="text" id="mb-name" placeholder="사업명 입력"></div>
+            <div class="fg"><label>내 이름</label><input type="text" id="mb-owner" placeholder="홍길동"></div>
+          </div>
+          <div class="fg" style="margin-bottom:12px;"><label>월 예산 한도 (원)</label><input type="number" id="mb-budget" placeholder="예: 500000" min="0" style="max-width:200px;"></div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn" onclick="saveMyBiz()">💾 저장</button>
+            <span id="mb-msg" class="msg"></span>
+          </div>
+        </div>
+        <div class="sec">타 사업 등록</div>
+        <div class="card">
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>사업명</label><input type="text" id="ob-name" placeholder="사업명"></div>
+            <div class="fg"><label>담당자</label><input type="text" id="ob-owner" placeholder="담당자명"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            <button class="btn" onclick="addOtherBiz()">➕ 추가</button>
+            <span id="ob-msg" class="msg"></span>
+          </div>
+        </div>
+        <div id="other-biz-list"></div>
+      </div>
+      <div id="tp-add" class="pane">
+        <div class="sec">출장 정보</div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="fg"><label>출장자 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
+          <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
+          <div class="fg"><label>출장 시작일 *</label>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+              <span style="color:var(--text3);">-</span>
+              <input type="text" id="a-start-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+              <span style="color:var(--text3);">-</span>
+              <input type="text" id="a-start-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-m').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            </div>
+          </div>
+          <div class="fg"><label>출장 종료일 *</label>
+            <div style="display:flex;align-items:center;gap:5px;">
+              <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+              <span style="color:var(--text3);">-</span>
+              <input type="text" id="a-end-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+              <span style="color:var(--text3);">-</span>
+              <input type="text" id="a-end-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            </div>
+          </div>
+          <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
+          <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
+        </div>
+        <div class="sec">차량 구분</div>
+        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 16px;">
+            <input type="radio" name="vehicle" id="v-gov" value="관차" checked> 🚌 관차
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 16px;">
+            <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
+          </label>
+        </div>
+        <div class="sec">비용 입력 (원)</div>
+        <div class="grid3" style="margin-bottom:12px;">
+          <div class="fg"><label>💵 일비</label><input type="number" id="a-da" placeholder="0" min="0"></div>
+          <div class="fg"><label>🍱 식비</label><input type="number" id="a-me" placeholder="0" min="0"></div>
+          <div class="fg"><label>🚆 교통비</label><input type="number" id="a-tr" placeholder="0" min="0"></div>
+        </div>
+        <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항"></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn" onclick="addTrip()">✅ 등록하기</button>
+          <span id="a-msg" class="msg"></span>
+        </div>
+      </div>
+      <div id="tp-list" class="pane">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderList()">
+          <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
+          <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
+            <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
+          </select>
+          <select id="l-status" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
+            <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:65px;">출장자</th><th style="width:80px;">사업</th><th style="width:78px;">날짜</th>
+              <th style="width:46px;">차량</th><th style="width:52px;">일비</th><th style="width:52px;">식비</th>
+              <th style="width:52px;">교통비</th><th style="width:68px;">합계</th><th style="width:62px;">상태</th>
+              <th style="width:100px;"></th>
+            </tr></thead>
+            <tbody id="l-body"></tbody>
+          </table>
+        </div>
+        <div id="l-empty" class="empty" style="display:none;">📭 출장 내역이 없어요</div>
+      </div>
+      <div id="tp-settle" class="pane">
+        <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+          <select id="s-month" onchange="renderSettle()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
+          <select id="s-person" onchange="renderSettle()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 출장자</option></select>
+        </div>
+        <div id="s-content"></div>
       </div>
     </div>
   </div>
 
-  <div class="wrap">
-    <div class="tabs">
-      <button class="tab on" onclick="go('dash')">📊 대시보드</button>
-      <button class="tab" onclick="go('monthly')">📅 월별 합계</button>
-      <button class="tab" onclick="go('setup')">⚙️ 설정</button>
-      <button class="tab" onclick="go('add')">➕ 출장 등록</button>
-      <button class="tab" onclick="go('list')">📋 출장 목록</button>
-      <button class="tab" onclick="go('settle')">🧾 정산 현황</button>
+  <!-- ===== 운영일정 ===== -->
+  <div id="app-sched" style="display:none;">
+    <div class="sub-tabs">
+      <button class="sub-tab on" onclick="goSched('cal')">📅 달력</button>
+      <button class="sub-tab" onclick="goSched('list')">📋 목록</button>
+      <button class="sub-tab" onclick="goSched('stat')">📊 현황</button>
     </div>
-
-    <!-- 대시보드 -->
-    <div id="pane-dash" class="pane on">
-      <div id="d-banner"></div>
-      <div class="metric-row" id="d-metrics"></div>
-      <div class="sec">내 사업 예산 현황</div>
-      <div id="d-mybiz"></div>
-      <div class="sec" style="margin-top:20px;">미정산 출장 전체</div>
-      <div id="d-pend"></div>
-    </div>
-
-    <!-- 월별 합계 -->
-    <div id="pane-monthly" class="pane">
-      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-        <select id="m-biz" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 사업</option></select>
-        <select id="m-person" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
+    <div class="wrap">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-sm btn-blue" onclick="openSchedAddModal()">➕ 일정 등록</button>
+        <button class="btn-sm" onclick="exportSchedCSV()">📥 엑셀</button>
+        <button class="btn-sm" onclick="backupSched()">💾 백업</button>
+        <button class="btn-sm" onclick="document.getElementById('loadSchedFile').click()">📂 복원</button>
+        <input type="file" id="loadSchedFile" accept=".json" style="display:none" onchange="loadSchedData(event)">
       </div>
-      <div id="monthly-content"></div>
-    </div>
-
-    <!-- 설정 -->
-    <div id="pane-setup" class="pane">
-      <div class="sec">내 사업 설정</div>
-      <div class="card">
-        <div class="banner"><span>🏢</span><span id="cur-mybiz-text">내 사업 미설정</span></div>
-        <div class="grid2" style="margin-bottom:12px;">
-          <div class="fg"><label>내 사업명</label><input type="text" id="mb-name" placeholder="예: 찾아가는 일자리버스(소통공간)"></div>
-          <div class="fg"><label>내 이름 (담당자)</label><input type="text" id="mb-owner" placeholder="홍길동"></div>
-        </div>
-        <div class="fg" style="margin-bottom:12px;"><label>월 예산 한도 (원)</label><input type="number" id="mb-budget" placeholder="예: 500000" min="0" style="max-width:200px;"></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn" onclick="saveMyBiz()">💾 저장</button>
-          <span id="mb-msg" class="msg"></span>
-        </div>
-      </div>
-      <div class="sec">타 사업 등록</div>
-      <div class="card">
-        <div class="grid2" style="margin-bottom:12px;">
-          <div class="fg"><label>사업명</label><input type="text" id="ob-name" placeholder="예: B사업"></div>
-          <div class="fg"><label>담당자 이름</label><input type="text" id="ob-owner" placeholder="예: 이서연"></div>
-        </div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn" onclick="addOtherBiz()">➕ 추가</button>
-          <span id="ob-msg" class="msg"></span>
-        </div>
-      </div>
-      <div id="other-biz-list"></div>
-    </div>
-
-    <!-- 출장 등록 -->
-    <div id="pane-add" class="pane">
-      <div class="sec">출장 정보</div>
-      <div class="grid2" style="margin-bottom:12px;">
-        <div class="fg"><label>출장자 이름 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
-        <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
-        <div class="fg"><label>출장 시작일 *</label>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="a-start-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="a-start-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-m').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+      <div id="sc-cal" class="pane on">
+        <div class="cal-header">
+          <button class="cal-nav" onclick="moveMonth(-1)">‹</button>
+          <span class="cal-title" id="cal-title"></span>
+          <button class="cal-nav" onclick="moveMonth(1)">›</button>
+          <button class="btn-sm" onclick="goToday()">오늘</button>
+          <div class="cal-legend">
+            <div class="leg"><div class="leg-dot" style="background:#DCFCE7;border:1px solid #166534;"></div>상담</div>
+            <div class="leg"><div class="leg-dot" style="background:#F3E8FF;border:1px solid #7E22CE;"></div>홍보</div>
+            <div class="leg"><div class="leg-dot" style="background:#DBEAFE;border:1px solid #1e40af;"></div>버스</div>
           </div>
         </div>
-        <div class="fg"><label>출장 종료일 *</label>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="a-end-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="a-end-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
-          </div>
+        <div class="cal-grid-hd">
+          <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
+          <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow">토</div>
         </div>
-        <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
-        <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
+        <div class="cal-grid" id="cal-grid"></div>
       </div>
-      <div class="sec">차량 구분</div>
-      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
-          <input type="radio" name="vehicle" id="v-gov" value="관차" checked> 🚌 관차
-        </label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
-          <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
-        </label>
+      <div id="sc-list" class="pane">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+          <input type="text" id="sl-search" placeholder="장소·내용·강사명 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderSchedList()">
+          <select id="sl-month" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 월</option></select>
+          <select id="sl-cat" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
+            <option value="">전체 구분</option><option value="상담">상담</option><option value="홍보">홍보</option><option value="기타">기타</option>
+          </select>
+          <select id="sl-status" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
+            <option value="">전체 상태</option><option value="계획">계획</option><option value="확정">확정</option><option value="완료">완료</option>
+          </select>
+          <select id="sl-bus" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
+            <option value="">버스 전체</option><option value="1">🚌 버스 있음</option><option value="0">버스 없음</option>
+          </select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:36px;">번호</th><th style="width:50px;">회차</th><th style="width:60px;">구분</th>
+              <th style="width:50px;">버스</th><th style="width:80px;">일자</th><th style="width:140px;">장소</th>
+              <th style="width:36px;">인원</th><th style="width:160px;">내용</th><th style="width:90px;">운영시간</th>
+              <th style="width:100px;">협업기관</th><th style="width:80px;">강사명</th><th style="width:60px;">상태</th>
+              <th style="width:72px;"></th>
+            </tr></thead>
+            <tbody id="sl-body"></tbody>
+          </table>
+        </div>
+        <div id="sl-empty" class="empty" style="display:none;">📭 일정이 없어요</div>
       </div>
-      <div class="sec">비용 입력 (원)</div>
-      <div class="grid3" style="margin-bottom:12px;">
-        <div class="fg"><label>💵 일비</label><input type="number" id="a-da" placeholder="0" min="0"></div>
-        <div class="fg"><label>🍱 식비</label><input type="number" id="a-me" placeholder="0" min="0"></div>
-        <div class="fg"><label>🚆 교통비</label><input type="number" id="a-tr" placeholder="0" min="0"></div>
+      <div id="sc-stat" class="pane">
+        <div class="metric-row" id="stat-cards"></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="stat-detail"></div>
       </div>
-      <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항 (선택)"></div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn" onclick="addTrip()">✅ 등록하기</button>
-        <span id="a-msg" class="msg"></span>
-      </div>
-    </div>
-
-    <!-- 출장 목록 -->
-    <div id="pane-list" class="pane">
-      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-        <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="renderList()">
-        <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
-        <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
-        </select>
-        <select id="l-status" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
-        </select>
-      </div>
-      <div class="tbl-wrap">
-        <table>
-          <thead><tr>
-            <th style="width:65px;">출장자</th>
-            <th style="width:85px;">사업</th>
-            <th style="width:80px;">날짜</th>
-            <th style="width:46px;">차량</th>
-            <th style="width:55px;">일비</th>
-            <th style="width:55px;">식비</th>
-            <th style="width:55px;">교통비</th>
-            <th style="width:72px;">합계</th>
-            <th style="width:65px;">상태</th>
-            <th style="width:100px;"></th>
-          </tr></thead>
-          <tbody id="l-body"></tbody>
-        </table>
-      </div>
-      <div id="l-empty" class="empty" style="display:none;">📭 출장 내역이 없어요</div>
-    </div>
-
-    <!-- 정산 현황 -->
-    <div id="pane-settle" class="pane">
-      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
-        <select id="s-month" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
-        <select id="s-person" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
-      </div>
-      <div id="s-content"></div>
     </div>
   </div>
 </div>
 
-<!-- 정산 모달 -->
+<!-- 모달 -->
 <div class="modal-bg" id="modal-wrap">
   <div id="modal-inner"></div>
 </div>
 
-<!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
@@ -312,120 +427,98 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+// ── 데이터 ──
 let myBiz={name:'',owner:'',budget:0};
 let otherBiz=[];
 let trips=[];
-let nextId=100;
-let currentUser=null;
-let unsubscribe=null;
+let tripNextId=100;
+let events=[];
+let schedNextId=200;
+let curUser=null;
+let unsub=null;
+let curYear=new Date().getFullYear();
+let curMonth=new Date().getMonth();
+const GOAL_CONSULT=70,GOAL_PR=40,GOAL_FEE=30000000;
 
 // ── 인증 ──
-window.signIn=async function(){
-  try{ await signInWithPopup(auth,provider); }
-  catch(e){ alert('로그인 실패: '+e.message); }
-}
-window.signOut=async function(){
-  if(!confirm('로그아웃 하시겠어요?'))return;
-  if(unsubscribe)unsubscribe();
-  await fbSignOut(auth);
-}
+window.signIn=async function(){try{await signInWithPopup(auth,provider);}catch(e){alert('로그인 실패: '+e.message);}}
+window.signOut=async function(){if(!confirm('로그아웃 하시겠어요?'))return;if(unsub)unsub();await fbSignOut(auth);}
 
 onAuthStateChanged(auth,(user)=>{
   document.getElementById('loading-overlay').style.display='none';
   if(user){
-    currentUser=user;
+    curUser=user;
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app-screen').style.display='block';
     document.getElementById('user-name').textContent=user.displayName||user.email;
-    if(user.photoURL){
-      document.getElementById('user-avatar').src=user.photoURL;
-      document.getElementById('user-avatar').style.display='block';
-    } else {
-      document.getElementById('user-avatar').style.display='none';
-    }
-    loadUserData(user.uid);
+    if(user.photoURL){document.getElementById('user-avatar').src=user.photoURL;document.getElementById('user-avatar').style.display='block';}
+    loadData(user.uid);
   } else {
-    currentUser=null;
+    curUser=null;
     document.getElementById('login-screen').style.display='flex';
     document.getElementById('app-screen').style.display='none';
-    if(unsubscribe){unsubscribe();unsubscribe=null;}
+    if(unsub){unsub();unsub=null;}
   }
 });
 
-function loadUserData(uid){
-  const docRef=doc(db,'users',uid,'data','tripdata');
+function loadData(uid){
+  const ref=doc(db,'users',uid,'data','tripdata');
   setSyncStatus('ing','연결 중...');
-  if(unsubscribe)unsubscribe();
-  unsubscribe=onSnapshot(docRef,(snap)=>{
+  if(unsub)unsub();
+  unsub=onSnapshot(ref,(snap)=>{
     if(snap.exists()){
       const d=snap.data();
       if(d.myBiz)myBiz=d.myBiz;
       if(d.otherBiz)otherBiz=d.otherBiz;
       if(d.trips)trips=d.trips;
-      if(d.nextId)nextId=d.nextId;
+      if(d.tripNextId)tripNextId=d.tripNextId;
+      if(d.events)events=d.events;
+      if(d.schedNextId)schedNextId=d.schedNextId;
     }
     setSyncStatus('ok','✓ 동기화됨');
-    updateTopbarBiz();
-    const tabs=['dash','monthly','setup','add','list','settle'];
-    const idx=Array.from(document.querySelectorAll('.tab')).findIndex(t=>t.classList.contains('on'));
-    const cur=tabs[idx]||'dash';
-    refreshView(cur);
-  },(err)=>{
-    setSyncStatus('err','연결 오류');
-    console.error(err);
-  });
+    document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
+    refreshCurrentView();
+  },(err)=>{setSyncStatus('err','연결 오류');});
 }
 
 async function persist(){
-  if(!currentUser)return;
+  if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    const docRef=doc(db,'users',currentUser.uid,'data','tripdata');
-    await setDoc(docRef,{myBiz,otherBiz,trips,nextId});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
 
-function setSyncStatus(t,txt){
-  const el=document.getElementById('sync-status');
-  el.className='sync-badge sync-'+t;
-  el.textContent=txt;
+function setSyncStatus(t,txt){const el=document.getElementById('sync-status');el.className='sync-badge sync-'+t;el.textContent=txt;}
+
+// ── 앱 전환 ──
+window.switchApp=function(app){
+  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['trip','sched'][i]===app));
+  document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
+  document.getElementById('app-sched').style.display=app==='sched'?'block':'none';
+  if(app==='trip')refreshTripView(currentTripTab);
+  if(app==='sched')refreshSchedView(currentSchedTab);
 }
 
-function updateTopbarBiz(){
-  const el=document.getElementById('topbar-biz');
-  el.textContent=myBiz.name?myBiz.name:'⚙️ 설정 탭에서 사업명을 등록해 주세요';
+let currentTripTab='dash';
+let currentSchedTab='cal';
+
+function refreshCurrentView(){
+  refreshTripView(currentTripTab);
+  if(currentSchedTab==='cal')renderCal();
 }
 
-// ── 유틸 ──
-function total(t){return (t.da||0)+(t.me||0)+(t.tr||0);}
-function fmt(n){return Math.round(n).toLocaleString()+'원';}
-function shortName(id){
-  if(id==='my'){const n=myBiz.name||'내 사업';return n.length>9?n.slice(0,9)+'…':n;}
-  const b=otherBiz.find(x=>x.id===id);
-  if(!b)return '?';
-  return b.name.length>9?b.name.slice(0,9)+'…':b.name;
-}
-function bizLabel(id){
-  if(id==='my')return myBiz.name||'내 사업';
-  const b=otherBiz.find(x=>x.id===id);
-  return b?b.name:'?';
-}
-function allBiz(){
-  const arr=[{id:'my',name:'[내 사업] '+(myBiz.name||'미설정')}];
-  otherBiz.forEach(b=>arr.push({id:b.id,name:b.name+' ('+b.owner+')'}));
-  return arr;
+// ── 출장 관리 ──
+window.goTrip=function(id){
+  currentTripTab=id;
+  document.querySelectorAll('#app-trip .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','monthly','setup','add','list','settle'][i]===id));
+  document.querySelectorAll('#app-trip .pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('tp-'+id).classList.add('on');
+  refreshTripView(id);
 }
 
-function go(id){
-  document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('on',['dash','monthly','setup','add','list','settle'][i]===id);});
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
-  document.getElementById('pane-'+id).classList.add('on');
-  refreshView(id);
-}
-window.go=go;
-
-function refreshView(id){
+function refreshTripView(id){
   if(id==='dash')renderDash();
   if(id==='monthly')renderMonthly();
   if(id==='setup')renderSetup();
@@ -434,88 +527,98 @@ function refreshView(id){
   if(id==='settle')renderSettle();
 }
 
+function tTotal(t){return(t.da||0)+(t.me||0)+(t.tr||0);}
+function fmt(n){return Math.round(n).toLocaleString()+'원';}
+function shortBiz(id){
+  if(id==='my'){const n=myBiz.name||'내 사업';return n.length>9?n.slice(0,9)+'…':n;}
+  const b=otherBiz.find(x=>x.id===id);if(!b)return '?';
+  return b.name.length>9?b.name.slice(0,9)+'…':b.name;
+}
+function bizLabel(id){
+  if(id==='my')return myBiz.name||'내 사업';
+  const b=otherBiz.find(x=>x.id===id);return b?b.name:'?';
+}
+function allBiz(){
+  return [{id:'my',name:'[내 사업] '+(myBiz.name||'미설정')},...otherBiz.map(b=>({id:b.id,name:b.name+' ('+b.owner+')'}))];
+}
+
 function renderDash(){
-  document.getElementById('d-banner').innerHTML=`<div class="banner">👤 <strong>${currentUser?.displayName||'사용자'}</strong>${myBiz.name?' &nbsp;·&nbsp; '+myBiz.name:''}${myBiz.budget>0?' &nbsp;·&nbsp; 월 한도 '+fmt(myBiz.budget):''}</div>`;
+  document.getElementById('d-banner').innerHTML=`<div class="banner">👤 <strong>${curUser?.displayName||''}</strong>${myBiz.name?' &nbsp;·&nbsp; '+myBiz.name:''}${myBiz.budget>0?' &nbsp;·&nbsp; 월 한도 '+fmt(myBiz.budget):''}</div>`;
   const pend=trips.filter(t=>t.status==='pending');
   const done=trips.filter(t=>t.status==='done');
-  const tPend=pend.reduce((s,t)=>s+total(t),0);
+  const tPend=pend.reduce((s,t)=>s+tTotal(t),0);
   const tDone=done.reduce((s,t)=>s+t.settled,0);
   document.getElementById('d-metrics').innerHTML=`
     <div class="mc"><div class="mc-lbl">전체 출장</div><div class="mc-val">${trips.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">미정산</div><div class="mc-val" style="color:#c62828;">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:#c62828;">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:#2e7d32;">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">미정산</div><div class="mc-val" style="color:var(--red);">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:var(--red);">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:var(--green);">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:var(--green);">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
     <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='관차').length}건</div></div>
     <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='자차').length}건</div></div>
   `;
   const myTrips=trips.filter(t=>t.bizId==='my');
-  const used=myTrips.reduce((s,t)=>s+total(t),0);
+  const used=myTrips.reduce((s,t)=>s+tTotal(t),0);
   if(myBiz.budget>0){
     const pct=Math.min(100,Math.round(used/myBiz.budget*100));
     const over=used>myBiz.budget;
     const color=over?'#e53935':pct>80?'#fb8c00':'#1976d2';
-    document.getElementById('d-mybiz').innerHTML=`
-      <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
-          <span style="font-weight:600;font-size:13px;">${myBiz.name||'내 사업'}</span>
-          <span style="font-size:12px;color:#888;">${myTrips.length}건</span>
-        </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;">
-          <span>사용 ${fmt(used)}</span><span>한도 ${fmt(myBiz.budget)}</span>
-        </div>
-        <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
-          <span style="color:${over?'#c62828':'#aaa'};">${pct}% 사용${over?' ⚠ 한도 초과':''}</span>
-          <span style="color:#888;">잔액 ${fmt(Math.abs(myBiz.budget-used))}</span>
-        </div>
-      </div>`;
+    document.getElementById('d-mybiz').innerHTML=`<div class="card">
+      <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
+        <span style="font-weight:600;font-size:13px;">${myBiz.name||'내 사업'}</span>
+        <span style="font-size:12px;color:var(--text2);">${myTrips.length}건</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:5px;">
+        <span>사용 ${fmt(used)}</span><span>한도 ${fmt(myBiz.budget)}</span>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
+      <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
+        <span style="color:${over?'#c62828':'var(--text3)'};">${pct}%${over?' ⚠ 초과':''}</span>
+        <span style="color:var(--text2);">잔액 ${fmt(Math.abs(myBiz.budget-used))}</span>
+      </div>
+    </div>`;
   } else {
-    document.getElementById('d-mybiz').innerHTML=`<div style="color:#aaa;font-size:13px;padding:8px 0;">설정 탭에서 월 예산 한도를 입력하면 사용률을 볼 수 있어요</div>`;
+    document.getElementById('d-mybiz').innerHTML=`<div style="color:var(--text3);font-size:13px;padding:8px 0;">설정 탭에서 월 예산 한도를 입력하면 사용률을 볼 수 있어요</div>`;
   }
   if(!pend.length){document.getElementById('d-pend').innerHTML='<div class="empty">✅ 미정산 출장이 없어요</div>';return;}
-  document.getElementById('d-pend').innerHTML=`
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>출장자</th><th>사업</th><th>차량</th><th>날짜</th><th>금액</th><th></th></tr></thead>
-      <tbody>${pend.sort((a,b)=>a.start.localeCompare(b.start)).map(t=>`<tr>
-        <td>${t.person}</td>
-        <td><span class="badge ${t.bizId==='my'?'b-mine':'b-other'}">${shortName(t.bizId)}</span></td>
-        <td><span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}">${t.vehicle||'-'}</span></td>
-        <td style="font-size:11px;">${t.start.slice(5)}</td>
-        <td style="font-weight:600;">${fmt(total(t))}</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(${t.id})">정산</button></td>
-      </tr>`).join('')}</tbody>
-    </table></div>`;
+  document.getElementById('d-pend').innerHTML=`<div class="tbl-wrap"><table>
+    <thead><tr><th>출장자</th><th>사업</th><th>차량</th><th>날짜</th><th>금액</th><th></th></tr></thead>
+    <tbody>${pend.sort((a,b)=>a.start.localeCompare(b.start)).map(t=>`<tr>
+      <td>${t.person}</td>
+      <td><span class="badge b-mine">${shortBiz(t.bizId)}</span></td>
+      <td><span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}">${t.vehicle||'-'}</span></td>
+      <td style="font-size:11px;">${t.start.slice(5)}</td>
+      <td style="font-weight:600;">${fmt(tTotal(t))}</td>
+      <td><button class="btn-sm" style="padding:4px 10px;font-size:11px;" onclick="openSettle(${t.id})">정산</button></td>
+    </tr>`).join('')}</tbody>
+  </table></div>`;
 }
 
 function renderMonthly(){
   const bsel=document.getElementById('m-biz');
   const psel=document.getElementById('m-person');
-  const bf=bsel.value;const pf=psel.value;
+  const bf=bsel.value,pf=psel.value;
   bsel.innerHTML='<option value="">전체 사업</option>'+allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
   if(bf)bsel.value=bf;
   psel.innerHTML='<option value="">전체 출장자</option>'+[...new Set(trips.map(t=>t.person))].sort().map(p=>`<option value="${p}">${p}</option>`).join('');
   if(pf)psel.value=pf;
-  let filtered=trips.filter(t=>{
-    const mb=!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf));
-    return mb&&(!pf||t.person===pf);
-  });
+  let filtered=trips.filter(t=>(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!pf||t.person===pf));
   if(!filtered.length){document.getElementById('monthly-content').innerHTML='<div class="empty">출장 내역이 없어요</div>';return;}
   const months={};
   filtered.forEach(t=>{
     const m=t.start.slice(0,7);
     if(!months[m])months[m]={da:0,me:0,tr:0,total:0,count:0,pend:0,done:0,gov:0,own:0};
     months[m].da+=t.da||0;months[m].me+=t.me||0;months[m].tr+=t.tr||0;
-    months[m].total+=total(t);months[m].count++;
+    months[m].total+=tTotal(t);months[m].count++;
     if(t.status==='pending')months[m].pend++;else months[m].done++;
     if(t.vehicle==='관차')months[m].gov++;else months[m].own++;
   });
   const sm=Object.keys(months).sort().reverse();
   const gt=sm.reduce((s,m)=>s+months[m].total,0);
-  let html=`<div class="card" style="margin-bottom:20px;background:#f9f9f7;">
+  let html=`<div class="card" style="margin-bottom:20px;background:var(--surface2);">
     <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
       <span style="font-weight:700;font-size:15px;">전체 합계</span>
       <span style="font-size:20px;font-weight:700;">${fmt(gt)}</span>
     </div>
-    <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:#666;flex-wrap:wrap;">
+    <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--text2);flex-wrap:wrap;">
       <span>총 ${filtered.length}건</span>
       <span>일비 ${fmt(sm.reduce((s,m)=>s+months[m].da,0))}</span>
       <span>식비 ${fmt(sm.reduce((s,m)=>s+months[m].me,0))}</span>
@@ -525,7 +628,7 @@ function renderMonthly(){
   sm.forEach(m=>{
     const d=months[m];const[y,mo]=m.split('-');
     html+=`<div class="month-card">
-      <div class="month-card-header"><span class="month-card-title">${y}년 ${parseInt(mo)}월</span><span class="month-card-total">${fmt(d.total)}</span></div>
+      <div class="month-card-hd"><span style="font-size:14px;font-weight:700;">${y}년 ${parseInt(mo)}월</span><span style="font-size:15px;font-weight:700;">${fmt(d.total)}</span></div>
       <div class="month-detail-row"><span>출장 건수</span><span>${d.count}건 (관차 ${d.gov}/자차 ${d.own})</span></div>
       <div class="month-detail-row"><span>💵 일비</span><span>${fmt(d.da)}</span></div>
       <div class="month-detail-row"><span>🍱 식비</span><span>${fmt(d.me)}</span></div>
@@ -548,46 +651,37 @@ function renderSetup(){
   document.getElementById('mb-budget').value=myBiz.budget||'';
   document.getElementById('other-biz-list').innerHTML=otherBiz.length?otherBiz.map(b=>`
     <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
-      <div><strong>${b.name}</strong> <span style="font-size:12px;color:#888;">· 담당: ${b.owner}</span></div>
-      <button class="btn-red" onclick="delOther(${b.id})">🗑 삭제</button>
-    </div>`).join(''):'<div style="color:#aaa;font-size:13px;padding:4px 0;">등록된 타 사업이 없어요</div>';
+      <div><strong>${b.name}</strong> <span style="font-size:12px;color:var(--text2);">· 담당: ${b.owner}</span></div>
+      <button class="btn-sm btn-red" onclick="delOther(${b.id})">🗑</button>
+    </div>`).join(''):'<div style="color:var(--text3);font-size:13px;padding:4px 0;">등록된 타 사업이 없어요</div>';
 }
 
 window.saveMyBiz=async function(){
   const name=document.getElementById('mb-name').value.trim();
   const owner=document.getElementById('mb-owner').value.trim();
   const budget=parseInt(document.getElementById('mb-budget').value)||0;
-  if(!name||!owner){showMsg('mb-msg','사업명과 담당자 이름을 입력해 주세요','err');return;}
+  if(!name||!owner){showMsg('mb-msg','사업명과 이름을 입력해 주세요','err');return;}
   myBiz={name,owner,budget};
   await persist();
-  updateTopbarBiz();
+  document.getElementById('topbar-biz').textContent=name;
   showMsg('mb-msg','저장 완료!','ok');
   renderSetup();
 }
-
 window.addOtherBiz=async function(){
   const name=document.getElementById('ob-name').value.trim();
   const owner=document.getElementById('ob-owner').value.trim();
   if(!name||!owner){showMsg('ob-msg','사업명과 담당자를 입력해 주세요','err');return;}
-  otherBiz.push({id:nextId++,name,owner});
-  document.getElementById('ob-name').value='';
-  document.getElementById('ob-owner').value='';
-  await persist();
-  showMsg('ob-msg','추가 완료!','ok');
-  renderSetup();
+  otherBiz.push({id:tripNextId++,name,owner});
+  document.getElementById('ob-name').value='';document.getElementById('ob-owner').value='';
+  await persist();showMsg('ob-msg','추가 완료!','ok');renderSetup();
 }
-
 window.delOther=async function(id){
-  if(!confirm('이 사업을 삭제할까요?'))return;
-  otherBiz=otherBiz.filter(b=>b.id!==id);
-  await persist();
-  renderSetup();
+  if(!confirm('삭제할까요?'))return;
+  otherBiz=otherBiz.filter(b=>b.id!==id);await persist();renderSetup();
 }
-
 function populateAddBiz(){
   document.getElementById('a-biz').innerHTML=allBiz().map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
 }
-
 window.addTrip=async function(){
   const person=document.getElementById('a-person').value.trim();
   const dest=document.getElementById('a-dest').value.trim();
@@ -605,113 +699,92 @@ window.addTrip=async function(){
   const me=parseInt(document.getElementById('a-me').value)||0;
   const tr=parseInt(document.getElementById('a-tr').value)||0;
   const memo=document.getElementById('a-memo').value.trim();
-  if(!person||!dest||!start||!end){showMsg('a-msg','* 필수 항목을 모두 입력해 주세요','err');return;}
-  trips.push({id:nextId++,person,dest,start,end,bizId,purpose,vehicle,da,me,tr,memo,status:'pending',settled:0});
+  if(!person||!dest||!start||!end){showMsg('a-msg','필수 항목을 모두 입력해 주세요','err');return;}
+  trips.push({id:tripNextId++,person,dest,start,end,bizId,purpose,vehicle,da,me,tr,memo,status:'pending',settled:0});
   ['a-person','a-dest','a-start-m','a-start-d','a-end-m','a-end-d','a-purpose','a-da','a-me','a-tr','a-memo'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('v-gov').checked=true;
-  await persist();
-  showMsg('a-msg','✅ 등록 완료!','ok');
+  await persist();showMsg('a-msg','✅ 등록 완료!','ok');
 }
-
 function renderList(){
   const q=(document.getElementById('l-search').value||'').toLowerCase();
   const bsel=document.getElementById('l-biz');
-  const bf=bsel.value;
-  const vf=document.getElementById('l-vehicle').value;
-  const sf=document.getElementById('l-status').value;
+  const bf=bsel.value,vf=document.getElementById('l-vehicle').value,sf=document.getElementById('l-status').value;
   bsel.innerHTML='<option value="">전체 사업</option>'+allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
   if(bf)bsel.value=bf;
-  let list=[...trips].filter(t=>{
-    return(!q||t.person.toLowerCase().includes(q)||t.dest.toLowerCase().includes(q))
-      &&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))
-      &&(!vf||t.vehicle===vf)
-      &&(!sf||t.status===sf);
-  }).sort((a,b)=>b.start.localeCompare(a.start));
+  let list=[...trips].filter(t=>(!q||t.person.toLowerCase().includes(q)||t.dest.toLowerCase().includes(q))&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!vf||t.vehicle===vf)&&(!sf||t.status===sf)).sort((a,b)=>b.start.localeCompare(a.start));
   document.getElementById('l-empty').style.display=list.length?'none':'block';
   document.getElementById('l-body').innerHTML=list.map(t=>`<tr>
     <td>${t.person}</td>
-    <td><span class="badge ${t.bizId==='my'?'b-mine':'b-other'}">${shortName(t.bizId)}</span></td>
+    <td><span class="badge b-mine">${shortBiz(t.bizId)}</span></td>
     <td style="font-size:11px;">${t.start.slice(5)}~${t.end.slice(5)}</td>
     <td><span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}" style="font-size:10px;">${t.vehicle||'-'}</span></td>
-    <td>${(t.da||0).toLocaleString()}</td>
-    <td>${(t.me||0).toLocaleString()}</td>
-    <td>${(t.tr||0).toLocaleString()}</td>
-    <td style="font-weight:600;">${fmt(total(t))}</td>
-    <td>${t.status==='done'?'<span class="badge b-done">✓ 완료</span>':'<span class="badge b-pend">미정산</span>'}</td>
+    <td>${(t.da||0).toLocaleString()}</td><td>${(t.me||0).toLocaleString()}</td><td>${(t.tr||0).toLocaleString()}</td>
+    <td style="font-weight:600;">${fmt(tTotal(t))}</td>
+    <td>${t.status==='done'?'<span class="badge b-done">✓</span>':'<span class="badge b-pend">미정산</span>'}</td>
     <td><div class="action-btns">
-      <button class="btn-edit" onclick="openEdit(${t.id})">✏️</button>
-      <button class="btn-red" onclick="deleteTrip(${t.id})">🗑</button>
-      ${t.status==='pending'?`<button class="btn-outline" style="padding:4px 8px;font-size:11px;" onclick="openSettle(${t.id})">정산</button>`:`<button class="btn-red" onclick="unSettle(${t.id})">취소</button>`}
+      <button class="btn-sm btn-blue" onclick="openTripEdit(${t.id})">✏️</button>
+      <button class="btn-sm btn-red" onclick="deleteTrip(${t.id})">🗑</button>
+      ${t.status==='pending'?`<button class="btn-sm" style="padding:4px 8px;font-size:11px;" onclick="openSettle(${t.id})">정산</button>`:`<button class="btn-sm btn-red" onclick="unSettle(${t.id})">취소</button>`}
     </div></td>
   </tr>`).join('');
 }
-
-window.openEdit=function(id){
-  const t=trips.find(x=>x.id===id);
-  if(!t)return;
+window.openTripEdit=function(id){
+  const t=trips.find(x=>x.id===id);if(!t)return;
   const bizOpts=allBiz().map(b=>`<option value="${b.id}"${(t.bizId===b.id||t.bizId===String(b.id))?'selected':''}>${b.name}</option>`).join('');
-  document.getElementById('modal-inner').innerHTML=`
-    <div class="modal-box">
-      <div style="font-weight:700;font-size:16px;margin-bottom:16px;">✏️ 출장 수정</div>
-      <div class="grid2" style="margin-bottom:10px;">
-        <div class="fg"><label>출장자 *</label><input type="text" id="e-person" value="${t.person}"></div>
-        <div class="fg"><label>출장지 *</label><input type="text" id="e-dest" value="${t.dest}"></div>
-        <div class="fg"><label>시작일 *</label>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="e-start-m" value="${t.start.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="e-start-d" value="${t.start.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
-          </div>
+  document.getElementById('modal-inner').innerHTML=`<div class="modal-box">
+    <div style="font-weight:700;font-size:16px;margin-bottom:16px;">✏️ 출장 수정</div>
+    <div class="grid2" style="margin-bottom:10px;">
+      <div class="fg"><label>출장자 *</label><input type="text" id="e-person" value="${t.person}"></div>
+      <div class="fg"><label>출장지 *</label><input type="text" id="e-dest" value="${t.dest}"></div>
+      <div class="fg"><label>시작일 *</label>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+          <span>-</span>
+          <input type="text" id="e-sm" value="${t.start.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-sd').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span>-</span>
+          <input type="text" id="e-sd" value="${t.start.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
         </div>
-        <div class="fg"><label>종료일 *</label>
-          <div style="display:flex;align-items:center;gap:5px;">
-            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="e-end-m" value="${t.end.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-            <span style="color:#aaa;">-</span>
-            <input type="text" id="e-end-d" value="${t.end.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
-          </div>
+      </div>
+      <div class="fg"><label>종료일 *</label>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+          <span>-</span>
+          <input type="text" id="e-em" value="${t.end.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-ed').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span>-</span>
+          <input type="text" id="e-ed" value="${t.end.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
         </div>
-        <div class="fg"><label>사업</label><select id="e-biz">${bizOpts}</select></div>
-        <div class="fg"><label>목적</label><input type="text" id="e-purpose" value="${t.purpose||''}"></div>
       </div>
-      <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 14px;">
-          <input type="radio" name="evehicle" value="관차" ${t.vehicle==='관차'?'checked':''}> 🚌 관차
-        </label>
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 14px;">
-          <input type="radio" name="evehicle" value="자차" ${t.vehicle==='자차'?'checked':''}> 🚗 자차
-        </label>
-      </div>
-      <div class="grid3" style="margin-bottom:10px;">
-        <div class="fg"><label>💵 일비</label><input type="number" id="e-da" value="${t.da||0}" min="0"></div>
-        <div class="fg"><label>🍱 식비</label><input type="number" id="e-me" value="${t.me||0}" min="0"></div>
-        <div class="fg"><label>🚆 교통비</label><input type="number" id="e-tr" value="${t.tr||0}" min="0"></div>
-      </div>
-      <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="e-memo" value="${t.memo||''}"></div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        <button class="btn" onclick="saveEdit(${id})">💾 저장</button>
-        <button class="btn-outline" onclick="closeModal()">취소</button>
-        <span id="e-msg" class="msg"></span>
-      </div>
-    </div>`;
+      <div class="fg"><label>사업</label><select id="e-biz">${bizOpts}</select></div>
+      <div class="fg"><label>목적</label><input type="text" id="e-purpose" value="${t.purpose||''}"></div>
+    </div>
+    <div style="display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;">
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;"><input type="radio" name="evehicle" value="관차" ${t.vehicle==='관차'?'checked':''}> 🚌 관차</label>
+      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;"><input type="radio" name="evehicle" value="자차" ${t.vehicle==='자차'?'checked':''}> 🚗 자차</label>
+    </div>
+    <div class="grid3" style="margin-bottom:10px;">
+      <div class="fg"><label>💵 일비</label><input type="number" id="e-da" value="${t.da||0}" min="0"></div>
+      <div class="fg"><label>🍱 식비</label><input type="number" id="e-me" value="${t.me||0}" min="0"></div>
+      <div class="fg"><label>🚆 교통비</label><input type="number" id="e-tr" value="${t.tr||0}" min="0"></div>
+    </div>
+    <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="e-memo" value="${t.memo||''}"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn" onclick="saveTripEdit(${id})">💾 저장</button>
+      <button class="btn-sm" onclick="closeModal()">취소</button>
+      <span id="e-msg" class="msg"></span>
+    </div>
+  </div>`;
   document.getElementById('modal-wrap').style.display='flex';
 }
-
-window.saveEdit=async function(id){
-  const t=trips.find(x=>x.id===id);
-  if(!t)return;
+window.saveTripEdit=async function(id){
+  const t=trips.find(x=>x.id===id);if(!t)return;
   const person=document.getElementById('e-person').value.trim();
   const dest=document.getElementById('e-dest').value.trim();
-  const sm=document.getElementById('e-start-m').value.trim().padStart(2,'0');
-  const sd=document.getElementById('e-start-d').value.trim().padStart(2,'0');
-  const em=document.getElementById('e-end-m').value.trim().padStart(2,'0');
-  const ed=document.getElementById('e-end-d').value.trim().padStart(2,'0');
-  const start=sm&&sd?`2026-${sm}-${sd}`:'';
-  const end=em&&ed?`2026-${em}-${ed}`:'';
-  if(!person||!dest||!start||!end){showMsg('e-msg','필수 항목을 입력해 주세요','err');return;}
+  const sm=document.getElementById('e-sm').value.trim().padStart(2,'0');
+  const sd=document.getElementById('e-sd').value.trim().padStart(2,'0');
+  const em=document.getElementById('e-em').value.trim().padStart(2,'0');
+  const ed=document.getElementById('e-ed').value.trim().padStart(2,'0');
+  const start=`2026-${sm}-${sd}`,end=`2026-${em}-${ed}`;
+  if(!person||!dest||!sm||!sd||!em||!ed){showMsg('e-msg','필수 항목을 입력해 주세요','err');return;}
   const raw=document.getElementById('e-biz').value;
   t.person=person;t.dest=dest;t.start=start;t.end=end;
   t.bizId=raw==='my'?'my':parseInt(raw);
@@ -721,18 +794,12 @@ window.saveEdit=async function(id){
   t.me=parseInt(document.getElementById('e-me').value)||0;
   t.tr=parseInt(document.getElementById('e-tr').value)||0;
   t.memo=document.getElementById('e-memo').value.trim();
-  await persist();
-  closeModal();
-  renderList();
+  await persist();closeModal();renderList();
 }
-
 window.deleteTrip=async function(id){
-  if(!confirm('이 출장 내역을 삭제할까요?'))return;
-  trips=trips.filter(t=>t.id!==id);
-  await persist();
-  renderList();
+  if(!confirm('삭제할까요?'))return;
+  trips=trips.filter(t=>t.id!==id);await persist();renderList();
 }
-
 function renderSettle(){
   const months=[...new Set(trips.map(t=>t.start.slice(0,7)))].sort();
   if(!months.length){document.getElementById('s-content').innerHTML='<div class="empty">출장 내역이 없어요</div>';return;}
@@ -747,14 +814,12 @@ function renderSettle(){
   psel.innerHTML='<option value="">전체 출장자</option>'+people.map(p=>`<option value="${p}">${p}</option>`).join('');
   if(curP)psel.value=curP;
   const fp=psel.value;
-  let list=trips.filter(t=>t.start.startsWith(mon)&&(!fp||t.person===fp));
-  list.sort((a,b)=>a.person.localeCompare(b.person)||a.start.localeCompare(b.start));
+  let list=trips.filter(t=>t.start.startsWith(mon)&&(!fp||t.person===fp)).sort((a,b)=>a.person.localeCompare(b.person)||a.start.localeCompare(b.start));
   if(!list.length){document.getElementById('s-content').innerHTML='<div class="empty">해당 월 출장 내역이 없어요</div>';return;}
-  const byPerson={};
-  list.forEach(t=>{if(!byPerson[t.person])byPerson[t.person]=[];byPerson[t.person].push(t);});
-  document.getElementById('s-content').innerHTML=Object.entries(byPerson).map(([name,ts])=>{
-    const ttl=ts.reduce((s,t)=>s+total(t),0);
-    const pendAmt=ts.filter(t=>t.status==='pending').reduce((s,t)=>s+total(t),0);
+  const byP={};list.forEach(t=>{if(!byP[t.person])byP[t.person]=[];byP[t.person].push(t);});
+  document.getElementById('s-content').innerHTML=Object.entries(byP).map(([name,ts])=>{
+    const ttl=ts.reduce((s,t)=>s+tTotal(t),0);
+    const pendAmt=ts.filter(t=>t.status==='pending').reduce((s,t)=>s+tTotal(t),0);
     const doneAmt=ts.filter(t=>t.status==='done').reduce((s,t)=>s+t.settled,0);
     return `<div class="card" style="margin-bottom:14px;">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
@@ -766,186 +831,432 @@ function renderSettle(){
       </div>
       ${ts.map(t=>`<div style="border-top:1px solid #f0f0ee;padding:10px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
         <div>
-          <div style="font-size:13px;font-weight:600;">${t.dest}
-            <span class="badge ${t.bizId==='my'?'b-mine':'b-other'}" style="font-size:10px;">${shortName(t.bizId)}</span>
-            <span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}" style="font-size:10px;">${t.vehicle||''}</span>
-          </div>
-          <div style="font-size:11px;color:#aaa;margin-top:3px;">${t.start}${t.end!==t.start?' ~ '+t.end:''} · 일비 ${(t.da||0).toLocaleString()} · 식비 ${(t.me||0).toLocaleString()} · 교통 ${(t.tr||0).toLocaleString()}${t.memo?' · '+t.memo:''}</div>
+          <div style="font-size:13px;font-weight:600;">${t.dest} <span class="badge b-mine" style="font-size:10px;">${shortBiz(t.bizId)}</span> <span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}" style="font-size:10px;">${t.vehicle||''}</span></div>
+          <div style="font-size:11px;color:var(--text3);margin-top:3px;">${t.start}${t.end!==t.start?' ~ '+t.end:''} · 일비 ${(t.da||0).toLocaleString()} · 식비 ${(t.me||0).toLocaleString()} · 교통 ${(t.tr||0).toLocaleString()}${t.memo?' · '+t.memo:''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span style="font-weight:700;font-size:14px;">${fmt(total(t))}</span>
-          <button class="btn-edit" style="padding:4px 8px;font-size:11px;" onclick="openEdit(${t.id})">✏️</button>
-          ${t.status==='done'
-            ?`<span class="badge b-done">✓ 완료 (${fmt(t.settled)})</span><button class="btn-red" onclick="unSettle(${t.id});renderSettle();">취소</button>`
-            :`<button class="btn-outline" onclick="openSettle(${t.id})">정산 처리</button>`}
+          <span style="font-weight:700;font-size:14px;">${fmt(tTotal(t))}</span>
+          <button class="btn-sm btn-blue" style="padding:4px 8px;font-size:11px;" onclick="openTripEdit(${t.id})">✏️</button>
+          ${t.status==='done'?`<span class="badge b-done">✓ 완료 (${fmt(t.settled)})</span><button class="btn-sm btn-red" onclick="unSettle(${t.id});renderSettle();">취소</button>`:`<button class="btn-sm" onclick="openSettle(${t.id})">정산</button>`}
         </div>
       </div>`).join('')}
       <hr class="divider">
-      <div style="display:flex;justify-content:space-between;font-size:13px;">
-        <span style="color:#888;">이번 달 합계</span><span style="font-weight:700;">${fmt(ttl)}</span>
-      </div>
+      <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text2);">이번 달 합계</span><span style="font-weight:700;">${fmt(ttl)}</span></div>
     </div>`;
   }).join('');
 }
 window.renderSettle=renderSettle;
-
 window.openSettle=function(id){
-  const t=trips.find(x=>x.id===id);
-  if(!t)return;
-  const tot=total(t);
-  document.getElementById('modal-inner').innerHTML=`
-    <div class="modal-box-sm">
-      <div style="font-weight:700;font-size:16px;margin-bottom:14px;">🧾 정산 처리</div>
-      <div style="font-size:13px;color:#888;margin-bottom:4px;">${t.person} · ${t.dest} ·
-        <span class="badge ${t.bizId==='my'?'b-mine':'b-other'}">${shortName(t.bizId)}</span>
-        <span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}">${t.vehicle||''}</span>
-      </div>
-      <div style="font-size:12px;color:#aaa;margin-bottom:16px;">일비 ${fmt(t.da||0)} · 식비 ${fmt(t.me||0)} · 교통비 ${fmt(t.tr||0)}</div>
-      <div style="font-weight:600;font-size:15px;margin-bottom:16px;">청구 금액: ${fmt(tot)}</div>
-      <div class="fg" style="margin-bottom:12px;"><label>실제 정산 금액 (원)</label><input type="number" id="s-amt" value="${tot}" min="0" style="font-size:15px;padding:10px;"></div>
-      <div class="fg" style="margin-bottom:18px;"><label>메모</label><input type="text" id="s-memo" placeholder="정산 메모 (선택)"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn" onclick="doSettle(${id})">✅ 완료 처리</button>
-        <button class="btn-outline" onclick="closeModal()">취소</button>
-      </div>
-    </div>`;
+  const t=trips.find(x=>x.id===id);if(!t)return;
+  const tot=tTotal(t);
+  document.getElementById('modal-inner').innerHTML=`<div class="modal-sm">
+    <div style="font-weight:700;font-size:16px;margin-bottom:14px;">🧾 정산 처리</div>
+    <div style="font-size:13px;color:var(--text2);margin-bottom:4px;">${t.person} · ${t.dest} · <span class="badge b-mine">${shortBiz(t.bizId)}</span></div>
+    <div style="font-size:12px;color:var(--text3);margin-bottom:16px;">일비 ${fmt(t.da||0)} · 식비 ${fmt(t.me||0)} · 교통비 ${fmt(t.tr||0)}</div>
+    <div style="font-weight:600;font-size:15px;margin-bottom:16px;">청구 금액: ${fmt(tot)}</div>
+    <div class="fg" style="margin-bottom:12px;"><label>실제 정산 금액 (원)</label><input type="number" id="s-amt" value="${tot}" min="0" style="font-size:15px;padding:10px;"></div>
+    <div class="fg" style="margin-bottom:18px;"><label>메모</label><input type="text" id="s-memo" placeholder="정산 메모"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="btn" onclick="doSettle(${id})">✅ 완료</button>
+      <button class="btn-sm" onclick="closeModal()">취소</button>
+    </div>
+  </div>`;
   document.getElementById('modal-wrap').style.display='flex';
 }
-
 window.doSettle=async function(id){
-  const amt=parseInt(document.getElementById('s-amt').value)||0;
   const t=trips.find(x=>x.id===id);
-  if(t){t.status='done';t.settled=amt;}
-  await persist();
-  closeModal();
-  const tabs=['dash','monthly','setup','add','list','settle'];
-  const idx=Array.from(document.querySelectorAll('.tab')).findIndex(el=>el.classList.contains('on'));
-  const cur=tabs[idx];
+  if(t){t.status='done';t.settled=parseInt(document.getElementById('s-amt').value)||0;}
+  await persist();closeModal();
+  const cur=currentTripTab;
   if(cur==='dash')renderDash();
   if(cur==='monthly')renderMonthly();
   if(cur==='list')renderList();
   if(cur==='settle')renderSettle();
 }
-
 window.unSettle=async function(id){
   const t=trips.find(x=>x.id===id);
   if(t){t.status='pending';t.settled=0;}
-  await persist();
-  renderList();
+  await persist();renderList();
 }
-
-window.closeModal=function(){document.getElementById('modal-wrap').style.display='none';}
-document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)closeModal();});
-
-function showMsg(id,txt,type){
-  const el=document.getElementById(id);
-  if(!el)return;
-  el.textContent=txt;el.className='msg '+type;
-  setTimeout(()=>{el.textContent='';},2500);
+window.exportTripCSV=function(){
+  if(!trips.length){alert('출장 내역이 없어요.');return;}
+  const months=[...new Set(trips.map(t=>t.start.slice(0,7)))].sort();
+  const people=[...new Set(trips.map(t=>t.person))].sort();
+  document.getElementById('modal-inner').innerHTML=`<div class="modal-sm">
+    <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
+    <div class="fg"><label>📅 월</label><select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 월</option>${months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;}).join('')}</select></div>
+    <div class="fg"><label>👤 출장자</label><select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체</option>${people.map(p=>`<option value="${p}">${p}</option>`).join('')}</select></div>
+    <div class="fg" style="margin-bottom:18px;"><label>🏢 사업</label><select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체</option>${allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('')}</select></div>
+    <div id="ex-count" style="font-size:12px;color:var(--text2);margin-bottom:14px;"></div>
+    <div style="display:flex;gap:8px;"><button class="btn" onclick="doExportTripCSV()">📥 내보내기</button><button class="btn-sm" onclick="closeModal()">취소</button></div>
+  </div>`;
+  document.getElementById('modal-wrap').style.display='flex';
+  function upd(){const mf=document.getElementById('ex-month').value,pf=document.getElementById('ex-person').value,bf=document.getElementById('ex-biz').value;const cnt=trips.filter(t=>(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))).length;document.getElementById('ex-count').textContent=`→ ${cnt}건`;}
+  setTimeout(()=>{['ex-month','ex-person','ex-biz'].forEach(id=>document.getElementById(id).addEventListener('change',upd));upd();},50);
 }
-
-window.backupData=function(){
-  const blob=new Blob([JSON.stringify({myBiz,otherBiz,trips,nextId},null,2)],{type:'application/json'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  a.download=`출장비백업_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();URL.revokeObjectURL(a.href);
+window.doExportTripCSV=function(){
+  const mf=document.getElementById('ex-month').value,pf=document.getElementById('ex-person').value,bf=document.getElementById('ex-biz').value;
+  function fd(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
+  function fb(id){if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}const b=otherBiz.find(x=>x.id===id);return b?b.name:'';}
+  let filtered=[...trips].filter(t=>(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))).sort((a,b)=>a.start.localeCompare(b.start));
+  if(!filtered.length){alert('해당 조건의 내역이 없어요.');return;}
+  const BOM='\uFEFF';
+  const header=['출장구분','사업비','출장시작일자','출장종료일자','출장지','목적','일비','식비','교통비','합계'];
+  const rows=filtered.map(t=>['국내/관외',fb(t.bizId),fd(t.start),fd(t.end),t.dest,t.purpose||'',t.da||0,t.me||0,t.tr||0,tTotal(t)].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const csv=BOM+[header.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);
+  let fname='출장비내역';if(mf){const[y,mo]=mf.split('-');fname+=`_${y.slice(2)}년${parseInt(mo)}월`;}if(pf)fname+=`_${pf}`;
+  a.download=`${fname}_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);closeModal();
 }
-
-window.loadData=async function(e){
+window.backupTrip=function(){
+  const blob=new Blob([JSON.stringify({myBiz,otherBiz,trips,tripNextId},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`출장백업_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+window.loadTripData=async function(e){
   const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async function(ev){
-    try{
-      const d=JSON.parse(ev.target.result);
-      if(d.myBiz)myBiz=d.myBiz;
-      if(d.otherBiz)otherBiz=d.otherBiz;
-      if(d.trips)trips=d.trips;
-      if(d.nextId)nextId=d.nextId;
-      await persist();
-      refreshView('dash');go('dash');
-      alert('✅ 복원 완료!');
-    }catch(err){alert('❌ 파일을 읽을 수 없어요.');}
-  };
-  reader.readAsText(file);e.target.value='';
+    try{const d=JSON.parse(ev.target.result);if(d.myBiz)myBiz=d.myBiz;if(d.otherBiz)otherBiz=d.otherBiz;if(d.trips)trips=d.trips;if(d.tripNextId)tripNextId=d.tripNextId;await persist();renderDash();alert('✅ 복원 완료!');}
+    catch(err){alert('❌ 파일 오류');}
+  };reader.readAsText(file);e.target.value='';
 }
 
-window.exportCSV=function(){
-  if(!trips.length){alert('출장 내역이 없어요.');return;}
-  const BOM='\uFEFF';
-  function fmtDate(d){
-    if(!d)return '';
-    const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];
+// ── 운영일정 ──
+window.goSched=function(id){
+  currentSchedTab=id;
+  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['cal','list','stat'][i]===id));
+  document.querySelectorAll('#app-sched .pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('sc-'+id).classList.add('on');
+  if(id==='cal')renderCal();
+  if(id==='list')renderSchedList();
+  if(id==='stat')renderSchedStat();
+}
+
+function catColor(c){
+  if(c==='상담')return{bg:'#DCFCE7',color:'#166534'};
+  if(c==='홍보')return{bg:'#F3E8FF',color:'#7E22CE'};
+  return{bg:'#F2F0EC',color:'#6B6560'};
+}
+function catClass(c){if(c==='상담')return 'b-consult';if(c==='홍보')return 'b-pr';return 'b-other2';}
+function statusClass(s){if(s==='계획')return 'b-plan';if(s==='확정')return 'b-confirm';return 'b-sdone';}
+function seqLabel(s){return s?s+'차':'-';}
+function calcHours(t){if(!t)return null;const m=t.match(/(\d{1,2}):(\d{2})\s*[~\-]\s*(\d{1,2}):(\d{2})/);if(!m)return null;const diff=(parseInt(m[3])*60+parseInt(m[4]))-(parseInt(m[1])*60+parseInt(m[2]));return diff>0?diff/60:null;}
+function lecText(lecs){if(!lecs||!lecs.length)return '-';return lecs.map(l=>l.name).join(', ');}
+function fmtDateSched(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
+
+function renderCal(){
+  document.getElementById('cal-title').textContent=`${curYear}년 ${curMonth+1}월`;
+  const grid=document.getElementById('cal-grid');grid.innerHTML='';
+  const first=new Date(curYear,curMonth,1).getDay();
+  const last=new Date(curYear,curMonth+1,0).getDate();
+  const today=new Date();
+  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+  for(let i=0;i<first;i++){const pm=new Date(curYear,curMonth,0-(first-1-i));grid.appendChild(makeCalCell(pm.getFullYear(),pm.getMonth(),pm.getDate(),true,null));}
+  for(let d=1;d<=last;d++){
+    const dateStr=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dow=(first+d-1)%7;
+    const cell=makeCalCell(curYear,curMonth,d,false,dateStr);
+    if(dateStr===todayStr)cell.classList.add('today');
+    if(dow===0)cell.classList.add('is-sun');if(dow===6)cell.classList.add('is-sat');
+    const dayEvs=events.filter(e=>e.date===dateStr).sort((a,b)=>a.cat.localeCompare(b.cat));
+    dayEvs.slice(0,3).forEach(ev=>{
+      const col=catColor(ev.cat);const isDone=ev.status==='완료';
+      const tag=document.createElement('div');tag.className='cal-event';
+      tag.style.background=isDone?'#E8F5E9':col.bg;tag.style.color=isDone?'#166534':col.color;
+      tag.innerHTML=(ev.hasBus?'<span style="font-size:9px;">🚌</span>':'')+'<span style="overflow:hidden;text-overflow:ellipsis;">'+ev.place+'</span>';
+      tag.onclick=(e)=>{e.stopPropagation();openSchedDetail(ev.id);};cell.appendChild(tag);
+    });
+    if(dayEvs.length>3){const more=document.createElement('div');more.className='cal-more';more.textContent=`+${dayEvs.length-3}개`;cell.appendChild(more);}
+    grid.appendChild(cell);
   }
-  function fmtBiz(id){
-    if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}
-    const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
-  }
-  // 월/출장자/사업 필터 팝업
-  const months=[...new Set(trips.map(t=>t.start.slice(0,7)))].sort();
-  const people=[...new Set(trips.map(t=>t.person))].sort();
-  const monthOpts=months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;}).join('');
-  const personOpts=people.map(p=>`<option value="${p}">${p}</option>`).join('');
-  const bizOpts=allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
-  document.getElementById('modal-inner').innerHTML=`
-    <div class="modal-box-sm">
-      <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터 선택 안 하면 전체 내보내기</div>
-      <div class="fg"><label>📅 월</label><select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 월</option>${monthOpts}</select></div>
-      <div class="fg"><label>👤 출장자</label><select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option>${personOpts}</select></div>
-      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업</label><select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 사업</option>${bizOpts}</select></div>
-      <div id="ex-count" style="font-size:12px;color:#666;margin-bottom:14px;"></div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn" onclick="doExportCSV()">📥 내보내기</button>
-        <button class="btn-outline" onclick="closeModal()">취소</button>
+  const remain=42-(first+last);
+  for(let d=1;d<=remain;d++)grid.appendChild(makeCalCell(curYear,curMonth+1,d,true,null));
+}
+function makeCalCell(y,m,d,other,dateStr){
+  const cell=document.createElement('div');cell.className='cal-cell'+(other?' other-month':'');
+  const el=document.createElement('div');el.className='cal-date';el.textContent=d;cell.appendChild(el);
+  if(!other&&dateStr){cell.onclick=()=>{openSchedAddModal();document.getElementById('f-mon').value=dateStr.slice(5,7);document.getElementById('f-day').value=dateStr.slice(8,10);};}
+  return cell;
+}
+window.moveMonth=function(dir){curMonth+=dir;if(curMonth<0){curMonth=11;curYear--;}if(curMonth>11){curMonth=0;curYear++;}renderCal();}
+window.goToday=function(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMonth();renderCal();}
+
+function renderSchedList(){
+  const q=(document.getElementById('sl-search').value||'').toLowerCase();
+  const msel=document.getElementById('sl-month');const mf=msel.value,cf=document.getElementById('sl-cat').value,sf=document.getElementById('sl-status').value,bf=document.getElementById('sl-bus').value;
+  const months=[...new Set(events.map(e=>e.date.slice(0,7)))].sort();const mv=msel.value;
+  msel.innerHTML='<option value="">전체 월</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;}).join('');
+  if(mv)msel.value=mv;
+  let list=[...events].filter(e=>(!q||e.place.toLowerCase().includes(q)||(e.desc||'').toLowerCase().includes(q)||lecText(e.lecturers).toLowerCase().includes(q))&&(!mf||e.date.startsWith(mf))&&(!cf||e.cat===cf)&&(!sf||e.status===sf)&&(bf===''?true:(bf==='1'?e.hasBus:!e.hasBus))).sort((a,b)=>a.date.localeCompare(b.date));
+  document.getElementById('sl-empty').style.display=list.length?'none':'block';
+  document.getElementById('sl-body').innerHTML=list.map((e,i)=>`<tr>
+    <td style="color:var(--text3);">${i+1}</td>
+    <td style="color:var(--text2);">${seqLabel(e.seq)}</td>
+    <td><span class="badge ${catClass(e.cat)}">${e.cat}</span></td>
+    <td>${e.hasBus?'<span class="badge b-bus">🚌</span>':'-'}</td>
+    <td style="font-size:11px;">${e.date}</td>
+    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;" title="${e.place}">${e.place}</td>
+    <td>${e.count||'-'}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${e.desc||''}">${e.desc||'-'}</td>
+    <td style="white-space:nowrap;font-size:11px;">${e.time||'-'}${e.hours?' ('+e.hours+'h)':''}</td>
+    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;">${e.org||'-'}</td>
+    <td>${e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name).join(', '):'-'}</td>
+    <td><span class="badge ${statusClass(e.status)}">${e.status}</span></td>
+    <td><div class="action-btns">
+      <button class="btn-sm btn-blue" onclick="openSchedEdit(${e.id})">✏️</button>
+      <button class="btn-sm btn-red" onclick="deleteEvent(${e.id})">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function renderSchedStat(){
+  const total=events.length,plan=events.filter(e=>e.status==='계획').length,confirm=events.filter(e=>e.status==='확정').length,done=events.filter(e=>e.status==='완료').length;
+  const totalPeople=events.reduce((s,e)=>s+(parseInt(e.count)||0),0);
+  const totalFee=events.reduce((s,e)=>{if(!e.lecturers||!e.lecturers.length)return s;return s+e.lecturers.reduce((ss,l)=>ss+(parseInt(l.fee)||0),0);},0);
+  const fpct=Math.min(100,Math.round(totalFee/GOAL_FEE*100));
+  const fcolor=fpct>90?'#C62828':fpct>70?'#B45309':'#1A6FD4';
+  const consultDone=events.filter(e=>e.cat==='상담'&&e.status==='완료').length;
+  const prDone=events.filter(e=>e.cat==='홍보'&&e.status==='완료').length;
+  const cpct=Math.min(100,Math.round(consultDone/GOAL_CONSULT*100));
+  const ppct=Math.min(100,Math.round(prDone/GOAL_PR*100));
+  document.getElementById('stat-cards').innerHTML=`
+    <div class="mc"><div class="mc-lbl">전체 일정</div><div class="mc-val">${total}건</div></div>
+    <div class="mc"><div class="mc-lbl">계획</div><div class="mc-val" style="color:var(--blue);">${plan}건</div></div>
+    <div class="mc"><div class="mc-lbl">확정</div><div class="mc-val" style="color:var(--amber);">${confirm}건</div></div>
+    <div class="mc"><div class="mc-lbl">완료</div><div class="mc-val" style="color:var(--green);">${done}건</div></div>
+    <div class="mc"><div class="mc-lbl">총 인원</div><div class="mc-val">${totalPeople.toLocaleString()}명</div></div>
+    <div class="mc"><div class="mc-lbl">강사수당</div><div class="mc-val" style="font-size:16px;color:${fcolor};">${Math.round(totalFee/10000)}만원</div><div class="mc-sub">${fpct}%</div></div>
+    <div class="mc"><div class="mc-lbl">버스 운행</div><div class="mc-val">${events.filter(e=>e.hasBus).length}건</div></div>
+  `;
+  const months={};
+  events.forEach(e=>{const m=e.date.slice(0,7);if(!months[m])months[m]={total:0,done:0,count:0,bus:0};months[m].total++;if(e.status==='완료')months[m].done++;months[m].count+=parseInt(e.count)||0;if(e.hasBus)months[m].bus++;});
+  const monthRows=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).map(([m,d])=>{const[y,mo]=m.split('-');return`<tr><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${y}년 ${parseInt(mo)}월</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.total}건</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.done}건</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.count}명</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.bus}건</td></tr>`;}).join('');
+  document.getElementById('stat-detail').innerHTML=`
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div class="sec" style="margin-bottom:14px;">회차 달성 현황</div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span><span class="badge b-consult">상담소</span></span><span style="font-weight:600;">${consultDone} / ${GOAL_CONSULT}회 (${cpct}%)</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${cpct}%;background:#166534;"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">완료 ${consultDone}회 / 목표 ${GOAL_CONSULT}회</div>
       </div>
+      <div style="margin-bottom:16px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span><span class="badge b-pr">홍보단</span></span><span style="font-weight:600;">${prDone} / ${GOAL_PR}회 (${ppct}%)</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${ppct}%;background:#7E22CE;"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">완료 ${prDone}회 / 목표 ${GOAL_PR}회</div>
+      </div>
+      <hr class="divider">
+      <div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span style="font-weight:500;">💰 강사수당</span><span style="font-weight:600;color:${fcolor};">${totalFee.toLocaleString()}원 / 3,000만원 (${fpct}%)</span></div>
+        <div class="progress-bar"><div class="progress-fill" style="width:${fpct}%;background:${fcolor};"></div></div>
+        <div style="font-size:11px;color:var(--text3);margin-top:3px;">잔액 ${(GOAL_FEE-totalFee).toLocaleString()}원</div>
+      </div>
+    </div>
+    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
+      <div class="sec" style="margin-bottom:12px;">월별 현황</div>
+      <table style="width:100%;font-size:12px;">
+        <thead><tr><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">월</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">건수</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">완료</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">인원</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">버스</th></tr></thead>
+        <tbody>${monthRows||'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--text3);">데이터 없음</td></tr>'}</tbody>
+      </table>
     </div>`;
-  document.getElementById('modal-wrap').style.display='flex';
-  function updateCount(){
-    const mf=document.getElementById('ex-month').value;
-    const pf=document.getElementById('ex-person').value;
-    const bf=document.getElementById('ex-biz').value;
-    const cnt=trips.filter(t=>{
-      return(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)));
-    }).length;
-    document.getElementById('ex-count').textContent=`→ ${cnt}건 내보내기 예정`;
-  }
-  setTimeout(()=>{
-    ['ex-month','ex-person','ex-biz'].forEach(id=>document.getElementById(id).addEventListener('change',updateCount));
-    updateCount();
-  },50);
 }
 
-window.doExportCSV=function(){
-  const mf=document.getElementById('ex-month').value;
-  const pf=document.getElementById('ex-person').value;
-  const bf=document.getElementById('ex-biz').value;
-  function fmtDate(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
-  function fmtBiz(id){
-    if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}
-    const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
-  }
-  let filtered=[...trips].filter(t=>{
-    return(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)));
-  }).sort((a,b)=>a.start.localeCompare(b.start));
-  if(!filtered.length){alert('해당 조건의 출장 내역이 없어요.');return;}
+// 강사 행
+let lecRows=[];
+window.addLecRow=function(name='',phone='',fee=''){
+  const idx=lecRows.length;lecRows.push({name,phone,fee});
+  const list=document.getElementById('lecturer-list');
+  const div=document.createElement('div');div.className='lecturer-item';div.dataset.idx=idx;
+  div.innerHTML=`<input type="text" placeholder="강사명" value="${name}" oninput="updateLec(${idx},'name',this.value)" style="flex:2;"><input type="text" placeholder="연락처" value="${phone}" oninput="updateLec(${idx},'phone',this.value)" style="flex:2;"><input type="number" placeholder="수당(원)" value="${fee}" oninput="updateLec(${idx},'fee',this.value)" style="flex:2;" min="0"><button type="button" class="btn-sm btn-red" onclick="removeLec(${idx},this.parentElement)">✕</button>`;
+  list.appendChild(div);
+}
+window.updateLec=function(idx,key,val){if(lecRows[idx])lecRows[idx][key]=val;}
+window.removeLec=function(idx,el){lecRows[idx]=null;el.remove();}
+function clearLec(){lecRows=[];document.getElementById('lecturer-list').innerHTML='';}
+function getLecs(){return lecRows.filter(l=>l&&l.name);}
+
+window.openSchedAddModal=function(){
+  document.getElementById('form-title').textContent='📅 일정 등록';
+  document.getElementById('f-id').value='';
+  ['f-mon','f-day','f-seq','f-place','f-desc','f-time','f-org','f-manager','f-memo'].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('f-count').value='';
+  document.getElementById('f-cat').value='상담';
+  document.getElementById('f-status').value='계획';
+  document.getElementById('f-bus').checked=false;
+  document.getElementById('time-result').textContent='';
+  document.getElementById('f-msg').textContent='';
+  clearLec();addLecRow();
+  document.getElementById('modal-sched').style.display='flex';
+}
+window.openSchedEdit=function(id){
+  const e=events.find(x=>x.id===id);if(!e)return;
+  document.getElementById('form-title').textContent='✏️ 일정 수정';
+  document.getElementById('f-id').value=id;
+  document.getElementById('f-mon').value=e.date.slice(5,7);
+  document.getElementById('f-day').value=e.date.slice(8,10);
+  document.getElementById('f-seq').value=e.seq||'';
+  document.getElementById('f-cat').value=e.cat;
+  document.getElementById('f-status').value=e.status;
+  document.getElementById('f-bus').checked=!!e.hasBus;
+  document.getElementById('f-place').value=e.place;
+  document.getElementById('f-count').value=e.count||'';
+  document.getElementById('f-time').value=e.time||'';
+  document.getElementById('f-desc').value=e.desc||'';
+  document.getElementById('f-org').value=e.org||'';
+  document.getElementById('f-manager').value=e.manager||'';
+  document.getElementById('f-memo').value=e.memo||'';
+  const h=calcHours(e.time||'');document.getElementById('time-result').textContent=h?`→ ${h}시간`:'';
+  clearLec();(e.lecturers&&e.lecturers.length?e.lecturers:[{name:'',phone:'',fee:''}]).forEach(l=>addLecRow(l.name,l.phone,l.fee||''));
+  document.getElementById('f-msg').textContent='';
+  document.getElementById('modal-sched').style.display='flex';
+}
+window.saveSchedForm=async function(){
+  const mo=document.getElementById('f-mon').value.trim().padStart(2,'0');
+  const dy=document.getElementById('f-day').value.trim().padStart(2,'0');
+  const place=document.getElementById('f-place').value.trim();
+  if(!mo||!dy||!place){document.getElementById('f-msg').textContent='날짜(월·일)와 장소는 필수예요';return;}
+  const date=`2026-${mo}-${dy}`;
+  const timeVal=document.getElementById('f-time').value.trim();
+  const hours=calcHours(timeVal);
+  const id=parseInt(document.getElementById('f-id').value)||null;
+  const obj={
+    id:id||schedNextId++,date,
+    seq:parseInt(document.getElementById('f-seq').value)||null,
+    cat:document.getElementById('f-cat').value,
+    status:document.getElementById('f-status').value,
+    hasBus:document.getElementById('f-bus').checked,
+    place,count:parseInt(document.getElementById('f-count').value)||0,
+    time:timeVal,hours,desc:document.getElementById('f-desc').value.trim(),
+    org:document.getElementById('f-org').value.trim(),
+    manager:document.getElementById('f-manager').value.trim(),
+    lecturers:getLecs(),memo:document.getElementById('f-memo').value.trim(),
+  };
+  if(id){const idx=events.findIndex(x=>x.id===id);if(idx>-1)events[idx]=obj;}else events.push(obj);
+  await persist();
+  document.getElementById('modal-sched').style.display='none';
+  if(currentSchedTab==='cal')renderCal();
+  if(currentSchedTab==='list')renderSchedList();
+  if(currentSchedTab==='stat')renderSchedStat();
+}
+window.openSchedDetail=function(id){
+  const e=events.find(x=>x.id===id);if(!e)return;
+  document.getElementById('modal-inner').innerHTML=`<div class="modal-sm">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
+      <span class="badge ${catClass(e.cat)}">${e.cat}</span>
+      <span class="badge ${statusClass(e.status)}">${e.status}</span>
+      ${e.seq?`<span style="font-size:12px;color:var(--text2);">${e.seq}차</span>`:''}
+      ${e.hasBus?'<span class="badge b-bus">🚌 버스운행</span>':''}
+    </div>
+    <div style="font-size:18px;font-weight:700;margin-bottom:14px;">${e.place}</div>
+    ${[['일자',e.date],['운영시간',(e.time||'-')+(e.hours?' ('+e.hours+'시간)':'')],['인원',e.count?e.count+'명':'-'],['내용',e.desc||'-'],['협업기관',e.org||'-'],['담당자',e.manager||'-'],['강사',e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name+(l.phone?' ('+l.phone+')':'')+(l.fee?' '+parseInt(l.fee).toLocaleString()+'원':'')).join('<br>'):'-'],['메모',e.memo||'-']].map(([k,v])=>`<div class="detail-row"><span class="detail-key">${k}</span><span style="font-size:13px;">${v}</span></div>`).join('')}
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="btn-sm btn-blue" onclick="openSchedEdit(${id})">✏️ 수정</button>
+      <button class="btn-sm btn-red" onclick="deleteEvent(${id})">🗑 삭제</button>
+      <button class="btn-sm" onclick="closeModal()" style="margin-left:auto;">닫기</button>
+    </div>
+  </div>`;
+  document.getElementById('modal-wrap').style.display='flex';
+}
+window.deleteEvent=async function(id){
+  if(!confirm('삭제할까요?'))return;
+  events=events.filter(e=>e.id!==id);await persist();
+  closeModal();
+  if(currentSchedTab==='cal')renderCal();
+  if(currentSchedTab==='list')renderSchedList();
+  if(currentSchedTab==='stat')renderSchedStat();
+}
+window.calcTime=function(){
+  const h=calcHours(document.getElementById('f-time').value);
+  document.getElementById('time-result').textContent=h?`→ ${h}시간`:'';
+}
+window.exportSchedCSV=function(){
+  if(!events.length){alert('일정이 없어요');return;}
   const BOM='\uFEFF';
-  const header=['출장구분','사업비','출장시작일자','출장종료일자','출장지','목적','일비','식비','교통비','합계'];
-  const rows=filtered.map(t=>[
-    '국내/관외',fmtBiz(t.bizId),fmtDate(t.start),fmtDate(t.end),
-    t.dest,t.purpose||'',t.da||0,t.me||0,t.tr||0,total(t)
-  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+  const header=['연번','회차','구분','버스운행','일자','장소','인원','내용','운영시간','시간(h)','협업기관','담당자','강사명','상태','메모'];
+  const rows=[...events].sort((a,b)=>a.date.localeCompare(b.date)).map((e,i)=>[i+1,e.seq?e.seq+'차':'',e.cat,e.hasBus?'O':'',fmtDateSched(e.date),e.place,e.count||'',e.desc||'',e.time||'',e.hours||'',e.org||'',e.manager||'',e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name).join('/'):'-',e.status,e.memo||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
   const csv=BOM+[header.join(','),...rows].join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');
-  a.href=URL.createObjectURL(blob);
-  let fname='출장비내역';
-  if(mf){const[y,mo]=mf.split('-');fname+=`_${y.slice(2)}년${parseInt(mo)}월`;}
-  if(pf)fname+=`_${pf}`;
-  a.download=`${fname}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click();URL.revokeObjectURL(a.href);
-  closeModal();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`일자리버스_일정_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
 }
+window.backupSched=function(){
+  const blob=new Blob([JSON.stringify({events,schedNextId},null,2)],{type:'application/json'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`일정백업_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
+}
+window.loadSchedData=async function(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(ev){
+    try{const d=JSON.parse(ev.target.result);if(d.events)events=d.events;if(d.schedNextId)schedNextId=d.schedNextId;await persist();renderCal();alert('✅ 복원 완료!');}
+    catch(err){alert('❌ 파일 오류');}
+  };reader.readAsText(file);e.target.value='';
+}
+
+// ── 공통 모달 ──
+window.closeModal=function(){document.getElementById('modal-wrap').style.display='none';}
+document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)closeModal();});
+document.getElementById('modal-sched').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+
+function showMsg(id,txt,type){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.className='msg '+type;setTimeout(()=>{el.textContent='';},2500);}
 </script>
+
+<!-- 일정 등록/수정 모달 (별도) -->
+<div class="modal-bg" id="modal-sched">
+  <div class="modal-box">
+    <div class="modal-title" id="form-title" style="font-weight:700;font-size:16px;margin-bottom:18px;">📅 일정 등록</div>
+    <input type="hidden" id="f-id">
+    <div class="sec" style="margin-top:0;">기본 정보</div>
+    <div class="grid3">
+      <div class="fg"><label>일자 * <span style="font-size:11px;color:var(--text3);">(월-일)</span></label>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="f-mon" placeholder="MM" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('f-day').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="f-day" placeholder="DD" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        </div>
+      </div>
+      <div class="fg"><label>구분 *</label>
+        <select id="f-cat"><option value="상담">💬 상담</option><option value="홍보">📢 홍보</option><option value="기타">📌 기타</option></select>
+      </div>
+      <div class="fg"><label>상태</label>
+        <select id="f-status"><option value="계획">계획</option><option value="확정">확정</option><option value="완료">완료</option></select>
+      </div>
+    </div>
+    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid #9DC4F5;border-radius:8px;cursor:pointer;margin-bottom:12px;">
+      <input type="checkbox" id="f-bus" style="width:16px;height:16px;accent-color:var(--blue);">
+      <span style="font-size:13px;font-weight:500;color:var(--blue);">🚌 버스 운행</span>
+    </label>
+    <div class="grid2">
+      <div class="fg"><label>회차 <span style="font-size:11px;color:var(--text3);">(숫자만)</span></label><input type="number" id="f-seq" placeholder="예: 3 → 3차" min="1"></div>
+      <div class="fg"><label>장소 *</label><input type="text" id="f-place" placeholder="장소명 입력"></div>
+      <div class="fg"><label>인원</label><input type="number" id="f-count" placeholder="0" min="0"></div>
+      <div class="fg"><label>운영시간</label>
+        <input type="text" id="f-time" placeholder="예: 10:00~12:00" oninput="calcTime()">
+        <div class="time-calc" id="time-result"></div>
+      </div>
+    </div>
+    <div class="fg"><label>내용(목적)</label><input type="text" id="f-desc" placeholder="프로그램 내용"></div>
+    <hr class="divider">
+    <div class="sec">협업 기관</div>
+    <div class="grid2">
+      <div class="fg"><label>협업기관</label><input type="text" id="f-org" placeholder="기관명"></div>
+      <div class="fg"><label>담당자</label><input type="text" id="f-manager" placeholder="담당자명"></div>
+    </div>
+    <hr class="divider">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+      <div class="sec" style="margin:0;">강사 정보</div>
+      <button type="button" class="btn-sm btn-green" onclick="addLecRow()">➕ 강사 추가</button>
+    </div>
+    <div id="lecturer-list"></div>
+    <hr class="divider">
+    <div class="fg"><label>메모/비고</label><textarea id="f-memo" placeholder="특이사항, 비고"></textarea></div>
+    <div style="display:flex;gap:8px;margin-top:4px;align-items:center;">
+      <button class="btn" onclick="saveSchedForm()">💾 저장</button>
+      <button class="btn-sm" onclick="document.getElementById('modal-sched').style.display='none'">취소</button>
+      <span id="f-msg" class="msg"></span>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
