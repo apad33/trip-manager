@@ -201,8 +201,24 @@ tr:hover td{background:#fafaf8;}
       <div class="grid2" style="margin-bottom:12px;">
         <div class="fg"><label>출장자 이름 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
         <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
-        <div class="fg"><label>출장 시작일 *</label><input type="date" id="a-start"></div>
-        <div class="fg"><label>출장 종료일 *</label><input type="date" id="a-end"></div>
+        <div class="fg"><label>출장 시작일 *</label>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="a-start-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="a-start-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-m').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          </div>
+        </div>
+        <div class="fg"><label>출장 종료일 *</label>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="a-end-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="a-end-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          </div>
+        </div>
         <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
         <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
       </div>
@@ -575,8 +591,12 @@ function populateAddBiz(){
 window.addTrip=async function(){
   const person=document.getElementById('a-person').value.trim();
   const dest=document.getElementById('a-dest').value.trim();
-  const start=document.getElementById('a-start').value;
-  const end=document.getElementById('a-end').value;
+  const sm=document.getElementById('a-start-m').value.trim().padStart(2,'0');
+  const sd=document.getElementById('a-start-d').value.trim().padStart(2,'0');
+  const em=document.getElementById('a-end-m').value.trim().padStart(2,'0');
+  const ed=document.getElementById('a-end-d').value.trim().padStart(2,'0');
+  const start=sm&&sd?`2026-${sm}-${sd}`:'';
+  const end=em&&ed?`2026-${em}-${ed}`:'';
   const raw=document.getElementById('a-biz').value;
   const bizId=raw==='my'?'my':parseInt(raw);
   const purpose=document.getElementById('a-purpose').value.trim();
@@ -587,7 +607,7 @@ window.addTrip=async function(){
   const memo=document.getElementById('a-memo').value.trim();
   if(!person||!dest||!start||!end){showMsg('a-msg','* 필수 항목을 모두 입력해 주세요','err');return;}
   trips.push({id:nextId++,person,dest,start,end,bizId,purpose,vehicle,da,me,tr,memo,status:'pending',settled:0});
-  ['a-person','a-dest','a-start','a-end','a-purpose','a-da','a-me','a-tr','a-memo'].forEach(id=>{document.getElementById(id).value='';});
+  ['a-person','a-dest','a-start-m','a-start-d','a-end-m','a-end-d','a-purpose','a-da','a-me','a-tr','a-memo'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('v-gov').checked=true;
   await persist();
   showMsg('a-msg','✅ 등록 완료!','ok');
@@ -636,8 +656,24 @@ window.openEdit=function(id){
       <div class="grid2" style="margin-bottom:10px;">
         <div class="fg"><label>출장자 *</label><input type="text" id="e-person" value="${t.person}"></div>
         <div class="fg"><label>출장지 *</label><input type="text" id="e-dest" value="${t.dest}"></div>
-        <div class="fg"><label>시작일 *</label><input type="date" id="e-start" value="${t.start}"></div>
-        <div class="fg"><label>종료일 *</label><input type="date" id="e-end" value="${t.end}"></div>
+        <div class="fg"><label>시작일 *</label>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="e-start-m" value="${t.start.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="e-start-d" value="${t.start.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          </div>
+        </div>
+        <div class="fg"><label>종료일 *</label>
+          <div style="display:flex;align-items:center;gap:5px;">
+            <span style="font-size:13px;font-weight:600;color:#666;background:#f5f5f3;padding:8px 11px;border-radius:8px;border:1px solid #ddd;">2026</span>
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="e-end-m" value="${t.end.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+            <span style="color:#aaa;">-</span>
+            <input type="text" id="e-end-d" value="${t.end.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;font-size:13px;padding:8px 6px;border:1px solid #ddd;border-radius:8px;outline:none;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          </div>
+        </div>
         <div class="fg"><label>사업</label><select id="e-biz">${bizOpts}</select></div>
         <div class="fg"><label>목적</label><input type="text" id="e-purpose" value="${t.purpose||''}"></div>
       </div>
@@ -669,8 +705,12 @@ window.saveEdit=async function(id){
   if(!t)return;
   const person=document.getElementById('e-person').value.trim();
   const dest=document.getElementById('e-dest').value.trim();
-  const start=document.getElementById('e-start').value;
-  const end=document.getElementById('e-end').value;
+  const sm=document.getElementById('e-start-m').value.trim().padStart(2,'0');
+  const sd=document.getElementById('e-start-d').value.trim().padStart(2,'0');
+  const em=document.getElementById('e-end-m').value.trim().padStart(2,'0');
+  const ed=document.getElementById('e-end-d').value.trim().padStart(2,'0');
+  const start=sm&&sd?`2026-${sm}-${sd}`:'';
+  const end=em&&ed?`2026-${em}-${ed}`:'';
   if(!person||!dest||!start||!end){showMsg('e-msg','필수 항목을 입력해 주세요','err');return;}
   const raw=document.getElementById('e-biz').value;
   t.person=person;t.dest=dest;t.start=start;t.end=end;
