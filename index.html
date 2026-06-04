@@ -443,17 +443,21 @@ const GOAL_CONSULT=70,GOAL_PR=40,GOAL_FEE=30000000;
 // ── 인증 ──
 window.signIn=async function(){
   try{
-    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-    if(isMobile){await signInWithRedirect(auth,provider);}
-    else{await signInWithPopup(auth,provider);}
+    await signInWithRedirect(auth,provider);
   }catch(e){alert('로그인 실패: '+e.message);}
 }
 window.signOut=async function(){if(!confirm('로그아웃 하시겠어요?'))return;if(unsub)unsub();await fbSignOut(auth);}
 
 // 리다이렉트 로그인 결과 처리
-getRedirectResult(auth).catch(e=>{if(e.code!=='auth/no-current-user')console.error(e);});
+getRedirectResult(auth).then((result)=>{
+  if(result&&result.user){
+    console.log('redirect login success:',result.user.email);
+  }
+}).catch(e=>{
+  if(e.code!=='auth/no-current-user'&&e.code!=='auth/null-user')console.error('redirect error:',e.code,e.message);
+});
 
-onAuthStateChanged(auth,(user)=>{
+onAuthStateChanged(auth,async(user)=>{
   document.getElementById('loading-overlay').style.display='none';
   if(user){
     curUser=user;
