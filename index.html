@@ -1,23 +1,38 @@
 <!DOCTYPE html>
-<!-- saved from url=(0111)file:///C:/Users/user/Downloads/%EC%B6%9C%EC%9E%A5%EB%B9%84%EC%A0%95%EC%82%B0%EA%B4%80%EB%A6%AC_firebase_1.html -->
-<html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>출장비 정산 관리 — 찾아가는 일자리버스(소통공간)</title>
+<title>출장비 정산 관리</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans-serif;background:#f5f5f3;color:#1a1a18;font-size:14px;line-height:1.6;}
-.topbar{background:#fff;border-bottom:1px solid #e5e5e2;padding:0 24px;display:flex;align-items:center;height:52px;gap:16px;position:sticky;top:0;z-index:100;}
-.topbar-title{font-size:14px;font-weight:600;color:#1a1a18;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:280px;}
-.topbar-sub{font-size:12px;color:#888;white-space:nowrap;}
-.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
-.sync-status{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:500;}
+
+/* 로그인 화면 */
+.login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:24px;}
+.login-card{background:#fff;border:1px solid #e5e5e2;border-radius:16px;padding:40px 36px;width:360px;max-width:100%;text-align:center;}
+.login-logo{font-size:36px;margin-bottom:12px;}
+.login-title{font-size:22px;font-weight:700;margin-bottom:6px;}
+.login-sub{font-size:13px;color:#888;margin-bottom:28px;}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 20px;border:1px solid #ddd;border-radius:10px;background:#fff;font-size:14px;font-weight:500;cursor:pointer;transition:background .15s;}
+.btn-google:hover{background:#f5f5f3;}
+.btn-google img{width:20px;height:20px;}
+
+/* 앱 */
+.topbar{background:#fff;border-bottom:1px solid #e5e5e2;padding:0 24px;display:flex;align-items:center;height:52px;gap:12px;position:sticky;top:0;z-index:100;}
+.topbar-title{font-size:14px;font-weight:600;color:#1a1a18;}
+.topbar-sub{font-size:12px;color:#888;}
+.topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;}
+.user-info{display:flex;align-items:center;gap:8px;}
+.user-avatar{width:28px;height:28px;border-radius:50%;border:1px solid #ddd;}
+.user-name{font-size:12px;color:#666;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.sync-badge{font-size:11px;padding:3px 10px;border-radius:999px;font-weight:500;}
 .sync-ok{background:#e8f5e9;color:#2e7d32;}
-.sync-err{background:#fff3e0;color:#e65100;}
 .sync-ing{background:#e3f0fd;color:#1565c0;}
+.sync-err{background:#fff3e0;color:#e65100;}
 .wrap{max-width:960px;margin:0 auto;padding:24px 16px;}
 .tabs{display:flex;gap:2px;margin-bottom:24px;border-bottom:1px solid #e5e5e2;overflow-x:auto;}
-.tab{padding:9px 16px;font-size:13px;font-weight:500;color:#666;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;}
+.tab{padding:9px 16px;font-size:13px;font-weight:500;color:#666;background:transparent;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;font-family:inherit;}
 .tab.on{color:#1a1a18;border-bottom-color:#1a1a18;}
 .tab:hover:not(.on){color:#1a1a18;}
 .pane{display:none;}.pane.on{display:block;}
@@ -31,19 +46,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI','Noto Sans KR',sans
 .card{background:#fff;border:1px solid #e5e5e2;border-radius:12px;padding:16px 20px;margin-bottom:10px;}
 .fg{display:flex;flex-direction:column;gap:5px;margin-bottom:12px;}
 .fg label{font-size:12px;color:#666;font-weight:500;}
-.fg input,.fg select{font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a18;outline:none;transition:border-color .15s;}
+.fg input,.fg select{font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;background:#fff;color:#1a1a18;outline:none;transition:border-color .15s;font-family:inherit;}
 .fg input:focus,.fg select:focus{border-color:#555;}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
 .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
 @media(max-width:600px){.grid2,.grid3{grid-template-columns:1fr 1fr;}}
 @media(max-width:400px){.grid2,.grid3{grid-template-columns:1fr;}}
-.btn{background:#1a1a18;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;}
+.btn{background:#1a1a18;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;}
 .btn:hover{background:#333;}
-.btn-outline{background:#fff;color:#1a1a18;border:1px solid #ddd;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;display:inline-flex;align-items:center;gap:5px;}
+.btn-outline{background:#fff;color:#1a1a18;border:1px solid #ddd;padding:7px 14px;border-radius:8px;font-size:12px;font-weight:500;cursor:pointer;font-family:inherit;}
 .btn-outline:hover{background:#f5f5f3;}
-.btn-red{background:#fff;color:#a32d2d;border:1px solid #f0c0c0;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;}
+.btn-red{background:#fff;color:#a32d2d;border:1px solid #f0c0c0;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;}
 .btn-red:hover{background:#fff5f5;}
-.btn-edit{background:#fff;color:#1a5276;border:1px solid #aed6f1;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;}
+.btn-edit{background:#fff;color:#1a5276;border:1px solid #aed6f1;padding:5px 10px;border-radius:7px;font-size:12px;cursor:pointer;font-family:inherit;}
 .btn-edit:hover{background:#eaf4fb;}
 .tbl-wrap{overflow-x:auto;}
 table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
@@ -63,7 +78,7 @@ tr:hover td{background:#fafaf8;}
 .msg{font-size:12px;margin-left:8px;}
 .msg.ok{color:#2e7d32;}.msg.err{color:#c62828;}
 .banner{background:#e3f0fd;border:1px solid #90c2f7;border-radius:10px;padding:11px 16px;font-size:13px;color:#0d47a1;margin-bottom:16px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;align-items:center;justify-content:center;padding:16px;overflow-y:auto;}
 .modal-box{background:#fff;border-radius:14px;padding:24px;width:480px;max-width:100%;margin:auto;}
 .modal-box-sm{background:#fff;border-radius:14px;padding:24px;width:380px;max-width:100%;margin:auto;}
 .divider{border:none;border-top:1px solid #f0f0ee;margin:12px 0;}
@@ -75,376 +90,197 @@ tr:hover td{background:#fafaf8;}
 .month-detail-row{display:flex;justify-content:space-between;font-size:12px;color:#666;padding:3px 0;}
 .month-detail-row span:last-child{font-weight:500;color:#1a1a18;}
 .action-btns{display:flex;gap:5px;}
-.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,0.85);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
+.loading-overlay{position:fixed;inset:0;background:rgba(255,255,255,.9);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
 .spinner{width:36px;height:36px;border:3px solid #eee;border-top-color:#1a1a18;border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 </style>
 </head>
 <body>
 
-<div id="loading-overlay" class="loading-overlay" style="display: none;">
+<!-- 로딩 -->
+<div id="loading-overlay" class="loading-overlay">
   <div class="spinner"></div>
-  <div style="font-size:13px;color:#888;">데이터 불러오는 중...</div>
+  <div style="font-size:13px;color:#888;">불러오는 중...</div>
 </div>
 
-<div class="topbar">
-  <div>
-    <div class="topbar-title">찾아가는 일자리버스(소통공간)</div>
-    <div class="topbar-sub">출장비 정산 관리</div>
-  </div>
-  <div class="topbar-actions">
-    <span id="sync-status" class="sync-status sync-ok">✓ 동기화됨</span>
-    <button class="btn-outline" onclick="exportCSV()">📥 엑셀 내보내기</button>
-    <button class="btn-outline" onclick="backupData()">💾 백업</button>
-    <button class="btn-outline" onclick="document.getElementById(&#39;loadFile&#39;).click()">📂 복원</button>
-    <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadData(event)">
+<!-- 로그인 화면 -->
+<div id="login-screen" class="login-screen" style="display:none;">
+  <div class="login-card">
+    <div class="login-logo">🚌</div>
+    <div class="login-title">출장비 정산 관리</div>
+    <div class="login-sub">Google 계정으로 로그인하면<br>어디서든 내 출장 데이터를 확인할 수 있어요</div>
+    <button class="btn-google" onclick="signIn()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+      Google로 로그인
+    </button>
   </div>
 </div>
 
-<div class="wrap">
-  <div class="tabs">
-    <button class="tab on" onclick="go(&#39;dash&#39;)">📊 대시보드</button>
-    <button class="tab" onclick="go(&#39;monthly&#39;)">📅 월별 합계</button>
-    <button class="tab" onclick="go(&#39;setup&#39;)">⚙️ 설정</button>
-    <button class="tab" onclick="go(&#39;add&#39;)">➕ 출장 등록</button>
-    <button class="tab" onclick="go(&#39;list&#39;)">📋 출장 목록</button>
-    <button class="tab" onclick="go(&#39;settle&#39;)">🧾 정산 현황</button>
+<!-- 앱 -->
+<div id="app-screen" style="display:none;">
+  <div class="topbar">
+    <div>
+      <div class="topbar-title">출장비 정산 관리</div>
+      <div class="topbar-sub" id="topbar-biz">내 사업 미설정</div>
+    </div>
+    <div class="topbar-actions">
+      <span id="sync-status" class="sync-badge sync-ing">연결 중...</span>
+      <button class="btn-outline" onclick="exportCSV()">📥 엑셀</button>
+      <button class="btn-outline" onclick="backupData()">💾 백업</button>
+      <button class="btn-outline" onclick="document.getElementById('loadFile').click()">📂 복원</button>
+      <input type="file" id="loadFile" accept=".json" style="display:none" onchange="loadData(event)">
+      <div class="user-info">
+        <img id="user-avatar" class="user-avatar" src="" alt="">
+        <span id="user-name" class="user-name"></span>
+        <button class="btn-outline" onclick="signOut()" style="font-size:11px;padding:5px 10px;">로그아웃</button>
+      </div>
+    </div>
   </div>
 
-  <div id="pane-dash" class="pane on">
-    <div id="d-banner"><div class="banner">🚌 <strong>찾아가는 일자리버스(소통공간)</strong> &nbsp;·&nbsp; 담당: 김새별 &nbsp;·&nbsp; 월 한도 6,240,000원</div></div>
-    <div class="metric-row" id="d-metrics">
-    <div class="mc"><div class="mc-lbl">전체 출장 건수</div><div class="mc-val">57건</div></div>
-    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">98만원</div><div class="mc-sub" style="color:#c62828;font-weight:500;">976,900원</div><div class="mc-sub">23건</div></div>
-    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">171만원</div><div class="mc-sub" style="color:#2e7d32;font-weight:500;">1,707,190원</div><div class="mc-sub">34건</div></div>
-    <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">25건</div></div>
-    <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">32건</div></div>
-  </div>
-    <div class="sec">내 사업 예산 현황</div>
-    <div id="d-mybiz">
+  <div class="wrap">
+    <div class="tabs">
+      <button class="tab on" onclick="go('dash')">📊 대시보드</button>
+      <button class="tab" onclick="go('monthly')">📅 월별 합계</button>
+      <button class="tab" onclick="go('setup')">⚙️ 설정</button>
+      <button class="tab" onclick="go('add')">➕ 출장 등록</button>
+      <button class="tab" onclick="go('list')">📋 출장 목록</button>
+      <button class="tab" onclick="go('settle')">🧾 정산 현황</button>
+    </div>
+
+    <!-- 대시보드 -->
+    <div id="pane-dash" class="pane on">
+      <div id="d-banner"></div>
+      <div class="metric-row" id="d-metrics"></div>
+      <div class="sec">내 사업 예산 현황</div>
+      <div id="d-mybiz"></div>
+      <div class="sec" style="margin-top:20px;">미정산 출장 전체</div>
+      <div id="d-pend"></div>
+    </div>
+
+    <!-- 월별 합계 -->
+    <div id="pane-monthly" class="pane">
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <select id="m-biz" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 사업</option></select>
+        <select id="m-person" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
+      </div>
+      <div id="monthly-content"></div>
+    </div>
+
+    <!-- 설정 -->
+    <div id="pane-setup" class="pane">
+      <div class="sec">내 사업 설정</div>
       <div class="card">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
-          <span style="font-weight:600;font-size:13px;">찾아가는 일자리버스(소통공간)</span>
-          <span style="font-size:12px;color:#888;">51건 출장</span>
+        <div class="banner"><span>🏢</span><span id="cur-mybiz-text">내 사업 미설정</span></div>
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="fg"><label>내 사업명</label><input type="text" id="mb-name" placeholder="예: 찾아가는 일자리버스(소통공간)"></div>
+          <div class="fg"><label>내 이름 (담당자)</label><input type="text" id="mb-owner" placeholder="홍길동"></div>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;">
-          <span>사용 2,345,880원</span><span>한도 6,240,000원</span>
+        <div class="fg" style="margin-bottom:12px;"><label>월 예산 한도 (원)</label><input type="number" id="mb-budget" placeholder="예: 500000" min="0" style="max-width:200px;"></div>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn" onclick="saveMyBiz()">💾 저장</button>
+          <span id="mb-msg" class="msg"></span>
         </div>
-        <div class="bar-wrap"><div class="bar-fill" style="width:38%;background:#1976d2;"></div></div>
-        <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
-          <span style="color:#aaa;">38% 사용</span>
-          <span style="color:#888;">잔액  3,894,120원</span>
+      </div>
+      <div class="sec">타 사업 등록</div>
+      <div class="card">
+        <div class="grid2" style="margin-bottom:12px;">
+          <div class="fg"><label>사업명</label><input type="text" id="ob-name" placeholder="예: B사업"></div>
+          <div class="fg"><label>담당자 이름</label><input type="text" id="ob-owner" placeholder="예: 이서연"></div>
         </div>
-      </div></div>
-    <div class="sec" style="margin-top:20px;">미정산 출장 전체</div>
-    <div id="d-pend">
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>출장자</th><th>사업</th><th>차량</th><th>날짜</th><th>금액</th><th></th></tr></thead>
-      <tbody><tr>
-        <td>이정엽</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">03-17</td>
-        <td style="font-weight:600;">70,400원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(114)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">03-31</td>
-        <td style="font-weight:600;">0원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(122)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">04-10</td>
-        <td style="font-weight:600;">0원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(130)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-06</td>
-        <td style="font-weight:600;">60,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(142)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-07</td>
-        <td style="font-weight:600;">37,500원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(143)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-07</td>
-        <td style="font-weight:600;">37,500원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(144)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-11</td>
-        <td style="font-weight:600;">37,500원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(145)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-11</td>
-        <td style="font-weight:600;">37,500원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(146)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-12</td>
-        <td style="font-weight:600;">63,200원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(147)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-12</td>
-        <td style="font-weight:600;">29,100원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(148)">정산</button></td>
-      </tr><tr>
-        <td>한희철</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-12</td>
-        <td style="font-weight:600;">45,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(149)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-13</td>
-        <td style="font-weight:600;">60,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(150)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-14</td>
-        <td style="font-weight:600;">68,400원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(151)">정산</button></td>
-      </tr><tr>
-        <td>오영주</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-14</td>
-        <td style="font-weight:600;">50,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(152)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-19</td>
-        <td style="font-weight:600;">57,600원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(153)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-other">파일럿</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-20</td>
-        <td style="font-weight:600;">10,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(154)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-20</td>
-        <td style="font-weight:600;">29,100원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(155)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-22</td>
-        <td style="font-weight:600;">60,000원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(156)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-27</td>
-        <td style="font-weight:600;">29,100원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(157)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-27</td>
-        <td style="font-weight:600;">29,100원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(158)">정산</button></td>
-      </tr><tr>
-        <td>김새별</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-28</td>
-        <td style="font-weight:600;">68,400원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(159)">정산</button></td>
-      </tr><tr>
-        <td>한송이</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-own">자차</span></td>
-        <td style="font-size:11px;">05-28</td>
-        <td style="font-weight:600;">68,400원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(160)">정산</button></td>
-      </tr><tr>
-        <td>김민영</td>
-        <td><span class="badge b-mine">찾아가는 일자리버…</span></td>
-        <td><span class="badge b-gov">관차</span></td>
-        <td style="font-size:11px;">05-28</td>
-        <td style="font-weight:600;">29,100원</td>
-        <td><button class="btn-outline" style="padding:4px 10px;font-size:11px;" onclick="openSettle(161)">정산</button></td>
-      </tr></tbody>
-    </table></div></div>
-  </div>
-
-  <div id="pane-monthly" class="pane">
-    <div style="display:flex;gap:8px;margin-bottom:20px;align-items:center;flex-wrap:wrap;">
-      <select id="m-biz" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 사업</option></select>
-      <select id="m-person" onchange="renderMonthly()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
+        <div style="display:flex;align-items:center;gap:8px;">
+          <button class="btn" onclick="addOtherBiz()">➕ 추가</button>
+          <span id="ob-msg" class="msg"></span>
+        </div>
+      </div>
+      <div id="other-biz-list"></div>
     </div>
-    <div id="monthly-content"></div>
-  </div>
 
-  <div id="pane-setup" class="pane">
-    <div class="sec">내 사업 설정</div>
-    <div class="card">
-      <div class="banner"><span>🏢</span><span id="cur-mybiz-text">찾아가는 일자리버스(소통공간) — 담당자·한도 미설정</span></div>
+    <!-- 출장 등록 -->
+    <div id="pane-add" class="pane">
+      <div class="sec">출장 정보</div>
       <div class="grid2" style="margin-bottom:12px;">
-        <div class="fg"><label>내 사업명</label><input type="text" id="mb-name" placeholder="찾아가는 일자리버스(소통공간)"></div>
-        <div class="fg"><label>내 이름 (담당자)</label><input type="text" id="mb-owner" placeholder="홍길동"></div>
+        <div class="fg"><label>출장자 이름 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
+        <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
+        <div class="fg"><label>출장 시작일 *</label><input type="date" id="a-start"></div>
+        <div class="fg"><label>출장 종료일 *</label><input type="date" id="a-end"></div>
+        <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
+        <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
       </div>
-      <div class="fg" style="margin-bottom:12px;"><label>월 예산 한도 (원)</label><input type="number" id="mb-budget" placeholder="예: 500000" min="0" style="max-width:200px;"></div>
+      <div class="sec">차량 구분</div>
+      <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
+          <input type="radio" name="vehicle" id="v-gov" value="관차" checked> 🚌 관차
+        </label>
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
+          <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
+        </label>
+      </div>
+      <div class="sec">비용 입력 (원)</div>
+      <div class="grid3" style="margin-bottom:12px;">
+        <div class="fg"><label>💵 일비</label><input type="number" id="a-da" placeholder="0" min="0"></div>
+        <div class="fg"><label>🍱 식비</label><input type="number" id="a-me" placeholder="0" min="0"></div>
+        <div class="fg"><label>🚆 교통비</label><input type="number" id="a-tr" placeholder="0" min="0"></div>
+      </div>
+      <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항 (선택)"></div>
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn" onclick="saveMyBiz()">💾 저장</button>
-        <span id="mb-msg" class="msg"></span>
+        <button class="btn" onclick="addTrip()">✅ 등록하기</button>
+        <span id="a-msg" class="msg"></span>
       </div>
     </div>
-    <div class="sec">타 사업 등록</div>
-    <div class="card">
-      <div class="grid2" style="margin-bottom:12px;">
-        <div class="fg"><label>사업명</label><input type="text" id="ob-name" placeholder="예: B사업"></div>
-        <div class="fg"><label>담당자 이름</label><input type="text" id="ob-owner" placeholder="예: 이서연"></div>
+
+    <!-- 출장 목록 -->
+    <div id="pane-list" class="pane">
+      <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+        <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="renderList()">
+        <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
+        <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
+        </select>
+        <select id="l-status" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
+          <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
+        </select>
       </div>
-      <div style="display:flex;align-items:center;gap:8px;">
-        <button class="btn" onclick="addOtherBiz()">➕ 추가</button>
-        <span id="ob-msg" class="msg"></span>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr>
+            <th style="width:65px;">출장자</th>
+            <th style="width:85px;">사업</th>
+            <th style="width:80px;">날짜</th>
+            <th style="width:46px;">차량</th>
+            <th style="width:55px;">일비</th>
+            <th style="width:55px;">식비</th>
+            <th style="width:55px;">교통비</th>
+            <th style="width:72px;">합계</th>
+            <th style="width:65px;">상태</th>
+            <th style="width:100px;"></th>
+          </tr></thead>
+          <tbody id="l-body"></tbody>
+        </table>
       </div>
+      <div id="l-empty" class="empty" style="display:none;">📭 출장 내역이 없어요</div>
     </div>
-    <div id="other-biz-list"></div>
-  </div>
 
-  <div id="pane-add" class="pane">
-    <div class="sec">출장 정보</div>
-    <div class="grid2" style="margin-bottom:12px;">
-      <div class="fg"><label>출장자 이름 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
-      <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
-      <div class="fg"><label>출장 시작일 *</label><input type="date" id="a-start"></div>
-      <div class="fg"><label>출장 종료일 *</label><input type="date" id="a-end"></div>
-      <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
-      <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
+    <!-- 정산 현황 -->
+    <div id="pane-settle" class="pane">
+      <div style="display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;">
+        <select id="s-month" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
+        <select id="s-person" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
+      </div>
+      <div id="s-content"></div>
     </div>
-    <div class="sec">차량 구분</div>
-    <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
-        <input type="radio" name="vehicle" id="v-gov" value="관차" checked=""> 🚌 관차
-      </label>
-      <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:9px 16px;">
-        <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
-      </label>
-    </div>
-    <div class="sec">비용 입력 (원)</div>
-    <div class="grid3" style="margin-bottom:12px;">
-      <div class="fg"><label>💵 일비</label><input type="number" id="a-da" placeholder="0" min="0"></div>
-      <div class="fg"><label>🍱 식비</label><input type="number" id="a-me" placeholder="0" min="0"></div>
-      <div class="fg"><label>🚆 교통비</label><input type="number" id="a-tr" placeholder="0" min="0"></div>
-    </div>
-    <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항 (선택)"></div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button class="btn" onclick="addTrip()">✅ 등록하기</button>
-      <span id="a-msg" class="msg"></span>
-    </div>
-  </div>
-
-  <div id="pane-list" class="pane">
-    <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-      <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;outline:none;" oninput="renderList()">
-      <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
-      <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-        <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
-      </select>
-      <select id="l-status" onchange="renderList()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-        <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
-      </select>
-    </div>
-    <div class="tbl-wrap">
-      <table>
-        <thead><tr>
-          <th style="width:62px;">출장자</th>
-          <th style="width:80px;">사업</th>
-          <th style="width:78px;">날짜</th>
-          <th style="width:46px;">차량</th>
-          <th style="width:52px;">일비</th>
-          <th style="width:52px;">식비</th>
-          <th style="width:52px;">교통비</th>
-          <th style="width:68px;">합계</th>
-          <th style="width:62px;">상태</th>
-          <th style="width:100px;"></th>
-        </tr></thead>
-        <tbody id="l-body"></tbody>
-      </table>
-    </div>
-    <div id="l-empty" class="empty" style="display:none;">📭 출장 내역이 없어요</div>
-  </div>
-
-  <div id="pane-settle" class="pane">
-    <div style="display:flex;gap:8px;margin-bottom:20px;align-items:center;flex-wrap:wrap;">
-      <select id="s-month" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"></select>
-      <select id="s-person" onchange="renderSettle()" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option></select>
-    </div>
-    <div id="s-content"></div>
   </div>
 </div>
 
-<div class="modal-bg" id="modal-wrap" style="display: none;">
-  <div id="modal-inner">
-    <div class="modal-box-sm">
-      <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터를 선택하지 않으면 전체 내보내기</div>
-      <div class="fg"><label>📅 월 선택</label>
-        <select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 월</option><option value="2026-02">2026년 2월</option><option value="2026-03">2026년 3월</option><option value="2026-04">2026년 4월</option><option value="2026-05">2026년 5월</option>
-        </select>
-      </div>
-      <div class="fg"><label>👤 출장자 선택</label>
-        <select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 출장자</option><option value="김민영">김민영</option><option value="김새별">김새별</option><option value="오영주">오영주</option><option value="이성희">이성희</option><option value="이정엽">이정엽</option><option value="이정현">이정현</option><option value="한송이">한송이</option><option value="한희철">한희철</option>
-        </select>
-      </div>
-      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업 선택</label>
-        <select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 사업</option><option value="my">찾아가는 일자리버스(소통공간)</option><option value="100">어울림프로젝트</option><option value="101">파일럿</option><option value="102">브릿지온</option><option value="103">충전</option><option value="104">충남종합센터</option>
-        </select>
-      </div>
-      <div id="ex-count" style="font-size:12px;color:#666;margin-bottom:14px;">→ 57건 내보내기 예정</div>
-      <div style="display:flex;gap:8px;">
-        <button class="btn" onclick="doExportCSV()">📥 내보내기</button>
-        <button class="btn-outline" onclick="closeModal()">취소</button>
-      </div>
-    </div></div>
+<!-- 정산 모달 -->
+<div class="modal-bg" id="modal-wrap">
+  <div id="modal-inner"></div>
 </div>
 
 <!-- Firebase SDK -->
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as fbSignOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD7-CeYQ0MdGuHFI-dw_Ne3E3xcR9LHD74",
@@ -452,68 +288,100 @@ const firebaseConfig = {
   projectId: "trip-manager-fc684",
   storageBucket: "trip-manager-fc684.firebasestorage.app",
   messagingSenderId: "229407375560",
-  appId: "1:229407375560:web:018dd31caf29f605e425fd",
-  measurementId: "G-2YETD90SSN"
+  appId: "1:229407375560:web:018dd31caf29f605e425fd"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const DOC_REF = doc(db, "tripdata", "sotong");
+const auth = getAuth(app);
+const provider = new GoogleAuthProvider();
 
-let myBiz={name:'찾아가는 일자리버스(소통공간)',owner:'',budget:0};
+let myBiz={name:'',owner:'',budget:0};
 let otherBiz=[];
 let trips=[];
 let nextId=100;
-let isSaving=false;
+let currentUser=null;
+let unsubscribe=null;
 
-function setSyncStatus(type, text){
-  const el=document.getElementById('sync-status');
-  el.className='sync-status sync-'+type;
-  el.textContent=text;
+// ── 인증 ──
+window.signIn=async function(){
+  try{ await signInWithPopup(auth,provider); }
+  catch(e){ alert('로그인 실패: '+e.message); }
+}
+window.signOut=async function(){
+  if(!confirm('로그아웃 하시겠어요?'))return;
+  if(unsubscribe)unsubscribe();
+  await fbSignOut(auth);
+}
+
+onAuthStateChanged(auth,(user)=>{
+  document.getElementById('loading-overlay').style.display='none';
+  if(user){
+    currentUser=user;
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app-screen').style.display='block';
+    document.getElementById('user-name').textContent=user.displayName||user.email;
+    if(user.photoURL){
+      document.getElementById('user-avatar').src=user.photoURL;
+      document.getElementById('user-avatar').style.display='block';
+    } else {
+      document.getElementById('user-avatar').style.display='none';
+    }
+    loadUserData(user.uid);
+  } else {
+    currentUser=null;
+    document.getElementById('login-screen').style.display='flex';
+    document.getElementById('app-screen').style.display='none';
+    if(unsubscribe){unsubscribe();unsubscribe=null;}
+  }
+});
+
+function loadUserData(uid){
+  const docRef=doc(db,'users',uid,'data','tripdata');
+  setSyncStatus('ing','연결 중...');
+  if(unsubscribe)unsubscribe();
+  unsubscribe=onSnapshot(docRef,(snap)=>{
+    if(snap.exists()){
+      const d=snap.data();
+      if(d.myBiz)myBiz=d.myBiz;
+      if(d.otherBiz)otherBiz=d.otherBiz;
+      if(d.trips)trips=d.trips;
+      if(d.nextId)nextId=d.nextId;
+    }
+    setSyncStatus('ok','✓ 동기화됨');
+    updateTopbarBiz();
+    const tabs=['dash','monthly','setup','add','list','settle'];
+    const idx=Array.from(document.querySelectorAll('.tab')).findIndex(t=>t.classList.contains('on'));
+    const cur=tabs[idx]||'dash';
+    refreshView(cur);
+  },(err)=>{
+    setSyncStatus('err','연결 오류');
+    console.error(err);
+  });
 }
 
 async function persist(){
-  if(isSaving)return;
-  isSaving=true;
+  if(!currentUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(DOC_REF,{myBiz,otherBiz,trips,nextId});
+    const docRef=doc(db,'users',currentUser.uid,'data','tripdata');
+    await setDoc(docRef,{myBiz,otherBiz,trips,nextId});
     setSyncStatus('ok','✓ 동기화됨');
-  }catch(e){
-    setSyncStatus('err','저장 실패');
-    console.error(e);
-  }
-  isSaving=false;
+  }catch(e){setSyncStatus('err','저장 실패');}
 }
 
-// 실시간 동기화 리스너
-onSnapshot(DOC_REF, (snap)=>{
-  if(snap.exists()){
-    const d=snap.data();
-    if(d.myBiz)myBiz=d.myBiz;
-    if(d.otherBiz)otherBiz=d.otherBiz;
-    if(d.trips)trips=d.trips;
-    if(d.nextId)nextId=d.nextId;
-    setSyncStatus('ok','✓ 동기화됨');
-  } else {
-    setSyncStatus('ok','✓ 연결됨');
-  }
-  document.getElementById('loading-overlay').style.display='none';
-  const activeTab=document.querySelector('.tab.on');
-  const tabs=['dash','monthly','setup','add','list','settle'];
-  const idx=Array.from(document.querySelectorAll('.tab')).indexOf(activeTab);
-  const cur=tabs[idx]||'dash';
-  if(cur==='dash')renderDash();
-  if(cur==='monthly')renderMonthly();
-  if(cur==='list')renderList();
-  if(cur==='settle')renderSettle();
-  if(cur==='setup')renderSetup();
-}, (err)=>{
-  setSyncStatus('err','연결 오류');
-  document.getElementById('loading-overlay').style.display='none';
-  console.error(err);
-});
+function setSyncStatus(t,txt){
+  const el=document.getElementById('sync-status');
+  el.className='sync-badge sync-'+t;
+  el.textContent=txt;
+}
 
+function updateTopbarBiz(){
+  const el=document.getElementById('topbar-biz');
+  el.textContent=myBiz.name?myBiz.name:'내 사업 미설정';
+}
+
+// ── 유틸 ──
 function total(t){return (t.da||0)+(t.me||0)+(t.tr||0);}
 function fmt(n){return Math.round(n).toLocaleString()+'원';}
 function shortName(id){
@@ -528,15 +396,20 @@ function bizLabel(id){
   return b?b.name:'?';
 }
 function allBiz(){
-  const arr=[{id:'my',name:'[내 사업] '+myBiz.name}];
+  const arr=[{id:'my',name:'[내 사업] '+(myBiz.name||'미설정')}];
   otherBiz.forEach(b=>arr.push({id:b.id,name:b.name+' ('+b.owner+')'}));
   return arr;
 }
 
-window.go=function(id){
+function go(id){
   document.querySelectorAll('.tab').forEach((t,i)=>{t.classList.toggle('on',['dash','monthly','setup','add','list','settle'][i]===id);});
   document.querySelectorAll('.pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('pane-'+id).classList.add('on');
+  refreshView(id);
+}
+window.go=go;
+
+function refreshView(id){
   if(id==='dash')renderDash();
   if(id==='monthly')renderMonthly();
   if(id==='setup')renderSetup();
@@ -546,15 +419,15 @@ window.go=function(id){
 }
 
 function renderDash(){
-  document.getElementById('d-banner').innerHTML=`<div class="banner">🚌 <strong>${myBiz.name}</strong>${myBiz.owner?' &nbsp;·&nbsp; 담당: '+myBiz.owner:''}${myBiz.budget>0?' &nbsp;·&nbsp; 월 한도 '+fmt(myBiz.budget):''}</div>`;
+  document.getElementById('d-banner').innerHTML=`<div class="banner">👤 <strong>${currentUser?.displayName||'사용자'}</strong>${myBiz.name?' &nbsp;·&nbsp; '+myBiz.name:''}${myBiz.budget>0?' &nbsp;·&nbsp; 월 한도 '+fmt(myBiz.budget):''}</div>`;
   const pend=trips.filter(t=>t.status==='pending');
   const done=trips.filter(t=>t.status==='done');
   const tPend=pend.reduce((s,t)=>s+total(t),0);
   const tDone=done.reduce((s,t)=>s+t.settled,0);
   document.getElementById('d-metrics').innerHTML=`
-    <div class="mc"><div class="mc-lbl">전체 출장 건수</div><div class="mc-val">${trips.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">미정산 금액</div><div class="mc-val" style="color:#c62828;">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:#c62828;font-weight:500;">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
-    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:#2e7d32;font-weight:500;">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">전체 출장</div><div class="mc-val">${trips.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">미정산</div><div class="mc-val" style="color:#c62828;">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:#c62828;">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
+    <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:#2e7d32;">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:#2e7d32;">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
     <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='관차').length}건</div></div>
     <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='자차').length}건</div></div>
   `;
@@ -567,8 +440,8 @@ function renderDash(){
     document.getElementById('d-mybiz').innerHTML=`
       <div class="card">
         <div style="display:flex;justify-content:space-between;margin-bottom:6px;flex-wrap:wrap;gap:4px;">
-          <span style="font-weight:600;font-size:13px;">${myBiz.name}</span>
-          <span style="font-size:12px;color:#888;">${myTrips.length}건 출장</span>
+          <span style="font-weight:600;font-size:13px;">${myBiz.name||'내 사업'}</span>
+          <span style="font-size:12px;color:#888;">${myTrips.length}건</span>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:12px;color:#888;margin-bottom:5px;">
           <span>사용 ${fmt(used)}</span><span>한도 ${fmt(myBiz.budget)}</span>
@@ -576,7 +449,7 @@ function renderDash(){
         <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:${color};"></div></div>
         <div style="display:flex;justify-content:space-between;margin-top:6px;font-size:12px;">
           <span style="color:${over?'#c62828':'#aaa'};">${pct}% 사용${over?' ⚠ 한도 초과':''}</span>
-          <span style="color:#888;">잔액 ${over?'(초과) ':''} ${fmt(Math.abs(myBiz.budget-used))}</span>
+          <span style="color:#888;">잔액 ${fmt(Math.abs(myBiz.budget-used))}</span>
         </div>
       </div>`;
   } else {
@@ -652,7 +525,8 @@ function renderMonthly(){
 }
 
 function renderSetup(){
-  document.getElementById('cur-mybiz-text').textContent=`${myBiz.name||'찾아가는 일자리버스(소통공간)'}${myBiz.owner?' · '+myBiz.owner:''}${myBiz.budget>0?' · 한도 '+fmt(myBiz.budget):''}`;
+  const n=myBiz.name||'';
+  document.getElementById('cur-mybiz-text').textContent=n?`${n}${myBiz.owner?' · '+myBiz.owner:''}${myBiz.budget>0?' · 한도 '+fmt(myBiz.budget):''}` :'내 사업 미설정';
   document.getElementById('mb-name').value=myBiz.name||'';
   document.getElementById('mb-owner').value=myBiz.owner||'';
   document.getElementById('mb-budget').value=myBiz.budget||'';
@@ -664,12 +538,13 @@ function renderSetup(){
 }
 
 window.saveMyBiz=async function(){
-  const name=document.getElementById('mb-name').value.trim()||'찾아가는 일자리버스(소통공간)';
+  const name=document.getElementById('mb-name').value.trim();
   const owner=document.getElementById('mb-owner').value.trim();
   const budget=parseInt(document.getElementById('mb-budget').value)||0;
-  if(!owner){showMsg('mb-msg','담당자 이름을 입력해 주세요','err');return;}
+  if(!name||!owner){showMsg('mb-msg','사업명과 담당자 이름을 입력해 주세요','err');return;}
   myBiz={name,owner,budget};
   await persist();
+  updateTopbarBiz();
   showMsg('mb-msg','저장 완료!','ok');
   renderSetup();
 }
@@ -727,7 +602,7 @@ function renderList(){
   bsel.innerHTML='<option value="">전체 사업</option>'+allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
   if(bf)bsel.value=bf;
   let list=[...trips].filter(t=>{
-    return (!q||t.person.toLowerCase().includes(q)||t.dest.toLowerCase().includes(q))
+    return(!q||t.person.toLowerCase().includes(q)||t.dest.toLowerCase().includes(q))
       &&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))
       &&(!vf||t.vehicle===vf)
       &&(!sf||t.status===sf);
@@ -872,6 +747,7 @@ function renderSettle(){
     </div>`;
   }).join('');
 }
+window.renderSettle=renderSettle;
 
 window.openSettle=function(id){
   const t=trips.find(x=>x.id===id);
@@ -919,13 +795,7 @@ window.unSettle=async function(id){
 }
 
 window.closeModal=function(){document.getElementById('modal-wrap').style.display='none';}
-document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)window.closeModal();});
-
-window.renderSettle=renderSettle;
-window.renderDash=renderDash;
-window.renderList=renderList;
-window.renderMonthly=renderMonthly;
-window.renderSetup=renderSetup;
+document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)closeModal();});
 
 function showMsg(id,txt,type){
   const el=document.getElementById(id);
@@ -935,18 +805,15 @@ function showMsg(id,txt,type){
 }
 
 window.backupData=function(){
-  const data=JSON.stringify({myBiz,otherBiz,trips,nextId},null,2);
-  const blob=new Blob([data],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({myBiz,otherBiz,trips,nextId},null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download=`출장비백업_${new Date().toISOString().slice(0,10)}.json`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.click();URL.revokeObjectURL(a.href);
 }
 
 window.loadData=async function(e){
-  const file=e.target.files[0];
-  if(!file)return;
+  const file=e.target.files[0];if(!file)return;
   const reader=new FileReader();
   reader.onload=async function(ev){
     try{
@@ -956,59 +823,37 @@ window.loadData=async function(e){
       if(d.trips)trips=d.trips;
       if(d.nextId)nextId=d.nextId;
       await persist();
-      renderDash();
+      refreshView('dash');go('dash');
       alert('✅ 복원 완료!');
     }catch(err){alert('❌ 파일을 읽을 수 없어요.');}
   };
-  reader.readAsText(file);
-  e.target.value='';
-}
-
-function fmtDate(d){
-  if(!d)return '';
-  const parts=d.split('-');
-  if(parts.length!==3)return d;
-  return parts[0].slice(2)+'-'+parts[1]+'-'+parts[2];
-}
-function fmtBiz(id){
-  if(id==='my'){const n=myBiz.name||'소통공간';if(n.includes('소통공간'))return '소통공간';return n;}
-  const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
+  reader.readAsText(file);e.target.value='';
 }
 
 window.exportCSV=function(){
   if(!trips.length){alert('출장 내역이 없어요.');return;}
-
-  // 필터 옵션 구성
+  const BOM='\uFEFF';
+  function fmtDate(d){
+    if(!d)return '';
+    const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];
+  }
+  function fmtBiz(id){
+    if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}
+    const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
+  }
+  // 월/출장자/사업 필터 팝업
   const months=[...new Set(trips.map(t=>t.start.slice(0,7)))].sort();
   const people=[...new Set(trips.map(t=>t.person))].sort();
-
-  const monthOpts=months.map(m=>{
-    const[y,mo]=m.split('-');
-    return `<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;
-  }).join('');
-
+  const monthOpts=months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;}).join('');
   const personOpts=people.map(p=>`<option value="${p}">${p}</option>`).join('');
   const bizOpts=allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
-
   document.getElementById('modal-inner').innerHTML=`
     <div class="modal-box-sm">
       <div style="font-weight:700;font-size:16px;margin-bottom:16px;">📥 엑셀 내보내기</div>
-      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터를 선택하지 않으면 전체 내보내기</div>
-      <div class="fg"><label>📅 월 선택</label>
-        <select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 월</option>${monthOpts}
-        </select>
-      </div>
-      <div class="fg"><label>👤 출장자 선택</label>
-        <select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 출장자</option>${personOpts}
-        </select>
-      </div>
-      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업 선택</label>
-        <select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;">
-          <option value="">전체 사업</option>${bizOpts}
-        </select>
-      </div>
+      <div style="font-size:12px;color:#888;margin-bottom:14px;">필터 선택 안 하면 전체 내보내기</div>
+      <div class="fg"><label>📅 월</label><select id="ex-month" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 월</option>${monthOpts}</select></div>
+      <div class="fg"><label>👤 출장자</label><select id="ex-person" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 출장자</option>${personOpts}</select></div>
+      <div class="fg" style="margin-bottom:18px;"><label>🏢 사업</label><select id="ex-biz" style="font-size:13px;padding:8px 10px;border:1px solid #ddd;border-radius:8px;"><option value="">전체 사업</option>${bizOpts}</select></div>
       <div id="ex-count" style="font-size:12px;color:#666;margin-bottom:14px;"></div>
       <div style="display:flex;gap:8px;">
         <button class="btn" onclick="doExportCSV()">📥 내보내기</button>
@@ -1016,24 +861,17 @@ window.exportCSV=function(){
       </div>
     </div>`;
   document.getElementById('modal-wrap').style.display='flex';
-
-  // 실시간 건수 표시
   function updateCount(){
     const mf=document.getElementById('ex-month').value;
     const pf=document.getElementById('ex-person').value;
     const bf=document.getElementById('ex-biz').value;
     const cnt=trips.filter(t=>{
-      const mm=!mf||t.start.startsWith(mf);
-      const mp=!pf||t.person===pf;
-      const mb=!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf));
-      return mm&&mp&&mb;
+      return(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)));
     }).length;
     document.getElementById('ex-count').textContent=`→ ${cnt}건 내보내기 예정`;
   }
   setTimeout(()=>{
-    document.getElementById('ex-month').addEventListener('change',updateCount);
-    document.getElementById('ex-person').addEventListener('change',updateCount);
-    document.getElementById('ex-biz').addEventListener('change',updateCount);
+    ['ex-month','ex-person','ex-biz'].forEach(id=>document.getElementById(id).addEventListener('change',updateCount));
     updateCount();
   },50);
 }
@@ -1042,42 +880,32 @@ window.doExportCSV=function(){
   const mf=document.getElementById('ex-month').value;
   const pf=document.getElementById('ex-person').value;
   const bf=document.getElementById('ex-biz').value;
-
+  function fmtDate(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
+  function fmtBiz(id){
+    if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}
+    const b=otherBiz.find(x=>x.id===id);return b?b.name:'';
+  }
   let filtered=[...trips].filter(t=>{
-    const mm=!mf||t.start.startsWith(mf);
-    const mp=!pf||t.person===pf;
-    const mb=!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf));
-    return mm&&mp&&mb;
+    return(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)));
   }).sort((a,b)=>a.start.localeCompare(b.start));
-
   if(!filtered.length){alert('해당 조건의 출장 내역이 없어요.');return;}
-
   const BOM='\uFEFF';
   const header=['출장구분','사업비','출장시작일자','출장종료일자','출장지','목적','일비','식비','교통비','합계'];
   const rows=filtered.map(t=>[
     '국내/관외',fmtBiz(t.bizId),fmtDate(t.start),fmtDate(t.end),
     t.dest,t.purpose||'',t.da||0,t.me||0,t.tr||0,total(t)
   ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-
   const csv=BOM+[header.join(','),...rows].join('\n');
   const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-
-  // 파일명에 필터 조건 반영
   let fname='출장비내역';
   if(mf){const[y,mo]=mf.split('-');fname+=`_${y.slice(2)}년${parseInt(mo)}월`;}
   if(pf)fname+=`_${pf}`;
-  if(bf)fname+=`_${bizLabel(bf==='my'?'my':parseInt(bf))}`;
-  fname+=`_${new Date().toISOString().slice(0,10)}`;
-
-  a.download=`${fname}.csv`;
-  a.click();
-  URL.revokeObjectURL(a.href);
+  a.download=`${fname}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();URL.revokeObjectURL(a.href);
   closeModal();
 }
-
 </script>
-
-
-</body></html>
+</body>
+</html>
