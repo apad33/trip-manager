@@ -411,7 +411,7 @@ tr:hover td{background:var(--surface2);}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut as fbSignOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, onAuthStateChanged, signOut as fbSignOut } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyD7-CeYQ0MdGuHFI-dw_Ne3E3xcR9LHD74",
@@ -441,8 +441,17 @@ let curMonth=new Date().getMonth();
 const GOAL_CONSULT=70,GOAL_PR=40,GOAL_FEE=30000000;
 
 // ── 인증 ──
-window.signIn=async function(){try{await signInWithPopup(auth,provider);}catch(e){alert('로그인 실패: '+e.message);}}
+window.signIn=async function(){
+  try{
+    const isMobile=/iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    if(isMobile){await signInWithRedirect(auth,provider);}
+    else{await signInWithPopup(auth,provider);}
+  }catch(e){alert('로그인 실패: '+e.message);}
+}
 window.signOut=async function(){if(!confirm('로그아웃 하시겠어요?'))return;if(unsub)unsub();await fbSignOut(auth);}
+
+// 리다이렉트 로그인 결과 처리
+getRedirectResult(auth).catch(e=>{if(e.code!=='auth/no-current-user')console.error(e);});
 
 onAuthStateChanged(auth,(user)=>{
   document.getElementById('loading-overlay').style.display='none';
