@@ -129,14 +129,16 @@ tr:hover td{background:var(--surface2);}
 .cal-dow:first-child{color:#EF4444;}
 .cal-dow:last-child{color:#3B82F6;}
 .cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;}
-.cal-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;min-height:90px;padding:5px;cursor:pointer;transition:border-color .15s;}
+.cal-cell{background:var(--surface);border:1px solid var(--border);border-radius:8px;min-height:110px;padding:5px;cursor:pointer;transition:border-color .15s;}
 .cal-cell:hover{border-color:var(--blue);}
 .cal-cell.today{border-color:var(--blue);background:var(--blue-bg);}
 .cal-cell.other-month{opacity:.4;}
 .cal-date{font-size:11px;font-weight:600;margin-bottom:3px;}
 .cal-cell.is-sun .cal-date{color:#EF4444;}
 .cal-cell.is-sat .cal-date{color:#3B82F6;}
-.cal-event{font-size:10px;padding:2px 5px;border-radius:4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;}
+.cal-event{font-size:10px;padding:4px 6px;border-radius:6px;margin-bottom:3px;cursor:pointer;line-height:1.4;}
+.cal-event-title{font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cal-event-detail{color:inherit;opacity:.8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:9px;margin-top:1px;}
 .cal-more{font-size:10px;color:var(--text3);}
 .month-summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin-bottom:20px;}
 .month-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;}
@@ -199,13 +201,13 @@ tr:hover td{background:var(--surface2);}
 
   <!-- 앱 탭 -->
   <div class="app-tabs">
-    <button class="app-tab on" onclick="switchApp('trip')">💼 출장 관리</button>
-    <button class="app-tab" onclick="switchApp('sched')">📅 운영일정</button>
+    <button class="app-tab on" onclick="switchApp('sched')">📅 운영일정</button>
+    <button class="app-tab" onclick="switchApp('trip')">💼 출장 관리</button>
     <button class="app-tab" onclick="switchApp('budget')">💰 예산 관리</button>
   </div>
 
   <!-- ===== 출장 관리 ===== -->
-  <div id="app-trip">
+  <div id="app-trip" style="display:none;">
     <div class="sub-tabs">
       <button class="sub-tab on" onclick="goTrip('dash')">📊 대시보드</button>
       <button class="sub-tab" onclick="goTrip('monthly')">📅 월별 합계</button>
@@ -345,15 +347,15 @@ tr:hover td{background:var(--surface2);}
   </div>
 
   <!-- ===== 운영일정 ===== -->
-  <div id="app-sched" style="display:none;">
+  <div id="app-sched">
     <div class="sub-tabs">
-      <button class="sub-tab on" onclick="openSchedAddModal()" style="color:var(--blue);">➕ 일정 등록</button>
-      <button class="sub-tab" onclick="goSched('cal')">📅 달력</button>
+      <button class="sub-tab on" onclick="goSched('cal')">📅 달력</button>
       <button class="sub-tab" onclick="goSched('list')">📋 목록</button>
       <button class="sub-tab" onclick="goSched('stat')">📊 현황</button>
     </div>
     <div class="wrap">
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-sm btn-blue" onclick="openSchedAddModal()">➕ 일정 등록</button>
         <button class="btn-sm" onclick="exportSchedCSV()">📥 엑셀</button>
         <button class="btn-sm" onclick="backupSched()">💾 백업</button>
         <button class="btn-sm" onclick="document.getElementById('loadSchedFile').click()">📂 복원</button>
@@ -666,9 +668,9 @@ function setSyncStatus(t,txt){const el=document.getElementById('sync-status');el
 
 // ── 앱 전환 ──
 window.switchApp=function(app){
-  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['trip','sched','budget'][i]===app));
-  document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
+  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['sched','trip','budget'][i]===app));
   document.getElementById('app-sched').style.display=app==='sched'?'block':'none';
+  document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
   document.getElementById('app-budget').style.display=app==='budget'?'block':'none';
   if(app==='trip')refreshTripView(currentTripTab);
   if(app==='sched')refreshSchedView(currentSchedTab);
@@ -679,8 +681,8 @@ let currentTripTab='dash';
 let currentSchedTab='cal';
 
 function refreshCurrentView(){
-  refreshTripView(currentTripTab);
   if(currentSchedTab==='cal')renderCal();
+  refreshTripView(currentTripTab);
 }
 
 // ── 출장 관리 ──
@@ -1099,7 +1101,7 @@ window.loadTripData=async function(e){
 // ── 운영일정 ──
 window.goSched=function(id){
   currentSchedTab=id;
-  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['add','cal','list','stat'][i]===id));
+  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['cal','list','stat'][i]===id));
   document.querySelectorAll('#app-sched .pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('sc-'+id).classList.add('on');
   if(id==='cal')renderCal();
@@ -1138,7 +1140,15 @@ function renderCal(){
       const col=catColor(ev.cat);const isDone=ev.status==='완료';
       const tag=document.createElement('div');tag.className='cal-event';
       tag.style.background=isDone?'#E8F5E9':col.bg;tag.style.color=isDone?'#166534':col.color;
-      tag.innerHTML=(ev.hasBus?'<span style="font-size:9px;">🚌</span>':'')+'<span style="overflow:hidden;text-overflow:ellipsis;">'+ev.place+'</span>';
+      tag.style.opacity=isDone?.75:1;
+      const busIcon=ev.hasBus?'🚌 ':'';
+      const seqTxt=ev.seq?ev.seq+'차 ':'';
+      const timeTxt=ev.time?ev.time:'';
+      const lecTxt=ev.lecturers&&ev.lecturers.length?'👤'+ev.lecturers.map(l=>l.name).join(','):'';
+      const descTxt=ev.desc||'';
+      tag.innerHTML=`<div class="cal-event-title">${busIcon}${seqTxt}[${ev.cat}] ${ev.place}</div>`
+        +((timeTxt||descTxt||lecTxt)?`<div class="cal-event-detail">${[timeTxt,descTxt,lecTxt].filter(Boolean).join(' · ')}</div>`:'');
+      tag.title=[ev.place,timeTxt,descTxt,lecTxt].filter(Boolean).join(' | ');
       tag.onclick=(e)=>{e.stopPropagation();openSchedDetail(ev.id);};cell.appendChild(tag);
     });
     if(dayEvs.length>3){const more=document.createElement('div');more.className='cal-more';more.textContent=`+${dayEvs.length-3}개`;cell.appendChild(more);}
@@ -1259,7 +1269,7 @@ window.openSchedAddModal=function(){
   document.getElementById('f-bus').checked=false;
   document.getElementById('time-result').textContent='';
   document.getElementById('f-msg').textContent='';
-  clearLec();
+  clearLec();addLecRow();
   document.getElementById('modal-sched').style.display='flex';
 }
 window.openSchedEdit=function(id){
