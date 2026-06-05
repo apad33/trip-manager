@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>출장 관리</title>
+<title>통합 관리</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap');
 *{box-sizing:border-box;margin:0;padding:0;}
@@ -173,7 +173,7 @@ tr:hover td{background:var(--surface2);}
 <div id="login-screen" class="login-screen" style="display:none;">
   <div class="login-card">
     <div class="login-logo">🚌</div>
-    <div class="login-title">출장 관리</div>
+    <div class="login-title">통합 관리</div>
     <div class="login-sub">Google 계정으로 로그인하면<br>어디서든 내 데이터를 확인할 수 있어요</div>
     <button class="btn-google" onclick="signIn()">
       <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
@@ -186,7 +186,7 @@ tr:hover td{background:var(--surface2);}
 <div id="app-screen" style="display:none;">
   <div class="topbar">
     <div>
-      <div class="topbar-logo" id="topbar-logo">출장 관리</div>
+      <div class="topbar-logo" id="topbar-logo">통합 관리</div>
       <div class="topbar-biz" id="topbar-biz"></div>
     </div>
     <div class="topbar-actions">
@@ -648,7 +648,7 @@ function loadData(uid){
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
-    document.getElementById('topbar-logo').textContent=myBiz.name||'출장 관리';
+    document.getElementById('topbar-logo').textContent=myBiz.name||'통합 관리';
     refreshCurrentView();
   },(err)=>{setSyncStatus('err','연결 오류');});
 }
@@ -1433,12 +1433,12 @@ document.getElementById('ba-cat').addEventListener('change', function(){
 // pct() 는 공통 함수로 재정의
 // pctColor() 는 공통 함수로 재정의
 
-function totalSpent(){return budgetExpenses.filter(e=>e.spend==='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
-function totalApproved(){return budgetExpenses.filter(e=>e.approval==='결재완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
-function catSpent(name){return budgetExpenses.filter(e=>e.cat===name&&e.spend==="지출완료").reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
-function catTotal(name){return budgetExpenses.filter(e=>e.cat===name).reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+window.totalSpent=function(){return budgetExpenses.filter(e=>e.spend==='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+window.totalApproved=function(){return budgetExpenses.filter(e=>e.approval==='결재완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+window.catSpent=function(name){return budgetExpenses.filter(e=>e.cat===name&&e.spend==="지출완료").reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+window.catTotal=function(name){return budgetExpenses.filter(e=>e.cat===name).reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
 
-function renderBudgetDash(){
+window.renderBudgetDash=function(){
   const spent = totalSpent();
   const approved = totalApproved();
   const pending = budgetExpenses.filter(e=>e.approval==='미결재'||e.approval==='결재중').reduce((s,e)=>s+(parseInt(e.amount)||0),0);
@@ -1507,7 +1507,7 @@ function renderBudgetDash(){
   }).join('');
 }
 
-function toggleSub(id){
+window.toggleSub=function(id){
   const el = document.getElementById(id);
   const idx = id.replace('sub-','');
   const btn = document.getElementById('sub-btn-'+idx);
@@ -1520,7 +1520,7 @@ function toggleSub(id){
   }
 }
 
-function renderBudgetList(){
+window.renderBudgetList=function(){
   const q = (document.getElementById('bl-search').value||'').toLowerCase();
   const cf = document.getElementById('bl-cat').value;
   const af = document.getElementById('l-approval').value;
@@ -1562,7 +1562,7 @@ function renderBudgetList(){
   </tr>`).join('');
 }
 
-function approvalBadge(s, id, date){
+window.approvalBadge=function(s, id, date){
   const flow = {미결재:'결재중', 결재중:'결재완료', 결재완료:'미결재'};
   const next = flow[s];
   const arrow = s==='결재완료'?'↺':'→';
@@ -1570,7 +1570,7 @@ function approvalBadge(s, id, date){
   const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleApproval(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
-function spendBadge(s, id, date){
+window.spendBadge=function(s, id, date){
   const next = s==='대기'?'지출완료':'대기';
   const arrow = s==='지출완료'?'↺':'→';
   const cls = s==='지출완료'?'b-spend':'b-standby';
@@ -1578,7 +1578,7 @@ function spendBadge(s, id, date){
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSpend(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
 
-function submitBadge(s, id, date){
+window.submitBadge=function(s, id, date){
   const next = s==='미제출'?'제출완료':'미제출';
   const arrow = s==='제출완료'?'↺':'→';
   const cls = s==='제출완료'?'b-done':'b-wait';
@@ -1586,14 +1586,14 @@ function submitBadge(s, id, date){
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSubmit(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
 
-function cycleSubmit(id){
+window.cycleSubmit=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
   e.submit = (e.submit||'미제출')==='미제출'?'제출완료':'미제출';
   saveBudgetToStorage();
   renderBudgetList();
 }
 
-function cycleApproval(id){
+window.cycleApproval=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
   const flow = {미결재:'결재중', 결재중:'결재완료', 결재완료:'미결재'};
   e.approval = flow[e.approval]||'미결재';
@@ -1602,7 +1602,7 @@ function cycleApproval(id){
   renderBudgetDash();
 }
 
-function cycleSpend(id){
+window.cycleSpend=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
   e.spend = e.spend==='대기'?'지출완료':'대기';
   saveBudgetToStorage();
@@ -1610,7 +1610,7 @@ function cycleSpend(id){
   renderBudgetDash();
 }
 
-function renderBudgetMonthly(){
+window.renderBudgetMonthly=function(){
   const months = {};
   budgetExpenses.forEach(e=>{
     const m = e.date.slice(0,7);
@@ -1660,7 +1660,7 @@ function renderBudgetMonthly(){
   document.getElementById('b-monthly-content').innerHTML = html;
 }
 
-function goBudget(id){
+window.goBudget=function(id){
   document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','add','setup'][i]===id));
   document.querySelectorAll('#app-budget .pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('bp-'+id).classList.add('on');
@@ -1670,7 +1670,7 @@ function goBudget(id){
   if(id==='setup')renderBudgetSetup();
 }
 
-function renderBudgetSetup(){
+window.renderBudgetSetup=function(){
   // 총 예산
   document.getElementById('bs-total').value = BUDGET_TOTAL;
 
@@ -1724,7 +1724,7 @@ window.saveBudgetCat = function(ci){
   renderBudgetDash();
 }
 
-function addBudgetExpense(){
+window.addBudgetExpense=function(){
   const doc = document.getElementById('ba-doc').value.trim();
   const mo = document.getElementById('ba-date-m').value.trim().padStart(2,'0');
   const dy = document.getElementById('ba-date-d').value.trim().padStart(2,'0');
@@ -1763,7 +1763,7 @@ function addBudgetExpense(){
   showMsg('a-msg','✅ 등록 완료!','ok');
 }
 
-function openBudgetEdit(id){
+window.openBudgetEdit=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
   const catOpts = BUDGET_CATS.map(c=>`<option value="${c.name}"${e.cat===c.name?'selected':''}>${c.name}</option>`).join('');
   const cat = BUDGET_CATS.find(c=>c.name===e.cat);
@@ -1838,7 +1838,7 @@ function updateEditSubs(){
   sel.innerHTML = '<option value="">선택</option>' + (cat?cat.subs.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''):'');
 }
 
-function saveBudgetEdit(id){
+window.saveBudgetEdit=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
   const mo = document.getElementById('e-dm').value.trim().padStart(2,'0');
   const dy = document.getElementById('e-dd').value.trim().padStart(2,'0');
@@ -1866,7 +1866,7 @@ function saveBudgetEdit(id){
   renderBudgetList();
 }
 
-function deleteBudgetExpense(id){
+window.deleteBudgetExpense=function(id){
   if(!confirm('삭제할까요?'))return;
   budgetExpenses = budgetExpenses.filter(e=>e.id!==id);
   saveBudgetToStorage();
@@ -1879,14 +1879,14 @@ document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.
 // showMsg() 공통 함수 사용
 
 // localStorage 저장
-function saveBudgetToStorage(){
+window.saveBudgetToStorage=function(){
   localStorage.setItem('budget_sotong_v2', JSON.stringify({
     budgetExpenses, budgetNextId,
     totalBudget: BUDGET_TOTAL,
     budgetCats: BUDGET_CATS
   }));
 }
-function loadBudgetFromStorage(){
+window.loadBudgetFromStorage=function(){
   try{
     const raw = localStorage.getItem('budget_sotong_v2');
     if(!raw)return;
@@ -1904,7 +1904,7 @@ function loadBudgetFromStorage(){
 }
 
 // 백업/복원
-function saveBudgetData(){
+window.saveBudgetData=function(){
   const blob = new Blob([JSON.stringify({budgetExpenses,budgetNextId,totalBudget:BUDGET_TOTAL,budgetCats:BUDGET_CATS},null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
@@ -1914,7 +1914,7 @@ function saveBudgetData(){
 // loadBudgetData() 를 사용
 
 // 엑셀 내보내기
-function exportBudgetCSV(){
+window.exportBudgetCSV=function(){
   if(!budgetExpenses.length){alert('지출 내역이 없어요.');return;}
 
   // 편성목 매핑
@@ -1945,7 +1945,7 @@ function exportBudgetCSV(){
     '위탁수수료':'401-01',
   };
 
-  function fmtDate(d){
+  window.fmtDate=function(d){
     if(!d)return '';
     const p=d.split('-');
     return p[0].slice(2)+'-'+p[1]+'-'+p[2];
