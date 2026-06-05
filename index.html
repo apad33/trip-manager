@@ -1544,7 +1544,6 @@ window.toggleSub=function(id){
 window.renderBudgetList=function(){
   const q = (document.getElementById('bl-search').value||'').toLowerCase();
   const cf = document.getElementById('bl-cat').value;
-  const af = document.getElementById('l-approval').value;
   const subf = document.getElementById('bl-submit').value;
   const sf = document.getElementById('bl-spend').value;
 
@@ -1557,7 +1556,6 @@ window.renderBudgetList=function(){
   let list = [...budgetExpenses].filter(e=>{
     return (!q || e.desc.toLowerCase().includes(q) || (e.doc||'').toLowerCase().includes(q))
       && (!cf || e.cat === cf)
-      && (!af || e.approval === af)
       && (!subf || (e.submit||'미제출') === subf)
       && (!sf || e.spend === sf);
   }).sort((a,b)=>b.date.localeCompare(a.date));
@@ -1683,9 +1681,10 @@ window.renderBudgetMonthly=function(){
 
 window.goBudget=function(id){
   currentBudgetTab=id;
-  document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','add','setup'][i]===id));
+  document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','setup'][i]===id));
   document.querySelectorAll('#app-budget .pane').forEach(p=>p.classList.remove('on'));
-  document.getElementById('bp-'+id).classList.add('on');
+  const pane=document.getElementById('bp-'+id);
+  if(pane)pane.classList.add('on');
   if(id==='dash')renderBudgetDash();
   if(id==='list')renderBudgetList();
   if(id==='monthly')renderBudgetMonthly();
