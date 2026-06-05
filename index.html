@@ -347,13 +347,13 @@ tr:hover td{background:var(--surface2);}
   <!-- ===== 운영일정 ===== -->
   <div id="app-sched" style="display:none;">
     <div class="sub-tabs">
-      <button class="sub-tab on" onclick="goSched('cal')">📅 달력</button>
+      <button class="sub-tab on" onclick="openSchedAddModal()" style="color:var(--blue);">➕ 일정 등록</button>
+      <button class="sub-tab" onclick="goSched('cal')">📅 달력</button>
       <button class="sub-tab" onclick="goSched('list')">📋 목록</button>
       <button class="sub-tab" onclick="goSched('stat')">📊 현황</button>
     </div>
     <div class="wrap">
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
-        <button class="btn-sm btn-blue" onclick="openSchedAddModal()">➕ 일정 등록</button>
         <button class="btn-sm" onclick="exportSchedCSV()">📥 엑셀</button>
         <button class="btn-sm" onclick="backupSched()">💾 백업</button>
         <button class="btn-sm" onclick="document.getElementById('loadSchedFile').click()">📂 복원</button>
@@ -1099,7 +1099,7 @@ window.loadTripData=async function(e){
 // ── 운영일정 ──
 window.goSched=function(id){
   currentSchedTab=id;
-  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['cal','list','stat'][i]===id));
+  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['add','cal','list','stat'][i]===id));
   document.querySelectorAll('#app-sched .pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('sc-'+id).classList.add('on');
   if(id==='cal')renderCal();
@@ -1259,7 +1259,7 @@ window.openSchedAddModal=function(){
   document.getElementById('f-bus').checked=false;
   document.getElementById('time-result').textContent='';
   document.getElementById('f-msg').textContent='';
-  clearLec();addLecRow();
+  clearLec();
   document.getElementById('modal-sched').style.display='flex';
 }
 window.openSchedEdit=function(id){
