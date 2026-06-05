@@ -151,6 +151,15 @@ tr:hover td{background:var(--surface2);}
 .loading-overlay{position:fixed;inset:0;background:rgba(248,247,244,.9);z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;}
 .spinner{width:36px;height:36px;border:3px solid var(--border);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+.budget-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 18px;margin-bottom:8px;}
+.budget-item-hd{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px;}
+.budget-item-name{font-weight:600;font-size:14px;}
+.budget-item-sub{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px;}
+.badge-btn{cursor:pointer;transition:opacity .15s;user-select:none;}
+.badge-btn:hover{opacity:.75;}
+.b-spend{background:var(--green-bg);color:var(--green);}
+.b-standby{background:var(--amber-bg);color:var(--amber);}
 </style>
 </head>
 <body>
@@ -192,6 +201,7 @@ tr:hover td{background:var(--surface2);}
   <div class="app-tabs">
     <button class="app-tab on" onclick="switchApp('trip')">💼 출장 관리</button>
     <button class="app-tab" onclick="switchApp('sched')">📅 운영일정</button>
+    <button class="app-tab" onclick="switchApp('budget')">💰 예산 관리</button>
   </div>
 
   <!-- ===== 출장 관리 ===== -->
@@ -403,6 +413,137 @@ tr:hover td{background:var(--surface2);}
   </div>
 </div>
 
+  <!-- ===== 예산 관리 ===== -->
+  <div id="app-budget" style="display:none;">
+    <div class="sub-tabs">
+      <button class="sub-tab on" onclick="goBudget('dash')">📊 대시보드</button>
+      <button class="sub-tab" onclick="goBudget('list')">📋 지출 목록</button>
+      <button class="sub-tab" onclick="goBudget('monthly')">📅 월별 현황</button>
+      <button class="sub-tab" onclick="goBudget('add')">➕ 지출 등록</button>
+      <button class="sub-tab" onclick="goBudget('setup')">⚙️ 예산 설정</button>
+    </div>
+    <div class="wrap">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+        <button class="btn-sm" onclick="exportBudgetCSV()">📥 엑셀(일별수지)</button>
+        <button class="btn-sm" onclick="saveBudgetData()">💾 백업</button>
+        <button class="btn-sm" onclick="document.getElementById('loadBudgetFile').click()">📂 복원</button>
+        <input type="file" id="loadBudgetFile" accept=".json" style="display:none" onchange="loadBudgetData(event)">
+      </div>
+
+      <div id="bp-dash" class="pane on">
+        <div class="metric-row" id="b-dash-metrics"></div>
+        <div class="sec">예산과목별 현황</div>
+        <div id="b-budget-items"></div>
+      </div>
+
+      <div id="bp-list" class="pane">
+        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+          <input type="text" id="bl-search" placeholder="내역·품의번호 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderBudgetList()">
+          <select id="bl-cat" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 과목</option></select>
+          <select id="bl-submit" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 제출</option><option value="제출완료">제출완료</option><option value="미제출">미제출</option></select>
+          <select id="bl-spend" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 지출</option><option value="지출완료">지출완료</option><option value="대기">대기</option></select>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th style="width:36px;">연번</th><th style="width:90px;">품의번호</th><th style="width:80px;">결의일자</th>
+              <th style="width:100px;">예산과목</th><th style="width:120px;">세부항목</th><th style="width:180px;">내역</th>
+              <th style="width:100px;">지급처</th><th style="width:85px;">금액</th>
+              <th style="width:72px;">결재상태</th><th style="width:80px;">제출여부</th><th style="width:80px;">지출여부</th>
+              <th style="width:72px;"></th>
+            </tr></thead>
+            <tbody id="bl-body"></tbody>
+          </table>
+        </div>
+        <div id="bl-empty" class="empty" style="display:none;">📭 지출 내역이 없어요</div>
+      </div>
+
+      <div id="bp-monthly" class="pane"><div id="b-monthly-content"></div></div>
+
+      <div id="bp-add" class="pane">
+        <div style="max-width:680px;margin:0 auto;">
+          <div class="card" style="padding:28px 32px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:24px;">➕ 지출 등록</div>
+            <div class="grid2" style="margin-bottom:20px;">
+              <div class="fg"><label>품의번호</label><input type="text" id="ba-doc" placeholder="예: 추진팀-86"></div>
+              <div class="fg"><label>결의일자 *</label>
+                <div style="display:flex;align-items:center;gap:6px;">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 12px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-date-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:50px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('ba-date-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-date-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:50px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                </div>
+              </div>
+            </div>
+            <div class="grid2" style="margin-bottom:20px;">
+              <div class="fg"><label>예산과목 *</label>
+                <select id="ba-cat">
+                  <option value="">선택</option>
+                  <option value="인건비">인건비</option><option value="사무관리비">사무관리비</option>
+                  <option value="공공운영비">공공운영비</option><option value="행사운영비">행사운영비</option>
+                  <option value="교육훈련비">교육훈련비</option><option value="복리후생비">복리후생비</option>
+                  <option value="국내여비">국내여비</option><option value="연금부담금">연금부담금</option>
+                  <option value="위탁수수료">위탁수수료</option>
+                </select>
+              </div>
+              <div class="fg"><label>세부항목</label><select id="ba-subcat"><option value="">선택 (예산과목 먼저 선택)</option></select></div>
+            </div>
+            <div class="grid2" style="margin-bottom:20px;">
+              <div class="fg"><label>내역 *</label><input type="text" id="ba-desc" placeholder="지출 내역 입력"></div>
+              <div class="fg"><label>금액 (원) *</label><input type="number" id="ba-amount" placeholder="0" min="0" style="font-size:15px;font-weight:600;"></div>
+            </div>
+            <hr class="divider" style="margin:20px 0;">
+            <div class="grid3" style="margin-bottom:20px;">
+              <div class="fg"><label>결재상태</label>
+                <select id="ba-approval"><option value="미결재">미결재</option><option value="결재중">결재중</option><option value="결재완료">결재완료</option></select>
+              </div>
+              <div class="fg"><label>제출일자</label>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <span style="font-size:12px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-subm-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('ba-subm-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-subm-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px;">미입력 시 미제출</div>
+              </div>
+              <div class="fg"><label>지출일자</label>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <span style="font-size:12px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-spend-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('ba-spend-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="ba-spend-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                </div>
+                <div style="font-size:11px;color:var(--text3);margin-top:3px;">미입력 시 대기</div>
+              </div>
+            </div>
+            <div class="grid2" style="margin-bottom:24px;">
+              <div class="fg"><label>지급처(사용처)</label><input type="text" id="ba-payee" placeholder="예: 김새별, 예산군청"></div>
+              <div class="fg"><label>비고</label><input type="text" id="ba-memo" placeholder="비고 (선택)"></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:10px;">
+              <button class="btn" onclick="addBudgetExpense()" style="padding:11px 28px;font-size:14px;">✅ 등록하기</button>
+              <span id="ba-msg" class="msg"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="bp-setup" class="pane">
+        <div class="sec">총 예산 설정</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div class="fg" style="max-width:280px;margin-bottom:12px;"><label>총 예산액 (원)</label><input type="number" id="bs-total" min="0" style="font-size:15px;font-weight:600;"></div>
+          <div style="display:flex;align-items:center;gap:8px;"><button class="btn" onclick="saveBudgetTotal()">💾 저장</button><span id="bs-total-msg" class="msg"></span></div>
+        </div>
+        <div class="sec">예산과목별 설정</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">⚠ 예산 변경 시 대시보드 잔액·집행률이 즉시 반영돼요.</div>
+        <div id="bs-cats"></div>
+      </div>
+    </div>
+  </div>
+
 <!-- 모달 -->
 <div class="modal-bg" id="modal-wrap">
   <div id="modal-inner"></div>
@@ -427,6 +568,11 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
+
+// ── 공통 유틸 ──
+function fmt(n){return Math.round(n).toLocaleString()+'원';}
+function pct(used, budget){return budget>0?Math.min(100,Math.round(used/budget*100)):0;}
+function pctColor(p){return p>90?'#C62828':p>70?'#B45309':'#1976d2';}
 
 // ── 데이터 ──
 let myBiz={name:'',owner:'',budget:0};
@@ -495,6 +641,10 @@ function loadData(uid){
       if(d.tripNextId)tripNextId=d.tripNextId;
       if(d.events)events=d.events;
       if(d.schedNextId)schedNextId=d.schedNextId;
+      if(d.budgetExpenses)budgetExpenses=d.budgetExpenses;
+      if(d.budgetNextId)budgetNextId=d.budgetNextId;
+      if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
+      if(d.BUDGET_CATS)BUDGET_CATS.forEach((c,i)=>{if(d.BUDGET_CATS[i]){BUDGET_CATS[i].budget=d.BUDGET_CATS[i].budget;d.BUDGET_CATS[i].subs.forEach((s,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=s.budget;});}});
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
@@ -506,7 +656,7 @@ async function persist(){
   if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -515,11 +665,13 @@ function setSyncStatus(t,txt){const el=document.getElementById('sync-status');el
 
 // ── 앱 전환 ──
 window.switchApp=function(app){
-  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['trip','sched'][i]===app));
+  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['trip','sched','budget'][i]===app));
   document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
   document.getElementById('app-sched').style.display=app==='sched'?'block':'none';
+  document.getElementById('app-budget').style.display=app==='budget'?'block':'none';
   if(app==='trip')refreshTripView(currentTripTab);
   if(app==='sched')refreshSchedView(currentSchedTab);
+  if(app==='budget')renderBudgetDash();
 }
 
 let currentTripTab='dash';
@@ -549,7 +701,6 @@ function refreshTripView(id){
 }
 
 function tTotal(t){return(t.da||0)+(t.me||0)+(t.tr||0);}
-function fmt(n){return Math.round(n).toLocaleString()+'원';}
 function shortBiz(id){
   if(id==='my'){const n=myBiz.name||'내 사업';return n.length>9?n.slice(0,9)+'…':n;}
   const b=otherBiz.find(x=>x.id===id);if(!b)return '?';
@@ -1218,6 +1369,628 @@ document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.
 document.getElementById('modal-sched').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
 
 function showMsg(id,txt,type){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.className='msg '+type;setTimeout(()=>{el.textContent='';},2500);}
+
+// ── 예산 관리 ──
+
+// ── 예산 정의 ──
+const BUDGET_TOTAL = 153000000;
+const BUDGET_CATS = [
+  {name:'인건비', budget:80400000, subs:[
+    {name:'전담인력 인건비', budget:74400000},
+    {name:'전담인력 평가급', budget:6000000},
+  ]},
+  {name:'퇴직금', budget:7000000, subs:[
+    {name:'전담인력 퇴직연금', budget:7000000},
+  ]},
+  {name:'사무관리비', budget:5780000, subs:[
+    {name:'고속도로 통행료 및 주차료', budget:200000},
+    {name:'사무용품', budget:2760000},
+    {name:'PC 및 복합기임차료', budget:1920000},
+    {name:'홍보 인쇄물', budget:900000},
+  ]},
+  {name:'공공운영비', budget:5150000, subs:[
+    {name:'자동차세(과태료 등)', budget:630000},
+    {name:'자동차보험료', budget:800000},
+    {name:'유류비', budget:1920000},
+    {name:'차량정비 및 유지보수', budget:1800000},
+  ]},
+  {name:'행사운영비', budget:3500000, subs:[
+    {name:'오프라인 취업행사비', budget:2500000},
+    {name:'홍보물품 제작', budget:1000000},
+  ]},
+  {name:'교육훈련비', budget:30000000, subs:[
+    {name:'강사수당 및 프로그램운영비', budget:30000000},
+  ]},
+  {name:'복리후생비', budget:1880000, subs:[
+    {name:'계약직 급량비', budget:480000},
+    {name:'계약직 복지포인트', budget:1400000},
+  ]},
+  {name:'국내여비', budget:6240000, subs:[
+    {name:'출장여비', budget:6240000},
+  ]},
+  {name:'연금부담금', budget:5400000, subs:[
+    {name:'전담인력 4대보험 사업자부담분', budget:5400000},
+  ]},
+  {name:'위탁수수료', budget:7650000, subs:[
+    {name:'위탁수수료', budget:7650000},
+  ]},
+];
+
+let budgetExpenses = [];
+let budgetNextId = 300;
+
+// 세부항목 연동
+document.getElementById('ba-cat').addEventListener('change', function(){
+  const cat = BUDGET_CATS.find(c=>c.name===this.value);
+  const sel = document.getElementById('ba-subcat');
+  sel.innerHTML = '<option value="">선택</option>';
+  if(cat) cat.subs.forEach(s=>sel.innerHTML+=`<option value="${s.name}">${s.name}</option>`);
+});
+
+// fmt() 는 공통 함수 사용
+// pct() 는 공통 함수로 재정의
+// pctColor() 는 공통 함수로 재정의
+
+function totalSpent(){return budgetExpenses.filter(e=>e.spend==='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+function totalApproved(){return budgetExpenses.filter(e=>e.approval==='결재완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+function catSpent(name){return budgetExpenses.filter(e=>e.cat===name&&e.spend==="지출완료").reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+function catTotal(name){return budgetExpenses.filter(e=>e.cat===name).reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+
+function renderBudgetDash(){
+  const spent = totalSpent();
+  const approved = totalApproved();
+  const pending = budgetExpenses.filter(e=>e.approval==='미결재'||e.approval==='결재중').reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+  const remain = BUDGET_TOTAL - spent;
+  const p = pct(spent, BUDGET_TOTAL);
+  document.getElementById('b-dash-metrics').innerHTML=`
+    <div class="mc"><div class="mc-lbl">총 예산</div><div class="mc-val" style="font-size:16px;">${BUDGET_TOTAL.toLocaleString()}원</div><div class="mc-sub">153,000천원</div></div>
+    <div class="mc"><div class="mc-lbl">지출 완료</div><div class="mc-val" style="color:var(--red);font-size:16px;">${spent.toLocaleString()}원</div><div class="mc-sub" style="color:var(--red);">${p}% 집행</div></div>
+    <div class="mc"><div class="mc-lbl">잔액</div><div class="mc-val" style="color:var(--green);font-size:16px;">${remain.toLocaleString()}원</div><div class="mc-sub">${Math.round(remain/1000).toLocaleString()}천원</div></div>
+    <div class="mc"><div class="mc-lbl">결재완료</div><div class="mc-val" style="color:var(--blue);font-size:16px;">${approved.toLocaleString()}원</div></div>
+    <div class="mc"><div class="mc-lbl">미결재·결재중</div><div class="mc-val" style="color:var(--amber);font-size:16px;">${pending.toLocaleString()}원</div></div>
+    <div class="mc"><div class="mc-lbl">지출 건수</div><div class="mc-val">${budgetExpenses.length}건</div></div>
+  `;
+
+  document.getElementById('b-budget-items').innerHTML = BUDGET_CATS.map((cat,idx)=>{
+    const spent = catSpent(cat.name);
+    const total = catTotal(cat.name);
+    const p = pct(spent, cat.budget);
+    const over = spent > cat.budget;
+    const color = pctColor(p);
+    const pendingAmt = budgetExpenses.filter(e=>e.cat===cat.name&&(e.approval==='미결재'||e.approval==='결재중')).reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+    const remain = cat.budget - spent;
+
+    // 소분류별 집계
+    const subRows = cat.subs.map(sub=>{
+      const subSpent = budgetExpenses.filter(e=>e.cat===cat.name&&e.subcat===sub.name&&e.spend==='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+      const subPend = budgetExpenses.filter(e=>e.cat===cat.name&&e.subcat===sub.name&&(e.approval==='미결재'||e.approval==='결재중')).reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+      const subRemain = sub.budget - subSpent;
+      const subP = pct(subSpent, sub.budget);
+      const subOver = subSpent > sub.budget;
+      const subColor = pctColor(subP);
+      return `<div style="background:var(--surface2);border-radius:8px;padding:10px 14px;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;flex-wrap:wrap;gap:4px;">
+          <span style="font-size:12px;font-weight:600;color:var(--text);">${sub.name}</span>
+          <span style="font-size:12px;font-weight:700;color:${subOver?'var(--red)':'var(--text)'};">${subSpent.toLocaleString()}원 / ${sub.budget.toLocaleString()}원</span>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;flex-wrap:wrap;gap:4px;">
+          <div style="display:flex;gap:10px;">
+            <span>집행 <strong style="color:${subColor};">${subP}%</strong>${subOver?' ⚠':''}</span>
+            <span>잔액 <strong style="color:${subOver?'var(--red)':'var(--green)'};">${subOver?'-':''}${Math.abs(subRemain).toLocaleString()}원</strong></span>
+          </div>
+          ${subPend>0?`<span style="color:var(--amber);">결재중 ${subPend.toLocaleString()}원</span>`:''}
+        </div>
+        <div class="bar-wrap" style="height:5px;"><div class="bar-fill" style="width:${subP}%;background:${subColor};height:5px;"></div></div>
+      </div>`;
+    }).join('');
+
+    return `<div class="budget-item">
+      <div class="budget-item-hd">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span class="budget-item-name">${cat.name}</span>
+          <button onclick="toggleSub('sub-${idx}')" style="font-size:12px;background:var(--surface2);border:1px solid var(--border2);border-radius:5px;padding:2px 8px;cursor:pointer;color:var(--text2);min-width:28px;" id="sub-btn-${idx}">▼</button>
+        </div>
+        <span style="font-size:13px;font-weight:700;color:${over?'var(--red)':'var(--text)'};">${spent.toLocaleString()}원 / ${cat.budget.toLocaleString()}원</span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:8px;flex-wrap:wrap;gap:4px;">
+        <div style="display:flex;gap:12px;flex-wrap:wrap;">
+          <span>집행률 <strong style="color:${color};">${p}%</strong>${over?' ⚠ 초과':''}</span>
+          <span>잔액 <strong style="color:${over?'var(--red)':'var(--green)'};">${over?'-':''}${Math.abs(remain).toLocaleString()}원</strong></span>
+        </div>
+        ${pendingAmt>0?`<span style="color:var(--amber);">결재중 ${pendingAmt.toLocaleString()}원</span>`:''}
+      </div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${p}%;background:${color};"></div></div>
+      <div id="sub-${idx}" style="display:none;margin-top:10px;">${subRows||`<div style="font-size:12px;color:var(--text3);padding:6px 0;">등록된 소분류 지출 없음</div>`}</div>
+    </div>`;
+  }).join('');
+}
+
+function toggleSub(id){
+  const el = document.getElementById(id);
+  const idx = id.replace('sub-','');
+  const btn = document.getElementById('sub-btn-'+idx);
+  if(el.style.display==='none'){
+    el.style.display='block';
+    btn.textContent='▲';
+  } else {
+    el.style.display='none';
+    btn.textContent='▼';
+  }
+}
+
+function renderBudgetList(){
+  const q = (document.getElementById('bl-search').value||'').toLowerCase();
+  const cf = document.getElementById('bl-cat').value;
+  const af = document.getElementById('l-approval').value;
+  const subf = document.getElementById('bl-submit').value;
+  const sf = document.getElementById('bl-spend').value;
+
+  // 과목 필터 셀렉트 업데이트
+  const catSel = document.getElementById('bl-cat');
+  const cv = catSel.value;
+  catSel.innerHTML = '<option value="">전체 과목</option>' + BUDGET_CATS.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  if(cv) catSel.value = cv;
+
+  let list = [...budgetExpenses].filter(e=>{
+    return (!q || e.desc.toLowerCase().includes(q) || (e.doc||'').toLowerCase().includes(q))
+      && (!cf || e.cat === cf)
+      && (!af || e.approval === af)
+      && (!subf || (e.submit||'미제출') === subf)
+      && (!sf || e.spend === sf);
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+
+  document.getElementById('bl-empty').style.display = list.length ? 'none' : 'block';
+  document.getElementById('bl-body').innerHTML = list.map((e,i)=>`<tr>
+    <td style="color:var(--text3);">${i+1}</td>
+    <td style="font-size:11px;">${e.doc||'-'}</td>
+    <td style="font-size:11px;white-space:nowrap;">${e.date}</td>
+    <td><span style="font-size:11px;font-weight:500;">${e.cat}</span></td>
+    <td style="font-size:11px;color:var(--text2);">${e.subcat||'-'}</td>
+    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
+    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.payee||"-"}</td>
+    <td style="font-weight:600;white-space:nowrap;">${parseInt(e.amount).toLocaleString()}</td>
+    <td>${approvalBadge(e.approval, e.id, e.approvalDate)}</td>
+    <td>${submitBadge(e.submit||'미제출', e.id, e.submitDate)}</td>
+    <td>${spendBadge(e.spend, e.id, e.spendDate)}</td>
+    <td style="font-size:11px;color:var(--text2);max-width:80px;overflow:hidden;text-overflow:ellipsis;">${e.memo||'-'}</td>
+    <td><div style="display:flex;gap:4px;">
+      <button class="btn-sm btn-blue" onclick="openBudgetEdit(${e.id})">✏️</button>
+      <button class="btn-sm btn-red" onclick="deleteBudgetExpense(${e.id})">🗑</button>
+    </div></td>
+  </tr>`).join('');
+}
+
+function approvalBadge(s, id, date){
+  const flow = {미결재:'결재중', 결재중:'결재완료', 결재완료:'미결재'};
+  const next = flow[s];
+  const arrow = s==='결재완료'?'↺':'→';
+  const cls = s==='결재완료'?'b-done':s==='결재중'?'b-ing':'b-wait';
+  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleApproval(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
+}
+function spendBadge(s, id, date){
+  const next = s==='대기'?'지출완료':'대기';
+  const arrow = s==='지출완료'?'↺':'→';
+  const cls = s==='지출완료'?'b-spend':'b-standby';
+  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSpend(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
+}
+
+function submitBadge(s, id, date){
+  const next = s==='미제출'?'제출완료':'미제출';
+  const arrow = s==='제출완료'?'↺':'→';
+  const cls = s==='제출완료'?'b-done':'b-wait';
+  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSubmit(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
+}
+
+function cycleSubmit(id){
+  const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
+  e.submit = (e.submit||'미제출')==='미제출'?'제출완료':'미제출';
+  saveBudgetToStorage();
+  renderBudgetList();
+}
+
+function cycleApproval(id){
+  const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
+  const flow = {미결재:'결재중', 결재중:'결재완료', 결재완료:'미결재'};
+  e.approval = flow[e.approval]||'미결재';
+  saveBudgetToStorage();
+  renderBudgetList();
+  renderBudgetDash();
+}
+
+function cycleSpend(id){
+  const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
+  e.spend = e.spend==='대기'?'지출완료':'대기';
+  saveBudgetToStorage();
+  renderBudgetList();
+  renderBudgetDash();
+}
+
+function renderBudgetMonthly(){
+  const months = {};
+  budgetExpenses.forEach(e=>{
+    const m = e.date.slice(0,7);
+    if(!months[m]) months[m] = {total:0, spent:0, count:0, cats:{}};
+    const amt = parseInt(e.amount)||0;
+    months[m].total += amt;
+    if(e.spend==='지출완료') months[m].spent += amt;
+    months[m].count++;
+    if(!months[m].cats[e.cat]) months[m].cats[e.cat]=0;
+    months[m].cats[e.cat] += amt;
+  });
+
+  if(!Object.keys(months).length){
+    document.getElementById('b-monthly-content').innerHTML='<div class="empty">지출 내역이 없어요</div>';return;
+  }
+
+  const sm = Object.keys(months).sort().reverse();
+  const grandTotal = sm.reduce((s,m)=>s+months[m].total,0);
+  const grandSpent = sm.reduce((s,m)=>s+months[m].spent,0);
+
+  let html = `<div class="card" style="margin-bottom:20px;background:var(--surface2);">
+    <div style="display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <span style="font-weight:700;font-size:15px;">전체 합계</span>
+      <span style="font-size:18px;font-weight:700;">${fmt(grandSpent)} <span style="font-size:13px;color:var(--text2);">지출완료</span></span>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-top:6px;">총 등록 ${budgetExpenses.length}건 · 결의금액 합계 ${fmt(grandTotal)}</div>
+  </div>`;
+
+  sm.forEach(m=>{
+    const d = months[m];
+    const[y,mo] = m.split('-');
+    html += `<div class="card" style="margin-bottom:12px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;flex-wrap:wrap;gap:6px;">
+        <span style="font-weight:700;font-size:15px;">${y}년 ${parseInt(mo)}월</span>
+        <div style="text-align:right;">
+          <div style="font-weight:700;font-size:14px;">${fmt(d.spent)} <span style="font-size:11px;color:var(--text2);">지출</span></div>
+          <div style="font-size:11px;color:var(--text2);">${d.count}건 · 결의 ${fmt(d.total)}</div>
+        </div>
+      </div>
+      ${Object.entries(d.cats).sort((a,b)=>b[1]-a[1]).map(([cat,amt])=>`
+        <div style="display:flex;justify-content:space-between;font-size:12px;padding:5px 0;border-top:1px solid var(--border);">
+          <span style="color:var(--text2);">${cat}</span>
+          <span style="font-weight:500;">${fmt(amt)}</span>
+        </div>`).join('')}
+    </div>`;
+  });
+  document.getElementById('b-monthly-content').innerHTML = html;
+}
+
+function goBudget(id){
+  document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','add','setup'][i]===id));
+  document.querySelectorAll('#app-budget .pane').forEach(p=>p.classList.remove('on'));
+  document.getElementById('bp-'+id).classList.add('on');
+  if(id==='dash')renderBudgetDash();
+  if(id==='list')renderBudgetList();
+  if(id==='monthly')renderBudgetMonthly();
+  if(id==='setup')renderBudgetSetup();
+}
+
+function renderBudgetSetup(){
+  // 총 예산
+  document.getElementById('bs-total').value = BUDGET_TOTAL;
+
+  // 예산과목별 입력
+  document.getElementById('bs-cats').innerHTML = BUDGET_CATS.map((cat,ci)=>`
+    <div class="card" style="margin-bottom:12px;">
+      <div style="font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
+        ${cat.name}
+        <span style="font-size:12px;color:var(--text2);font-weight:400;">현재 예산: ${cat.budget.toLocaleString()}원</span>
+      </div>
+      <div class="fg" style="max-width:280px;margin-bottom:10px;">
+        <label>대분류 예산 (원)</label>
+        <input type="number" id="sc-${ci}" value="${cat.budget}" min="0" style="font-size:13px;">
+      </div>
+      <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;">소분류 예산</div>
+      ${cat.subs.map((sub,si)=>`
+        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
+          <label style="font-size:12px;color:var(--text2);min-width:180px;">${sub.name}</label>
+          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0" style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:160px;">
+          <span style="font-size:11px;color:var(--text3);">현재: ${sub.budget.toLocaleString()}원</span>
+        </div>`).join('')}
+      <div style="margin-top:4px;">
+        <button class="btn-sm btn-blue" onclick="saveCatBudget(${ci})">💾 저장</button>
+        <span id="sc-msg-${ci}" class="msg"></span>
+      </div>
+    </div>
+  `).join('');
+}
+
+window.saveBudgetTotal = function(){
+  const val = parseInt(document.getElementById('bs-total').value)||0;
+  if(!val){showMsg('s-total-msg','금액을 입력해 주세요','err');return;}
+  TOTAL_BUDGET_MUT = val;
+  // 전역 총예산 업데이트
+  window.BUDGET_TOTAL = val;
+  document.querySelector('.topbar-sub').textContent = `찾아가는 일자리버스(소통공간) · 총 예산액 ${Math.round(val/1000).toLocaleString()}천원`;
+  saveBudgetToStorage();
+  showMsg('s-total-msg','✅ 저장 완료!','ok');
+}
+
+window.saveBudgetCat = function(ci){
+  const catBudget = parseInt(document.getElementById(`sc-${ci}`).value)||0;
+  BUDGET_CATS[ci].budget = catBudget;
+  BUDGET_CATS[ci].subs.forEach((sub,si)=>{
+    const v = parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0;
+    BUDGET_CATS[ci].subs[si].budget = v;
+  });
+  saveBudgetToStorage();
+  showMsg(`sc-msg-${ci}`,'✅ 저장 완료!','ok');
+  renderBudgetSetup();
+  renderBudgetDash();
+}
+
+function addBudgetExpense(){
+  const doc = document.getElementById('ba-doc').value.trim();
+  const mo = document.getElementById('ba-date-m').value.trim().padStart(2,'0');
+  const dy = document.getElementById('ba-date-d').value.trim().padStart(2,'0');
+  const date = mo&&dy?`2026-${mo}-${dy}`:'';
+  const cat = document.getElementById('ba-cat').value;
+  const subcat = document.getElementById('ba-subcat').value;
+  const desc = document.getElementById('ba-desc').value.trim();
+  const amount = parseInt(document.getElementById('ba-amount').value)||0;
+  const payee = document.getElementById('ba-payee').value.trim();
+  const memo = document.getElementById('ba-memo').value.trim();
+  if(!date||!cat||!desc||!amount){showMsg('a-msg','* 날짜, 예산과목, 내역, 금액은 필수예요','err');return;}
+
+  const approval = document.getElementById('ba-approval').value;
+  const approvalDate = '';
+
+  // 제출일자
+  const submM = document.getElementById('ba-subm-m').value.trim().padStart(2,'0');
+  const submD = document.getElementById('ba-subm-d').value.trim().padStart(2,'0');
+  const submitDate = submM&&submD?`2026-${submM}-${submD}`:'';
+  const submit = submitDate?'제출완료':'미제출';
+
+  // 지출일자
+  const spendM = document.getElementById('ba-spend-m').value.trim().padStart(2,'0');
+  const spendD = document.getElementById('ba-spend-d').value.trim().padStart(2,'0');
+  const spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
+  const spend = spendDate?'지출완료':'대기';
+
+  budgetExpenses.push({id:budgetNextId++,doc,date,cat,subcat,desc,amount,payee,approval,approvalDate,submit,submitDate,spend,spendDate,memo});
+  ['a-doc','a-date-m','a-date-d','a-desc','a-amount','a-payee','a-memo',
+   'a-appr-m','a-appr-d','a-subm-m','a-subm-d','a-spend-m','a-spend-d'
+  ].forEach(id=>{document.getElementById(id).value='';});
+  document.getElementById('ba-approval').value='미결재';
+  document.getElementById('ba-cat').value='';
+  document.getElementById('ba-subcat').innerHTML='<option value="">선택 (예산과목 먼저 선택)</option>';
+  saveBudgetToStorage();
+  showMsg('a-msg','✅ 등록 완료!','ok');
+}
+
+function openBudgetEdit(id){
+  const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
+  const catOpts = BUDGET_CATS.map(c=>`<option value="${c.name}"${e.cat===c.name?'selected':''}>${c.name}</option>`).join('');
+  const cat = BUDGET_CATS.find(c=>c.name===e.cat);
+  const subOpts = cat?cat.subs.map(s=>`<option value="${s.name}"${e.subcat===s.name?'selected':''}>${s.name}</option>`).join(''):'';
+  document.getElementById('modal-inner').innerHTML=`<div class="modal-box">
+    <div style="font-weight:700;font-size:16px;margin-bottom:16px;">✏️ 지출 수정</div>
+    <div class="grid2" style="margin-bottom:12px;">
+      <div class="fg"><label>품의번호</label><input type="text" id="e-doc" value="${e.doc||''}"></div>
+      <div class="fg"><label>결의일자</label>
+        <div style="display:flex;align-items:center;gap:5px;">
+          <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+          <span>-</span>
+          <input type="text" id="e-dm" value="${e.date.slice(5,7)}" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-dd').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span>-</span>
+          <input type="text" id="e-dd" value="${e.date.slice(8,10)}" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        </div>
+      </div>
+      <div class="fg"><label>예산과목</label>
+        <select id="e-cat" onchange="updateEditSubs()">${catOpts}</select>
+      </div>
+      <div class="fg"><label>세부항목</label>
+        <select id="e-subcat"><option value="">선택</option>${subOpts}</select>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:12px;"><label>내역</label><input type="text" id="e-desc" value="${e.desc}"></div>
+    <div class="fg" style="max-width:220px;margin-bottom:12px;"><label>금액 (원)</label><input type="number" id="e-amount" value="${e.amount}" min="0" style="font-size:14px;font-weight:600;"></div>
+    <div class="grid3" style="margin-bottom:12px;">
+      <div class="fg"><label>결재일자</label>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:11px;font-weight:600;color:var(--text2);background:var(--surface2);padding:6px 7px;border-radius:7px;border:1px solid var(--border2);">2026</span>
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-appr-m" value="${e.approvalDate?e.approvalDate.slice(5,7):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-appr-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-appr-d" value="${e.approvalDate?e.approvalDate.slice(8,10):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">미입력 시 미결재</div>
+      </div>
+      <div class="fg"><label>제출일자</label>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:11px;font-weight:600;color:var(--text2);background:var(--surface2);padding:6px 7px;border-radius:7px;border:1px solid var(--border2);">2026</span>
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-subm-m" value="${e.submitDate?e.submitDate.slice(5,7):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-subm-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-subm-d" value="${e.submitDate?e.submitDate.slice(8,10):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">미입력 시 미제출</div>
+      </div>
+      <div class="fg"><label>지출일자</label>
+        <div style="display:flex;align-items:center;gap:4px;">
+          <span style="font-size:11px;font-weight:600;color:var(--text2);background:var(--surface2);padding:6px 7px;border-radius:7px;border:1px solid var(--border2);">2026</span>
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-spend-m" value="${e.spendDate?e.spendDate.slice(5,7):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" oninput="this.value=this.value.replace(/\\D/g,'');if(this.value.length===2)document.getElementById('e-spend-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+          <span style="color:var(--text3);">-</span>
+          <input type="text" id="e-spend-d" value="${e.spendDate?e.spendDate.slice(8,10):''}" maxlength="2" inputmode="numeric" style="width:38px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:2px;">미입력 시 대기</div>
+      </div>
+    </div>
+    <div class="fg" style="margin-bottom:16px;"><label>비고</label><input type="text" id="e-memo" value="${e.memo||''}"></div>
+    <div style="display:flex;gap:8px;align-items:center;">
+      <button class="btn" onclick="saveBudgetEdit(${id})">💾 저장</button>
+      <button class="btn-sm" onclick="closeModal()">취소</button>
+      <span id="e-msg" class="msg"></span>
+    </div>
+  </div>`;
+  document.getElementById('modal-wrap').style.display='flex';
+}
+
+function updateEditSubs(){
+  const cat = BUDGET_CATS.find(c=>c.name===document.getElementById('e-cat').value);
+  const sel = document.getElementById('e-subcat');
+  sel.innerHTML = '<option value="">선택</option>' + (cat?cat.subs.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''):'');
+}
+
+function saveBudgetEdit(id){
+  const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
+  const mo = document.getElementById('e-dm').value.trim().padStart(2,'0');
+  const dy = document.getElementById('e-dd').value.trim().padStart(2,'0');
+  e.doc = document.getElementById('e-doc').value.trim();
+  e.date = `2026-${mo}-${dy}`;
+  e.cat = document.getElementById('e-cat').value;
+  e.subcat = document.getElementById('e-subcat').value;
+  e.desc = document.getElementById('e-desc').value.trim();
+  e.amount = parseInt(document.getElementById('e-amount').value)||0;
+  e.approval = document.getElementById('e-approval').value;
+
+  const submM = document.getElementById('e-subm-m').value.trim().padStart(2,'0');
+  const submD = document.getElementById('e-subm-d').value.trim().padStart(2,'0');
+  e.submitDate = submM&&submD?`2026-${submM}-${submD}`:'';
+  e.submit = e.submitDate?'제출완료':'미제출';
+
+  const spendM = document.getElementById('e-spend-m').value.trim().padStart(2,'0');
+  const spendD = document.getElementById('e-spend-d').value.trim().padStart(2,'0');
+  e.spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
+  e.spend = e.spendDate?'지출완료':'대기';
+  e.payee = document.getElementById('e-payee').value.trim();
+  e.memo = document.getElementById('e-memo').value.trim();
+  saveBudgetToStorage();
+  closeModal();
+  renderBudgetList();
+}
+
+function deleteBudgetExpense(id){
+  if(!confirm('삭제할까요?'))return;
+  budgetExpenses = budgetExpenses.filter(e=>e.id!==id);
+  saveBudgetToStorage();
+  renderBudgetList();
+}
+
+function closeModal(){document.getElementById('modal-wrap').style.display='none';}
+document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)closeModal();});
+
+// showMsg() 공통 함수 사용
+
+// localStorage 저장
+function saveBudgetToStorage(){
+  localStorage.setItem('budget_sotong_v2', JSON.stringify({
+    budgetExpenses, budgetNextId,
+    totalBudget: BUDGET_TOTAL,
+    budgetCats: BUDGET_CATS
+  }));
+}
+function loadBudgetFromStorage(){
+  try{
+    const raw = localStorage.getItem('budget_sotong_v2');
+    if(!raw)return;
+    const d = JSON.parse(raw);
+    if(d.budgetExpenses) budgetExpenses = d.budgetExpenses;
+    if(d.budgetNextId) budgetNextId = d.budgetNextId;
+    if(d.totalBudget) window.BUDGET_TOTAL = d.totalBudget;
+    if(d.budgetCats) d.budgetCats.forEach((c,i)=>{
+      if(BUDGET_CATS[i]){
+        BUDGET_CATS[i].budget = c.budget;
+        c.subs.forEach((s,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=s.budget;});
+      }
+    });
+  }catch(e){}
+}
+
+// 백업/복원
+function saveBudgetData(){
+  const blob = new Blob([JSON.stringify({budgetExpenses,budgetNextId,totalBudget:BUDGET_TOTAL,budgetCats:BUDGET_CATS},null,2)],{type:'application/json'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `예산백업_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();URL.revokeObjectURL(a.href);
+}
+// loadBudgetData() 를 사용
+
+// 엑셀 내보내기
+function exportBudgetCSV(){
+  if(!budgetExpenses.length){alert('지출 내역이 없어요.');return;}
+
+  // 편성목 매핑
+  const 편성목Map = {
+    '인건비':'인건비',
+    '퇴직금':'인건비',
+    '사무관리비':'일반운영비',
+    '공공운영비':'일반운영비',
+    '행사운영비':'일반운영비',
+    '교육훈련비':'교육훈련비',
+    '복리후생비':'일반운영비',
+    '국내여비':'여비',
+    '연금부담금':'연금부담금 등',
+    '위탁수수료':'위탁수수료',
+  };
+
+  // 코드 매핑
+  const 코드Map = {
+    '인건비':'101-04',
+    '퇴직금':'101-05',
+    '사무관리비':'201-01',
+    '공공운영비':'201-02',
+    '행사운영비':'201-05',
+    '교육훈련비':'201-12',
+    '복리후생비':'201-15',
+    '국내여비':'202-01',
+    '연금부담금':'304-01',
+    '위탁수수료':'401-01',
+  };
+
+  function fmtDate(d){
+    if(!d)return '';
+    const p=d.split('-');
+    return p[0].slice(2)+'-'+p[1]+'-'+p[2];
+  }
+
+  const BOM='\uFEFF';
+
+  // 1행: 사업명
+  const title = `"찾아가는 청년 일자리버스 사업(1억5천3백 만원)"`;
+
+  // 2행: 헤더
+  const header = ['연번','수/지','세항','편성목','목','세목','코드','결의일자','제출일','지출일','지출금액','적요','지급처(사용처)','지출결의서'];
+
+  const sorted = [...budgetExpenses].sort((a,b)=>a.date.localeCompare(b.date));
+
+  const rows = sorted.map((e,i)=>[
+    i+1,
+    '지출',
+    '충남형 일자리소통공간',
+    편성목Map[e.cat]||e.cat,
+    e.cat,
+    e.subcat||'',
+    코드Map[e.cat]||'',
+    fmtDate(e.date),
+    e.submitDate?fmtDate(e.submitDate):'',
+    e.spendDate?fmtDate(e.spendDate):'',
+    e.amount,
+    e.desc,
+    e.payee||'',
+    '',  // 지출결의서 빈칸
+  ].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
+
+  const csv = BOM + [title, header.join(','), ...rows].join('\n');
+  const blob = new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `일별수지_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// 초기화
+
+
+
+// 예산 초기화
+loadBudgetFromStorage();
 </script>
 
 <!-- 일정 등록/수정 모달 (별도) -->
