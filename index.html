@@ -31,7 +31,7 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 /* 상단바 */
 .topbar{background:var(--surface);border-bottom:1px solid var(--border);padding:0 20px;display:flex;align-items:center;height:52px;gap:12px;position:sticky;top:0;z-index:100;}
 .topbar-logo{font-size:15px;font-weight:700;color:var(--blue);}
-.topbar-biz{font-size:12px;color:var(--text3);}
+.topbar-biz{display:none;}
 .topbar-actions{margin-left:auto;display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
 .user-avatar{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);}
 .user-name{font-size:12px;color:var(--text2);max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
@@ -186,7 +186,7 @@ tr:hover td{background:var(--surface2);}
 <div id="app-screen" style="display:none;">
   <div class="topbar">
     <div>
-      <div class="topbar-logo">🚌 출장 관리</div>
+      <div class="topbar-logo" id="topbar-logo">출장 관리</div>
       <div class="topbar-biz" id="topbar-biz"></div>
     </div>
     <div class="topbar-actions">
@@ -648,6 +648,7 @@ function loadData(uid){
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
+    document.getElementById('topbar-logo').textContent=myBiz.name||'출장 관리';
     refreshCurrentView();
   },(err)=>{setSyncStatus('err','연결 오류');});
 }
@@ -836,6 +837,7 @@ window.saveMyBiz=async function(){
   myBiz={name,owner,budget};
   await persist();
   document.getElementById('topbar-biz').textContent=name;
+  document.getElementById('topbar-logo').textContent=name;
   showMsg('mb-msg','저장 완료!','ok');
   renderSetup();
 }
