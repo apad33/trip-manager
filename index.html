@@ -1147,7 +1147,9 @@ function renderCal(){
       const lecTxt=ev.lecturers&&ev.lecturers.length?'👤'+ev.lecturers.map(l=>l.name).join(','):'';
       const descTxt=ev.desc||'';
       tag.innerHTML=`<div class="cal-event-title">${busIcon}${seqTxt}[${ev.cat}] ${ev.place}</div>`
-        +((timeTxt||descTxt||lecTxt)?`<div class="cal-event-detail">${[timeTxt,descTxt,lecTxt].filter(Boolean).join(' · ')}</div>`:'');
+        +(timeTxt?`<div class="cal-event-detail">⏱ ${timeTxt}</div>`:'')
+        +(descTxt?`<div class="cal-event-detail">📌 ${descTxt}</div>`:'')
+        +(lecTxt?`<div class="cal-event-detail">👤 ${lecTxt}</div>`:'');
       tag.title=[ev.place,timeTxt,descTxt,lecTxt].filter(Boolean).join(' | ');
       tag.onclick=(e)=>{e.stopPropagation();openSchedDetail(ev.id);};cell.appendChild(tag);
     });
