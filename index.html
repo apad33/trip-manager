@@ -1891,28 +1891,11 @@ document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.
 // showMsg() 공통 함수 사용
 
 // localStorage 저장
-window.saveBudgetToStorage=function(){
-  localStorage.setItem('budget_sotong_v2', JSON.stringify({
-    budgetExpenses, budgetNextId,
-    totalBudget: BUDGET_TOTAL,
-    budgetCats: BUDGET_CATS
-  }));
+window.saveBudgetToStorage=async function(){
+  await persist();
 }
 window.loadBudgetFromStorage=function(){
-  try{
-    const raw = localStorage.getItem('budget_sotong_v2');
-    if(!raw)return;
-    const d = JSON.parse(raw);
-    if(d.budgetExpenses) budgetExpenses = d.budgetExpenses;
-    if(d.budgetNextId) budgetNextId = d.budgetNextId;
-    if(d.totalBudget) window.BUDGET_TOTAL = d.totalBudget;
-    if(d.budgetCats) d.budgetCats.forEach((c,i)=>{
-      if(BUDGET_CATS[i]){
-        BUDGET_CATS[i].budget = c.budget;
-        c.subs.forEach((s,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=s.budget;});
-      }
-    });
-  }catch(e){}
+  // Firebase onSnapshot에서 자동으로 불러옴 - 별도 처리 불필요
 }
 
 // 백업/복원
@@ -2003,8 +1986,7 @@ window.exportBudgetCSV=function(){
 
 
 
-// 예산 초기화
-loadBudgetFromStorage();
+// 예산 초기화 - Firebase onSnapshot에서 자동 처리
 </script>
 
 <!-- 일정 등록/수정 모달 (별도) -->
