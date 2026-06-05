@@ -652,6 +652,7 @@ function loadData(uid){
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
     document.getElementById('topbar-logo').textContent=myBiz.name||'통합 관리';
     refreshCurrentView();
+    renderCal();
   },(err)=>{setSyncStatus('err','연결 오류');});
 }
 
@@ -680,9 +681,14 @@ window.switchApp=function(app){
 let currentTripTab='dash';
 let currentSchedTab='cal';
 
+let currentBudgetTab='dash';
+
 function refreshCurrentView(){
   if(currentSchedTab==='cal')renderCal();
   refreshTripView(currentTripTab);
+  if(currentBudgetTab==='dash')renderBudgetDash();
+  if(currentBudgetTab==='list')renderBudgetList();
+  if(currentBudgetTab==='monthly')renderBudgetMonthly();
 }
 
 // ── 출장 관리 ──
@@ -1673,6 +1679,7 @@ window.renderBudgetMonthly=function(){
 }
 
 window.goBudget=function(id){
+  currentBudgetTab=id;
   document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','add','setup'][i]===id));
   document.querySelectorAll('#app-budget .pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('bp-'+id).classList.add('on');
