@@ -1756,7 +1756,7 @@ window.addBudgetExpense=function(){
   const amount = parseInt(document.getElementById('ba-amount').value)||0;
   const payee = document.getElementById('ba-payee').value.trim();
   const memo = document.getElementById('ba-memo').value.trim();
-  if(!date||!cat||!desc||!amount){showMsg('a-msg','* 날짜, 예산과목, 내역, 금액은 필수예요','err');return;}
+  if(!date||!cat||!desc||!amount){showMsg('ba-msg','* 날짜, 예산과목, 내역, 금액은 필수예요','err');return;}
 
   const approval = document.getElementById('ba-approval').value;
   const approvalDate = '';
@@ -1774,8 +1774,8 @@ window.addBudgetExpense=function(){
   const spend = spendDate?'지출완료':'대기';
 
   budgetExpenses.push({id:budgetNextId++,doc,date,cat,subcat,desc,amount,payee,approval,approvalDate,submit,submitDate,spend,spendDate,memo});
-  ['a-doc','a-date-m','a-date-d','a-desc','a-amount','a-payee','a-memo',
-   'a-appr-m','a-appr-d','a-subm-m','a-subm-d','a-spend-m','a-spend-d'
+  ['ba-doc','ba-date-m','ba-date-d','ba-desc','ba-amount','ba-payee','ba-memo',
+   'ba-subm-m','ba-subm-d','ba-spend-m','ba-spend-d'
   ].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('ba-approval').value='미결재';
   document.getElementById('ba-cat').value='';
@@ -1870,7 +1870,10 @@ window.saveBudgetEdit=function(id){
   e.subcat = document.getElementById('e-subcat').value;
   e.desc = document.getElementById('e-desc').value.trim();
   e.amount = parseInt(document.getElementById('e-amount').value)||0;
-  e.approval = document.getElementById('e-approval').value;
+  const apprM2 = document.getElementById('e-appr-m').value.trim().padStart(2,'0');
+  const apprD2 = document.getElementById('e-appr-d').value.trim().padStart(2,'0');
+  e.approvalDate = apprM2&&apprD2?`2026-${apprM2}-${apprD2}`:'';
+  e.approval = e.approvalDate?'결재완료':'미결재';
 
   const submM = document.getElementById('e-subm-m').value.trim().padStart(2,'0');
   const submD = document.getElementById('e-subm-d').value.trim().padStart(2,'0');
@@ -1881,7 +1884,7 @@ window.saveBudgetEdit=function(id){
   const spendD = document.getElementById('e-spend-d').value.trim().padStart(2,'0');
   e.spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
   e.spend = e.spendDate?'지출완료':'대기';
-  e.payee = document.getElementById('e-payee').value.trim();
+  // e-payee is not in edit modal, skip
   e.memo = document.getElementById('e-memo').value.trim();
   saveBudgetToStorage();
   closeModal();
