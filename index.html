@@ -370,7 +370,7 @@ tr:hover td{background:var(--surface2);}
           <div class="cal-legend">
             <div class="leg"><div class="leg-dot" style="background:#DCFCE7;border:1px solid #166534;"></div>상담</div>
             <div class="leg"><div class="leg-dot" style="background:#F3E8FF;border:1px solid #7E22CE;"></div>홍보</div>
-            <div class="leg"><div class="leg-dot" style="background:#DBEAFE;border:1px solid #1e40af;"></div>버스</div>
+            <div class="leg"><div class="leg-dot" style="background:#DBEAFE;border:1px solid #1e40af;"></div>완료</div>
           </div>
         </div>
         <div class="cal-grid-hd">
@@ -1145,8 +1145,8 @@ function renderCal(){
     dayEvs.slice(0,3).forEach(ev=>{
       const col=catColor(ev.cat);const isDone=ev.status==='완료';
       const tag=document.createElement('div');tag.className='cal-event';
-      tag.style.background=isDone?'#E8F5E9':col.bg;tag.style.color=isDone?'#166534':col.color;
-      tag.style.opacity=isDone?.75:1;
+      tag.style.background=isDone?'#DBEAFE':col.bg;tag.style.color=isDone?'#1e40af':col.color;
+      tag.style.opacity=isDone?.85:1;
       const busIcon=ev.hasBus?'🚌 ':'';
       const seqTxt=ev.seq?ev.seq+'차 ':'';
       const timeTxt=ev.time?ev.time:'';
