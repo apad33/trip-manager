@@ -1144,7 +1144,7 @@ function renderCal(){
       const busIcon=ev.hasBus?'🚌 ':'';
       const seqTxt=ev.seq?ev.seq+'차 ':'';
       const timeTxt=ev.time?ev.time:'';
-      const lecTxt=ev.lecturers&&ev.lecturers.length?'👤'+ev.lecturers.map(l=>l.name).join(','):'';
+      const lecTxt=ev.lecturers&&ev.lecturers.length?ev.lecturers.map(l=>l.name).join(', '):'';
       const descTxt=ev.desc||'';
       tag.innerHTML=`<div class="cal-event-title">${busIcon}${seqTxt}[${ev.cat}] ${ev.place}</div>`
         +(timeTxt?`<div class="cal-event-detail">⏱ ${timeTxt}</div>`:'')
