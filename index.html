@@ -212,7 +212,6 @@ tr:hover td{background:var(--surface2);}
       <button class="sub-tab on" onclick="goTrip('dash')">📊 대시보드</button>
       <button class="sub-tab" onclick="goTrip('monthly')">📅 월별 합계</button>
       <button class="sub-tab" onclick="goTrip('setup')">⚙️ 설정</button>
-      <button class="sub-tab" onclick="goTrip('add')">➕ 출장 등록</button>
       <button class="sub-tab" onclick="goTrip('list')">📋 출장 목록</button>
       <button class="sub-tab" onclick="goTrip('settle')">🧾 정산 현황</button>
     </div>
@@ -309,11 +308,13 @@ tr:hover td{background:var(--surface2);}
         <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항"></div>
         <div style="display:flex;align-items:center;gap:8px;">
           <button class="btn" onclick="addTrip()">✅ 등록하기</button>
+          <button class="btn-sm" onclick="goTrip('list')">취소</button>
           <span id="a-msg" class="msg"></span>
         </div>
       </div>
       <div id="tp-list" class="pane">
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+          <button class="btn-sm btn-blue" onclick="goTrip('add')">➕ 출장 등록</button>
           <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderList()">
           <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
           <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
@@ -421,7 +422,6 @@ tr:hover td{background:var(--surface2);}
       <button class="sub-tab on" onclick="goBudget('dash')">📊 대시보드</button>
       <button class="sub-tab" onclick="goBudget('list')">📋 지출 목록</button>
       <button class="sub-tab" onclick="goBudget('monthly')">📅 월별 현황</button>
-      <button class="sub-tab" onclick="goBudget('add')">➕ 지출 등록</button>
       <button class="sub-tab" onclick="goBudget('setup')">⚙️ 예산 설정</button>
     </div>
     <div class="wrap">
@@ -440,6 +440,7 @@ tr:hover td{background:var(--surface2);}
 
       <div id="bp-list" class="pane">
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
+          <button class="btn-sm btn-blue" onclick="goBudget('add')">➕ 지출 등록</button>
           <input type="text" id="bl-search" placeholder="내역·품의번호 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderBudgetList()">
           <select id="bl-cat" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 과목</option></select>
           <select id="bl-submit" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 제출</option><option value="제출완료">제출완료</option><option value="미제출">미제출</option></select>
@@ -527,6 +528,7 @@ tr:hover td{background:var(--surface2);}
             </div>
             <div style="display:flex;align-items:center;gap:10px;">
               <button class="btn" onclick="addBudgetExpense()" style="padding:11px 28px;font-size:14px;">✅ 등록하기</button>
+              <button class="btn-sm" onclick="goBudget('list')">취소</button>
               <span id="ba-msg" class="msg"></span>
             </div>
           </div>
@@ -886,6 +888,7 @@ window.addTrip=async function(){
   ['a-person','a-dest','a-start-m','a-start-d','a-end-m','a-end-d','a-purpose','a-da','a-me','a-tr','a-memo'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('v-gov').checked=true;
   await persist();showMsg('a-msg','✅ 등록 완료!','ok');
+  setTimeout(()=>goTrip('list'),600);
 }
 function renderList(){
   const q=(document.getElementById('l-search').value||'').toLowerCase();
@@ -1779,7 +1782,8 @@ window.addBudgetExpense=function(){
   document.getElementById('ba-cat').value='';
   document.getElementById('ba-subcat').innerHTML='<option value="">선택 (예산과목 먼저 선택)</option>';
   saveBudgetToStorage();
-  showMsg('a-msg','✅ 등록 완료!','ok');
+  showMsg('ba-msg','✅ 등록 완료!','ok');
+  setTimeout(()=>goBudget('list'),600);
 }
 
 window.openBudgetEdit=function(id){
