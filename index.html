@@ -453,7 +453,7 @@ tr:hover td{background:var(--surface2);}
               <th style="width:100px;">예산과목</th><th style="width:120px;">세부항목</th><th style="width:180px;">내역</th>
               <th style="width:100px;">지급처</th><th style="width:85px;">금액</th>
               <th style="width:72px;">결재상태</th><th style="width:80px;">제출여부</th><th style="width:80px;">지출여부</th>
-              <th style="width:72px;"></th>
+              <th style="width:70px;">비고</th><th style="width:72px;"></th>
             </tr></thead>
             <tbody id="bl-body"></tbody>
           </table>
@@ -1782,7 +1782,7 @@ window.addBudgetExpense=function(){
   document.getElementById('ba-subcat').innerHTML='<option value="">선택 (예산과목 먼저 선택)</option>';
   saveBudgetToStorage();
   showMsg('ba-msg','✅ 등록 완료!','ok');
-  setTimeout(()=>goBudget('list'),600);
+  setTimeout(()=>goBudget('list'),1000);
 }
 
 window.openBudgetEdit=function(id){
