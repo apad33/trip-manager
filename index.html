@@ -715,7 +715,7 @@ function refreshCurrentView(){
 // ── 출장 관리 ──
 window.goTrip=function(id){
   currentTripTab=id;
-  document.querySelectorAll('#app-trip .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','monthly','setup','add','list','settle'][i]===id));
+  document.querySelectorAll('#app-trip .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','monthly','setup','list','settle'][i]===id));
   document.querySelectorAll('#app-trip .pane').forEach(p=>p.classList.remove('on'));
   document.getElementById('tp-'+id).classList.add('on');
   refreshTripView(id);
