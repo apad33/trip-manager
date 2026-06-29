@@ -52,7 +52,7 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 .sub-tab.on{color:var(--text);border-bottom-color:var(--text);}
 .sub-tab:hover:not(.on){color:var(--text);}
 
-.wrap{max-width:1100px;margin:0 auto;padding:20px 16px;}
+.wrap{max-width:1400px;margin:0 auto;padding:20px 20px;}
 .pane{display:none;}.pane.on{display:block;}
 
 /* 공통 컴포넌트 */
@@ -84,9 +84,9 @@ body{font-family:'Noto Sans KR',-apple-system,sans-serif;background:var(--bg);co
 .btn-green{color:var(--green);border-color:#86EFAC;}
 .btn-green:hover{background:var(--green-bg);}
 .tbl-wrap{overflow-x:auto;}
-table{width:100%;border-collapse:collapse;font-size:12px;table-layout:fixed;}
-th{font-weight:600;color:var(--text2);padding:8px 10px;border-bottom:1px solid var(--border);text-align:left;font-size:11px;background:var(--surface2);}
-td{padding:9px 10px;border-bottom:1px solid #f0f0ee;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;}
+table{width:100%;border-collapse:collapse;font-size:12px;}
+th{font-weight:600;color:var(--text2);padding:10px 12px;border-bottom:2px solid var(--border);text-align:left;font-size:11px;background:var(--surface2);white-space:nowrap;}
+td{padding:9px 12px;border-bottom:1px solid #f0f0ee;color:var(--text);vertical-align:middle;}
 tr:hover td{background:var(--surface2);}
 .badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
 .b-pend{background:#fff3e0;color:#7c4d00;}
@@ -265,51 +265,70 @@ tr:hover td{background:var(--surface2);}
         <div id="other-biz-list"></div>
       </div>
       <div id="tp-add" class="pane">
-        <div class="sec">출장 정보</div>
-        <div class="grid2" style="margin-bottom:12px;">
-          <div class="fg"><label>출장자 *</label><input type="text" id="a-person" placeholder="홍길동"></div>
-          <div class="fg"><label>출장지 *</label><input type="text" id="a-dest" placeholder="서울, 부산 등"></div>
-          <div class="fg"><label>출장 시작일 *</label>
-            <div style="display:flex;align-items:center;gap:5px;">
-              <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
-              <span style="color:var(--text3);">-</span>
-              <input type="text" id="a-start-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-              <span style="color:var(--text3);">-</span>
-              <input type="text" id="a-start-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-m').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+        <div style="max-width:1000px;margin:0 auto;">
+          <div class="card" style="padding:24px 28px;">
+            <div style="font-size:15px;font-weight:700;margin-bottom:8px;">➕ 출장 등록</div>
+            <div style="font-size:12px;color:var(--text2);margin-bottom:20px;">공통 정보를 먼저 입력하고, 아래 표에 출장자별로 추가하세요. 여러 명을 한 번에 등록할 수 있어요.</div>
+
+            <div class="sec" style="margin-top:0;">공통 정보 (모든 출장자에게 적용)</div>
+            <div class="grid2" style="margin-bottom:12px;">
+              <div class="fg"><label>출장 시작일 *</label>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="a-start-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-start-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="a-start-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-m').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                </div>
+              </div>
+              <div class="fg"><label>출장 종료일 *</label>
+                <div style="display:flex;align-items:center;gap:5px;">
+                  <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="a-end-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                  <span style="color:var(--text3);">-</span>
+                  <input type="text" id="a-end-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
+                </div>
+              </div>
+              <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
+              <div class="fg"><label>차량 구분</label>
+                <div style="display:flex;gap:8px;">
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;flex:1;justify-content:center;">
+                    <input type="radio" name="vehicle" id="v-gov" value="관차" checked> 🚌 관차
+                  </label>
+                  <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:8px 14px;flex:1;justify-content:center;">
+                    <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="sec" style="margin-top:20px;display:flex;align-items:center;gap:10px;">
+              <span>출장자 목록</span>
+              <button class="btn-sm btn-green" onclick="addTripRow()">➕ 행 추가</button>
+            </div>
+            <div class="tbl-wrap">
+              <table id="trip-entry-table">
+                <thead><tr>
+                  <th style="min-width:100px;">출장자 *</th>
+                  <th style="min-width:110px;">출장지 *</th>
+                  <th style="min-width:100px;">목적</th>
+                  <th style="min-width:80px;">💵 일비</th>
+                  <th style="min-width:80px;">🍱 식비</th>
+                  <th style="min-width:80px;">🚆 교통비</th>
+                  <th style="min-width:100px;">메모</th>
+                  <th style="width:40px;"></th>
+                </tr></thead>
+                <tbody id="trip-entry-body"></tbody>
+              </table>
+            </div>
+
+            <div style="display:flex;align-items:center;gap:8px;margin-top:20px;">
+              <button class="btn" onclick="addTrip()">✅ 전체 등록하기</button>
+              <button class="btn-sm" onclick="goTrip('list')">취소</button>
+              <span id="a-msg" class="msg"></span>
             </div>
           </div>
-          <div class="fg"><label>출장 종료일 *</label>
-            <div style="display:flex;align-items:center;gap:5px;">
-              <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 11px;border-radius:8px;border:1px solid var(--border2);">2026</span>
-              <span style="color:var(--text3);">-</span>
-              <input type="text" id="a-end-m" placeholder="MM" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('a-end-d').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-              <span style="color:var(--text3);">-</span>
-              <input type="text" id="a-end-d" placeholder="DD" maxlength="2" inputmode="numeric" style="width:46px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
-            </div>
-          </div>
-          <div class="fg"><label>비용 청구 사업 *</label><select id="a-biz"></select></div>
-          <div class="fg"><label>목적</label><input type="text" id="a-purpose" placeholder="미팅, 현장방문 등"></div>
-        </div>
-        <div class="sec">차량 구분</div>
-        <div style="display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;">
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 16px;">
-            <input type="radio" name="vehicle" id="v-gov" value="관차" checked> 🚌 관차
-          </label>
-          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;background:var(--surface);border:1px solid var(--border2);border-radius:8px;padding:9px 16px;">
-            <input type="radio" name="vehicle" id="v-own" value="자차"> 🚗 자차
-          </label>
-        </div>
-        <div class="sec">비용 입력 (원)</div>
-        <div class="grid3" style="margin-bottom:12px;">
-          <div class="fg"><label>💵 일비</label><input type="number" id="a-da" placeholder="0" min="0"></div>
-          <div class="fg"><label>🍱 식비</label><input type="number" id="a-me" placeholder="0" min="0"></div>
-          <div class="fg"><label>🚆 교통비</label><input type="number" id="a-tr" placeholder="0" min="0"></div>
-        </div>
-        <div class="fg" style="margin-bottom:16px;"><label>메모</label><input type="text" id="a-memo" placeholder="특이사항"></div>
-        <div style="display:flex;align-items:center;gap:8px;">
-          <button class="btn" onclick="addTrip()">✅ 등록하기</button>
-          <button class="btn-sm" onclick="goTrip('list')">취소</button>
-          <span id="a-msg" class="msg"></span>
         </div>
       </div>
       <div id="tp-list" class="pane">
@@ -327,10 +346,10 @@ tr:hover td{background:var(--surface2);}
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th style="width:65px;">출장자</th><th style="width:80px;">사업</th><th style="width:78px;">날짜</th>
-              <th style="width:46px;">차량</th><th style="width:52px;">일비</th><th style="width:52px;">식비</th>
-              <th style="width:52px;">교통비</th><th style="width:68px;">합계</th><th style="width:62px;">상태</th>
-              <th style="width:100px;"></th>
+              <th>출장자</th><th>사업</th><th>날짜</th>
+              <th>차량</th><th>일비</th><th>식비</th>
+              <th>교통비</th><th>합계</th><th>상태</th>
+              <th></th>
             </tr></thead>
             <tbody id="l-body"></tbody>
           </table>
@@ -397,11 +416,11 @@ tr:hover td{background:var(--surface2);}
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th style="width:36px;">번호</th><th style="width:50px;">회차</th><th style="width:60px;">구분</th>
-              <th style="width:50px;">버스</th><th style="width:80px;">일자</th><th style="width:140px;">장소</th>
-              <th style="width:36px;">인원</th><th style="width:160px;">내용</th><th style="width:90px;">운영시간</th>
-              <th style="width:100px;">협업기관</th><th style="width:80px;">강사명</th><th style="width:60px;">상태</th>
-              <th style="width:72px;"></th>
+              <th>번호</th><th>회차</th><th>구분</th>
+              <th>버스</th><th>일자</th><th>장소</th>
+              <th>인원</th><th>내용</th><th>운영시간</th>
+              <th>협업기관</th><th>강사명</th><th>상태</th>
+              <th></th>
             </tr></thead>
             <tbody id="sl-body"></tbody>
           </table>
@@ -449,11 +468,11 @@ tr:hover td{background:var(--surface2);}
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th style="width:36px;">연번</th><th style="width:90px;">품의번호</th><th style="width:80px;">결의일자</th>
-              <th style="width:100px;">예산과목</th><th style="width:120px;">세부항목</th><th style="width:180px;">내역</th>
-              <th style="width:100px;">지급처</th><th style="width:85px;">금액</th>
-              <th style="width:72px;">결재상태</th><th style="width:80px;">제출여부</th><th style="width:80px;">지출여부</th>
-              <th style="width:70px;">비고</th><th style="width:72px;"></th>
+              <th>연번</th><th>품의번호</th><th>결의일자</th>
+              <th>예산과목</th><th>세부항목</th><th>내역</th>
+              <th>지급처</th><th>금액</th>
+              <th>결재상태</th><th>제출여부</th><th>지출여부</th>
+              <th>비고</th><th></th>
             </tr></thead>
             <tbody id="bl-body"></tbody>
           </table>
@@ -865,30 +884,70 @@ window.delOther=async function(id){
 }
 function populateAddBiz(){
   document.getElementById('a-biz').innerHTML=allBiz().map(b=>`<option value="${b.id}">${b.name}</option>`).join('');
+  // 표 초기화 - 행 2개로 시작
+  const body=document.getElementById('trip-entry-body');
+  if(body){body.innerHTML='';addTripRow();addTripRow();}
 }
+
+window.addTripRow=function(){
+  const body=document.getElementById('trip-entry-body');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`
+    <td><input type="text" class="te-person" placeholder="홍길동" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="text" class="te-dest" placeholder="서울 등" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="text" class="te-purpose" placeholder="미팅 등" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="number" class="te-da" placeholder="0" min="0" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="number" class="te-me" placeholder="0" min="0" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="number" class="te-tr" placeholder="0" min="0" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><input type="text" class="te-memo" placeholder="비고" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--border2);border-radius:6px;"></td>
+    <td><button class="btn-sm btn-red" onclick="this.closest('tr').remove()" style="padding:4px 8px;">✕</button></td>
+  `;
+  body.appendChild(tr);
+}
+
 window.addTrip=async function(){
-  const person=document.getElementById('a-person').value.trim();
-  const dest=document.getElementById('a-dest').value.trim();
   const sm=document.getElementById('a-start-m').value.trim().padStart(2,'0');
   const sd=document.getElementById('a-start-d').value.trim().padStart(2,'0');
   const em=document.getElementById('a-end-m').value.trim().padStart(2,'0');
   const ed=document.getElementById('a-end-d').value.trim().padStart(2,'0');
-  const start=sm&&sd?`2026-${sm}-${sd}`:'';
-  const end=em&&ed?`2026-${em}-${ed}`:'';
+  const start=sm&&sd&&sm!=='00'&&sd!=='00'?`2026-${sm}-${sd}`:'';
+  const end=em&&ed&&em!=='00'&&ed!=='00'?`2026-${em}-${ed}`:'';
   const raw=document.getElementById('a-biz').value;
   const bizId=raw==='my'?'my':parseInt(raw);
-  const purpose=document.getElementById('a-purpose').value.trim();
   const vehicle=document.querySelector('input[name="vehicle"]:checked').value;
-  const da=parseInt(document.getElementById('a-da').value)||0;
-  const me=parseInt(document.getElementById('a-me').value)||0;
-  const tr=parseInt(document.getElementById('a-tr').value)||0;
-  const memo=document.getElementById('a-memo').value.trim();
-  if(!person||!dest||!start||!end){showMsg('a-msg','필수 항목을 모두 입력해 주세요','err');return;}
-  trips.push({id:tripNextId++,person,dest,start,end,bizId,purpose,vehicle,da,me,tr,memo,status:'pending',settled:0});
-  ['a-person','a-dest','a-start-m','a-start-d','a-end-m','a-end-d','a-purpose','a-da','a-me','a-tr','a-memo'].forEach(id=>{document.getElementById(id).value='';});
+
+  if(!start||!end){showMsg('a-msg','출장 시작일과 종료일을 입력해 주세요','err');return;}
+
+  // 표에서 출장자별 데이터 수집
+  const rows=document.querySelectorAll('#trip-entry-body tr');
+  const newTrips=[];
+  let errorMsg='';
+  rows.forEach(row=>{
+    const person=row.querySelector('.te-person').value.trim();
+    const dest=row.querySelector('.te-dest').value.trim();
+    // 출장자나 출장지 둘 다 비어있으면 빈 행으로 간주하고 스킵
+    if(!person&&!dest)return;
+    if(!person||!dest){errorMsg='출장자와 출장지는 필수예요';return;}
+    const purpose=row.querySelector('.te-purpose').value.trim();
+    const da=parseInt(row.querySelector('.te-da').value)||0;
+    const me=parseInt(row.querySelector('.te-me').value)||0;
+    const tr=parseInt(row.querySelector('.te-tr').value)||0;
+    const memo=row.querySelector('.te-memo').value.trim();
+    newTrips.push({person,dest,purpose,da,me,tr,memo});
+  });
+
+  if(errorMsg){showMsg('a-msg',errorMsg,'err');return;}
+  if(!newTrips.length){showMsg('a-msg','출장자를 한 명 이상 입력해 주세요','err');return;}
+
+  newTrips.forEach(t=>{
+    trips.push({id:tripNextId++,person:t.person,dest:t.dest,start,end,bizId,purpose:t.purpose,vehicle,da:t.da,me:t.me,tr:t.tr,memo:t.memo,status:'pending',settled:0});
+  });
+
+  ['a-start-m','a-start-d','a-end-m','a-end-d'].forEach(id=>{document.getElementById(id).value='';});
   document.getElementById('v-gov').checked=true;
-  await persist();showMsg('a-msg','✅ 등록 완료!','ok');
-  setTimeout(()=>goTrip('list'),600);
+  await persist();
+  showMsg('a-msg',`✅ ${newTrips.length}건 등록 완료!`,'ok');
+  setTimeout(()=>goTrip('list'),1000);
 }
 function renderList(){
   const q=(document.getElementById('l-search').value||'').toLowerCase();
@@ -1191,11 +1250,11 @@ function renderSchedList(){
     <td><span class="badge ${catClass(e.cat)}">${e.cat}</span></td>
     <td>${e.hasBus?'<span class="badge b-bus">🚌</span>':'-'}</td>
     <td style="font-size:11px;">${e.date}</td>
-    <td style="max-width:140px;overflow:hidden;text-overflow:ellipsis;" title="${e.place}">${e.place}</td>
+    <td style="white-space:nowrap;" title="${e.place}">${e.place.length>10?e.place.slice(0,10)+'…':e.place}</td>
     <td>${e.count||'-'}</td>
-    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;" title="${e.desc||''}">${e.desc||'-'}</td>
+    <td style="white-space:nowrap;" title="${e.desc||''}">${(e.desc||'').length>12?(e.desc||'').slice(0,12)+'…':(e.desc||'-')}</td>
     <td style="white-space:nowrap;font-size:11px;">${e.time||'-'}${e.hours?' ('+e.hours+'h)':''}</td>
-    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;">${e.org||'-'}</td>
+    <td style="white-space:nowrap;">${(e.org||'-').length>8?(e.org||'').slice(0,8)+'…':(e.org||'-')}</td>
     <td>${e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name).join(', '):'-'}</td>
     <td><span class="badge ${statusClass(e.status)}">${e.status}</span></td>
     <td><div class="action-btns">
@@ -1562,19 +1621,19 @@ window.renderBudgetList=function(){
 
   document.getElementById('bl-empty').style.display = list.length ? 'none' : 'block';
   document.getElementById('bl-body').innerHTML = list.map((e,i)=>`<tr>
-    <td style="color:var(--text3);">${i+1}</td>
-    <td style="font-size:11px;">${e.doc||'-'}</td>
+    <td style="color:var(--text3);white-space:nowrap;">${i+1}</td>
+    <td style="font-size:11px;white-space:nowrap;">${e.doc||'-'}</td>
     <td style="font-size:11px;white-space:nowrap;">${e.date}</td>
-    <td><span style="font-size:11px;font-weight:500;">${e.cat}</span></td>
-    <td style="font-size:11px;color:var(--text2);">${e.subcat||'-'}</td>
-    <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
-    <td style="max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${e.payee||"-"}</td>
+    <td style="white-space:nowrap;"><span style="font-size:11px;font-weight:600;">${e.cat}</span></td>
+    <td style="font-size:11px;color:var(--text2);white-space:nowrap;">${(e.subcat||'-').length>8?(e.subcat||'-').slice(0,8)+'…':(e.subcat||'-')}</td>
+    <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
+    <td style="white-space:nowrap;">${e.payee||'-'}</td>
     <td style="font-weight:600;white-space:nowrap;">${parseInt(e.amount).toLocaleString()}</td>
-    <td>${approvalBadge(e.approval, e.id, e.approvalDate)}</td>
-    <td>${submitBadge(e.submit||'미제출', e.id, e.submitDate)}</td>
-    <td>${spendBadge(e.spend, e.id, e.spendDate)}</td>
-    <td style="font-size:11px;color:var(--text2);max-width:80px;overflow:hidden;text-overflow:ellipsis;">${e.memo||'-'}</td>
-    <td><div style="display:flex;gap:4px;">
+    <td style="white-space:nowrap;">${approvalBadge(e.approval, e.id, e.approvalDate)}</td>
+    <td style="white-space:nowrap;">${submitBadge(e.submit||'미제출', e.id, e.submitDate)}</td>
+    <td style="white-space:nowrap;">${spendBadge(e.spend, e.id, e.spendDate)}</td>
+    <td style="font-size:11px;color:var(--text2);white-space:nowrap;">${e.memo||'-'}</td>
+    <td style="white-space:nowrap;"><div style="display:flex;gap:4px;">
       <button class="btn-sm btn-blue" onclick="openBudgetEdit(${e.id})">✏️</button>
       <button class="btn-sm btn-red" onclick="deleteBudgetExpense(${e.id})">🗑</button>
     </div></td>
@@ -1586,14 +1645,14 @@ window.approvalBadge=function(s, id, date){
   const next = flow[s];
   const arrow = s==='결재완료'?'↺':'→';
   const cls = s==='결재완료'?'b-done':s==='결재중'?'b-ing':'b-wait';
-  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  const dateStr = (date&&date.slice(5)!=='00-00')?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleApproval(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
 window.spendBadge=function(s, id, date){
   const next = s==='대기'?'지출완료':'대기';
   const arrow = s==='지출완료'?'↺':'→';
   const cls = s==='지출완료'?'b-spend':'b-standby';
-  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  const dateStr = (date&&date.slice(5)!=='00-00')?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSpend(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
 
@@ -1601,7 +1660,7 @@ window.submitBadge=function(s, id, date){
   const next = s==='미제출'?'제출완료':'미제출';
   const arrow = s==='제출완료'?'↺':'→';
   const cls = s==='제출완료'?'b-done':'b-wait';
-  const dateStr = date?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
+  const dateStr = (date&&date.slice(5)!=='00-00')?`<div style="font-size:10px;color:var(--text3);margin-top:1px;">${date.slice(5)}</div>`:'';
   return `<div style="display:inline-block;text-align:center;"><span class="badge ${cls} badge-btn" onclick="cycleSubmit(${id})" title="클릭 시 ${next}">${s} <span style="font-size:10px;opacity:.7;">${arrow}</span></span>${dateStr}</div>`;
 }
 
