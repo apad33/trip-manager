@@ -662,10 +662,26 @@ function loadData(uid){
       if(d.otherBiz)otherBiz=d.otherBiz;
       if(d.trips)trips=d.trips;
       if(d.tripNextId)tripNextId=d.tripNextId;
+      // 중복 id 자동 수정
+      const seenIds=new Set();let maxId=tripNextId;let hadDup=false;
+      trips.forEach(t=>{
+        if(seenIds.has(t.id)){t.id=++maxId;hadDup=true;}
+        seenIds.add(t.id);
+        if(t.id>=maxId)maxId=t.id;
+      });
+      if(hadDup){tripNextId=maxId+1;persist();}
       if(d.events)events=d.events;
       if(d.schedNextId)schedNextId=d.schedNextId;
+      // 일정 중복 id 수정
+      {const seen=new Set();let mx=schedNextId;let dup=false;
+       events.forEach(e=>{if(seen.has(e.id)){e.id=++mx;dup=true;}seen.add(e.id);if(e.id>=mx)mx=e.id;});
+       if(dup){schedNextId=mx+1;persist();}}
       if(d.budgetExpenses)budgetExpenses=d.budgetExpenses;
       if(d.budgetNextId)budgetNextId=d.budgetNextId;
+      // 예산 중복 id 수정
+      {const seen=new Set();let mx=budgetNextId;let dup=false;
+       budgetExpenses.forEach(e=>{if(seen.has(e.id)){e.id=++mx;dup=true;}seen.add(e.id);if(e.id>=mx)mx=e.id;});
+       if(dup){budgetNextId=mx+1;persist();}}
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
       if(d.BUDGET_CATS)BUDGET_CATS.forEach((c,i)=>{if(d.BUDGET_CATS[i]){BUDGET_CATS[i].budget=d.BUDGET_CATS[i].budget;d.BUDGET_CATS[i].subs.forEach((s,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=s.budget;});}});
     }
@@ -695,7 +711,7 @@ window.switchApp=function(app){
   document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
   document.getElementById('app-budget').style.display=app==='budget'?'block':'none';
   if(app==='trip')refreshTripView(currentTripTab);
-  if(app==='sched')refreshSchedView(currentSchedTab);
+  if(app==='sched'){if(currentSchedTab==='cal')renderCal();if(currentSchedTab==='list')renderSchedList();if(currentSchedTab==='stat')renderSchedStat();}
   if(app==='budget')renderBudgetDash();
 }
 
@@ -1455,7 +1471,7 @@ function showMsg(id,txt,type){const el=document.getElementById(id);if(!el)return
 // ── 예산 관리 ──
 
 // ── 예산 정의 ──
-const BUDGET_TOTAL = 153000000;
+let BUDGET_TOTAL = 153000000;
 const BUDGET_CATS = [
   {name:'인건비', budget:80400000, subs:[
     {name:'전담인력 인건비', budget:74400000},
@@ -1782,13 +1798,11 @@ window.renderBudgetSetup=function(){
 
 window.saveBudgetTotal = function(){
   const val = parseInt(document.getElementById('bs-total').value)||0;
-  if(!val){showMsg('s-total-msg','금액을 입력해 주세요','err');return;}
-  TOTAL_BUDGET_MUT = val;
-  // 전역 총예산 업데이트
-  window.BUDGET_TOTAL = val;
-  document.querySelector('.topbar-sub').textContent = `찾아가는 일자리버스(소통공간) · 총 예산액 ${Math.round(val/1000).toLocaleString()}천원`;
+  if(!val){showMsg('bs-total-msg','금액을 입력해 주세요','err');return;}
+  BUDGET_TOTAL = val;
   saveBudgetToStorage();
-  showMsg('s-total-msg','✅ 저장 완료!','ok');
+  showMsg('bs-total-msg','✅ 저장 완료!','ok');
+  renderBudgetDash();
 }
 
 window.saveBudgetCat = function(ci){
