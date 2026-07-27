@@ -1633,11 +1633,20 @@ window.renderBudgetList=function(){
       && (!cf || e.cat === cf)
       && (!subf || (e.submit||'미제출') === subf)
       && (!sf || e.spend === sf);
-  }).sort((a,b)=>b.date.localeCompare(a.date));
+  }).sort((a,b)=>{
+    // 연번(seq)이 둘 다 있으면 연번순, 아니면 결의일자순
+    const sa = a.seq, sb = b.seq;
+    const hasA = (sa!==undefined && sa!==null && sa!=='');
+    const hasB = (sb!==undefined && sb!==null && sb!=='');
+    if(hasA && hasB) return Number(sa) - Number(sb);
+    if(hasA) return -1;  // 연번 있는 게 위로
+    if(hasB) return 1;
+    return a.date.localeCompare(b.date); // 둘 다 없으면 날짜순
+  });
 
   document.getElementById('bl-empty').style.display = list.length ? 'none' : 'block';
   document.getElementById('bl-body').innerHTML = list.map((e,i)=>`<tr>
-    <td style="color:var(--text3);white-space:nowrap;">${i+1}</td>
+    <td style="white-space:nowrap;padding:4px;"><input type="number" value="${(e.seq!==undefined&&e.seq!==null&&e.seq!=='')?e.seq:''}" placeholder="${i+1}" onchange="setBudgetSeq(${e.id}, this.value)" style="width:48px;text-align:center;font-size:12px;padding:5px 4px;border:1px solid var(--border2);border-radius:6px;color:var(--text);" title="연번 입력 시 그 순서로 정렬"></td>
     <td style="font-size:11px;white-space:nowrap;">${e.doc||'-'}</td>
     <td style="font-size:11px;white-space:nowrap;">${e.date}</td>
     <td style="white-space:nowrap;"><span style="font-size:11px;font-weight:600;">${e.cat}</span></td>
@@ -1654,6 +1663,16 @@ window.renderBudgetList=function(){
       <button class="btn-sm btn-red" onclick="deleteBudgetExpense(${e.id})">🗑</button>
     </div></td>
   </tr>`).join('');
+}
+
+// 연번 설정
+window.setBudgetSeq=function(id, val){
+  const e = budgetExpenses.find(x=>x.id===id);
+  if(!e)return;
+  const v = val.trim();
+  e.seq = v===''?null:parseInt(v);
+  saveBudgetToStorage();
+  renderBudgetList();
 }
 
 window.approvalBadge=function(s, id, date){
@@ -2040,10 +2059,18 @@ window.exportBudgetCSV=function(){
   // 2행: 헤더
   const header = ['연번','수/지','세항','편성목','목','세목','코드','결의일자','제출일','지출일','지출금액','적요','지급처(사용처)','지출결의서'];
 
-  const sorted = [...budgetExpenses].sort((a,b)=>a.date.localeCompare(b.date));
+  const sorted = [...budgetExpenses].sort((a,b)=>{
+    const sa = a.seq, sb = b.seq;
+    const hasA = (sa!==undefined && sa!==null && sa!=='');
+    const hasB = (sb!==undefined && sb!==null && sb!=='');
+    if(hasA && hasB) return Number(sa) - Number(sb);
+    if(hasA) return -1;
+    if(hasB) return 1;
+    return a.date.localeCompare(b.date);
+  });
 
   const rows = sorted.map((e,i)=>[
-    i+1,
+    (e.seq!==undefined&&e.seq!==null&&e.seq!=='')?e.seq:(i+1),
     '지출',
     '충남형 일자리소통공간',
     편성목Map[e.cat]||e.cat,
