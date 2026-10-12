@@ -88,6 +88,10 @@ table{width:100%;border-collapse:collapse;font-size:12px;}
 th{font-weight:600;color:var(--text2);padding:10px 12px;border-bottom:2px solid var(--border);text-align:left;font-size:11px;background:var(--surface2);white-space:nowrap;}
 td{padding:9px 12px;border-bottom:1px solid #f0f0ee;color:var(--text);vertical-align:middle;}
 tr:hover td{background:var(--surface2);}
+/* 지출 목록: 수정·삭제 버튼 열을 오른쪽에 고정 */
+#bl-table th:last-child,#bl-table td:last-child{position:sticky;right:0;background:var(--surface);box-shadow:-6px 0 8px -6px rgba(0,0,0,.18);z-index:2;padding-left:8px;padding-right:8px;}
+#bl-table thead th:last-child{background:var(--surface2);z-index:3;}
+#bl-table tr:hover td:last-child{background:var(--surface2);}
 .badge{display:inline-flex;align-items:center;font-size:11px;padding:2px 9px;border-radius:999px;font-weight:600;white-space:nowrap;}
 .b-pend{background:#fff3e0;color:#7c4d00;}
 .b-done{background:#e8f5e9;color:#1b5e20;}
@@ -469,7 +473,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <select id="bl-spend" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 지출</option><option value="지출완료">지출완료</option><option value="대기">대기</option></select>
         </div>
         <div class="tbl-wrap">
-          <table>
+          <table id="bl-table">
             <thead><tr>
               <th>연번</th><th>지출일자</th><th>품의번호</th><th>결의일자</th>
               <th>예산과목</th><th>세부항목</th><th>내역</th>
