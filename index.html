@@ -1916,7 +1916,10 @@ window.openBudgetEdit=function(id){
       </div>
     </div>
     <div class="fg" style="margin-bottom:12px;"><label>내역</label><input type="text" id="e-desc" value="${e.desc}"></div>
-    <div class="fg" style="max-width:220px;margin-bottom:12px;"><label>금액 (원)</label><input type="number" id="e-amount" value="${e.amount}" min="0" style="font-size:14px;font-weight:600;"></div>
+    <div class="grid2" style="margin-bottom:12px;">
+      <div class="fg"><label>금액 (원)</label><input type="number" id="e-amount" value="${e.amount}" min="0" style="font-size:14px;font-weight:600;"></div>
+      <div class="fg"><label>지급처(사용처)</label><input type="text" id="e-payee" value="${e.payee||''}" placeholder="예: 김새별, 예산군청"></div>
+    </div>
     <div class="grid3" style="margin-bottom:12px;">
       <div class="fg"><label>결재일자</label>
         <div style="display:flex;align-items:center;gap:4px;">
@@ -1989,7 +1992,7 @@ window.saveBudgetEdit=function(id){
   const spendD = document.getElementById('e-spend-d').value.trim().padStart(2,'0');
   e.spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
   e.spend = e.spendDate?'지출완료':'대기';
-  // e-payee is not in edit modal, skip
+  e.payee = document.getElementById('e-payee').value.trim();
   e.memo = document.getElementById('e-memo').value.trim();
   saveBudgetToStorage();
   closeModal();
