@@ -471,7 +471,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <div class="tbl-wrap">
           <table>
             <thead><tr>
-              <th>연번</th><th>품의번호</th><th>결의일자</th>
+              <th>연번</th><th>지출일자</th><th>품의번호</th><th>결의일자</th>
               <th>예산과목</th><th>세부항목</th><th>내역</th>
               <th>지급처</th><th>금액</th>
               <th>결재상태</th><th>제출여부</th><th>지출여부</th>
@@ -1637,21 +1637,27 @@ window.renderBudgetList=function(){
       && (!subf || (e.submit||'미제출') === subf)
       && (!sf || e.spend === sf);
   }).sort((a,b)=>{
-    // 연번(seq)이 둘 다 있으면 연번순, 아니면 결의일자순
+    // 연번(seq)이 둘 다 있으면 연번순, 아니면 지출일자순
     const sa = a.seq, sb = b.seq;
     const hasA = (sa!==undefined && sa!==null && sa!=='');
     const hasB = (sb!==undefined && sb!==null && sb!=='');
     if(hasA && hasB) return Number(sa) - Number(sb);
     if(hasA) return -1;  // 연번 있는 게 위로
     if(hasB) return 1;
-    return a.date.localeCompare(b.date); // 둘 다 없으면 날짜순
+    // 둘 다 없으면 지출일자순 (지출일자 없으면 뒤로, 그 안에서는 결의일자순)
+    const pa = a.spendDate||'', pb = b.spendDate||'';
+    if(pa && pb && pa !== pb) return pa.localeCompare(pb);
+    if(pa && !pb) return -1;
+    if(!pa && pb) return 1;
+    return (a.date||'').localeCompare(b.date||'');
   });
 
   document.getElementById('bl-empty').style.display = list.length ? 'none' : 'block';
   document.getElementById('bl-body').innerHTML = list.map((e,i)=>`<tr>
     <td style="white-space:nowrap;padding:4px;"><input type="number" value="${(e.seq!==undefined&&e.seq!==null&&e.seq!=='')?e.seq:''}" placeholder="${i+1}" onchange="setBudgetSeq(${e.id}, this.value)" style="width:48px;text-align:center;font-size:12px;padding:5px 4px;border:1px solid var(--border2);border-radius:6px;color:var(--text);" title="연번 입력 시 그 순서로 정렬"></td>
+    <td style="font-size:11px;white-space:nowrap;font-weight:600;">${e.spendDate||'-'}</td>
     <td style="font-size:11px;white-space:nowrap;">${e.doc||'-'}</td>
-    <td style="font-size:11px;white-space:nowrap;">${e.date}</td>
+    <td style="font-size:11px;white-space:nowrap;color:var(--text2);">${e.date}</td>
     <td style="white-space:nowrap;"><span style="font-size:11px;font-weight:600;">${e.cat}</span></td>
     <td style="font-size:11px;color:var(--text2);white-space:nowrap;">${(e.subcat||'-').length>8?(e.subcat||'-').slice(0,8)+'…':(e.subcat||'-')}</td>
     <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
