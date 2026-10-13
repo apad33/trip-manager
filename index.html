@@ -208,13 +208,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
   <!-- 앱 탭 -->
   <div class="app-tabs">
-    <button class="app-tab on" onclick="switchApp('sched')">📅 운영일정</button>
-    <button class="app-tab" onclick="switchApp('trip')">💼 출장 관리</button>
+    <button class="app-tab on" onclick="switchApp('trip')">💼 출장 관리</button>
     <button class="app-tab" onclick="switchApp('budget')">💰 예산 관리</button>
   </div>
 
   <!-- ===== 출장 관리 ===== -->
-  <div id="app-trip" style="display:none;">
+  <div id="app-trip">
     <div class="sub-tabs">
       <button class="sub-tab on" onclick="goTrip('dash')">📊 대시보드</button>
       <button class="sub-tab" onclick="goTrip('monthly')">📅 월별 합계</button>
@@ -372,75 +371,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
     </div>
   </div>
-
-  <!-- ===== 운영일정 ===== -->
-  <div id="app-sched">
-    <div class="sub-tabs">
-      <button class="sub-tab on" onclick="goSched('cal')">📅 달력</button>
-      <button class="sub-tab" onclick="goSched('list')">📋 목록</button>
-      <button class="sub-tab" onclick="goSched('stat')">📊 현황</button>
-    </div>
-    <div class="wrap">
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
-        <button class="btn-sm btn-blue" onclick="openSchedAddModal()">➕ 일정 등록</button>
-        <button class="btn-sm" onclick="exportSchedCSV()">📥 엑셀</button>
-        <button class="btn-sm" onclick="backupSched()">💾 백업</button>
-        <button class="btn-sm" onclick="document.getElementById('loadSchedFile').click()">📂 복원</button>
-        <input type="file" id="loadSchedFile" accept=".json" style="display:none" onchange="loadSchedData(event)">
-      </div>
-      <div id="sc-cal" class="pane on">
-        <div class="cal-header">
-          <button class="cal-nav" onclick="moveMonth(-1)">‹</button>
-          <span class="cal-title" id="cal-title"></span>
-          <button class="cal-nav" onclick="moveMonth(1)">›</button>
-          <button class="btn-sm" onclick="goToday()">오늘</button>
-          <div class="cal-legend">
-            <div class="leg"><div class="leg-dot" style="background:#DCFCE7;border:1px solid #166534;"></div>상담</div>
-            <div class="leg"><div class="leg-dot" style="background:#F3E8FF;border:1px solid #7E22CE;"></div>홍보</div>
-            <div class="leg"><div class="leg-dot" style="background:#DBEAFE;border:1px solid #1e40af;"></div>완료</div>
-          </div>
-        </div>
-        <div class="cal-grid-hd">
-          <div class="cal-dow">일</div><div class="cal-dow">월</div><div class="cal-dow">화</div>
-          <div class="cal-dow">수</div><div class="cal-dow">목</div><div class="cal-dow">금</div><div class="cal-dow">토</div>
-        </div>
-        <div class="cal-grid" id="cal-grid"></div>
-      </div>
-      <div id="sc-list" class="pane">
-        <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-          <input type="text" id="sl-search" placeholder="장소·내용·강사명 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderSchedList()">
-          <select id="sl-month" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 월</option></select>
-          <select id="sl-cat" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
-            <option value="">전체 구분</option><option value="상담">상담</option><option value="홍보">홍보</option><option value="기타">기타</option>
-          </select>
-          <select id="sl-status" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
-            <option value="">전체 상태</option><option value="계획">계획</option><option value="확정">확정</option><option value="완료">완료</option>
-          </select>
-          <select id="sl-bus" onchange="renderSchedList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
-            <option value="">버스 전체</option><option value="1">🚌 버스 있음</option><option value="0">버스 없음</option>
-          </select>
-        </div>
-        <div class="tbl-wrap">
-          <table>
-            <thead><tr>
-              <th>번호</th><th>회차</th><th>구분</th>
-              <th>버스</th><th>일자</th><th>장소</th>
-              <th>인원</th><th>내용</th><th>운영시간</th>
-              <th>협업기관</th><th>강사명</th><th>상태</th>
-              <th></th>
-            </tr></thead>
-            <tbody id="sl-body"></tbody>
-          </table>
-        </div>
-        <div id="sl-empty" class="empty" style="display:none;">📭 일정이 없어요</div>
-      </div>
-      <div id="sc-stat" class="pane">
-        <div class="metric-row" id="stat-cards"></div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;" id="stat-detail"></div>
-      </div>
-    </div>
-  </div>
-</div>
 
   <!-- ===== 예산 관리 ===== -->
   <div id="app-budget" style="display:none;">
@@ -696,7 +626,6 @@ function loadData(uid){
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
     document.getElementById('topbar-logo').textContent=myBiz.name||'통합 관리';
     refreshCurrentView();
-    renderCal();
   },(err)=>{setSyncStatus('err','연결 오류');});
 }
 
@@ -713,22 +642,18 @@ function setSyncStatus(t,txt){const el=document.getElementById('sync-status');el
 
 // ── 앱 전환 ──
 window.switchApp=function(app){
-  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['sched','trip','budget'][i]===app));
-  document.getElementById('app-sched').style.display=app==='sched'?'block':'none';
+  document.querySelectorAll('.app-tab').forEach((t,i)=>t.classList.toggle('on',['trip','budget'][i]===app));
   document.getElementById('app-trip').style.display=app==='trip'?'block':'none';
   document.getElementById('app-budget').style.display=app==='budget'?'block':'none';
   if(app==='trip')refreshTripView(currentTripTab);
-  if(app==='sched'){if(currentSchedTab==='cal')renderCal();if(currentSchedTab==='list')renderSchedList();if(currentSchedTab==='stat')renderSchedStat();}
   if(app==='budget')renderBudgetDash();
 }
 
 let currentTripTab='dash';
-let currentSchedTab='cal';
 
 let currentBudgetTab='dash';
 
 function refreshCurrentView(){
-  if(currentSchedTab==='cal')renderCal();
   refreshTripView(currentTripTab);
   if(currentBudgetTab==='dash')renderBudgetDash();
   if(currentBudgetTab==='list')renderBudgetList();
@@ -1189,289 +1114,9 @@ window.loadTripData=async function(e){
   };reader.readAsText(file);e.target.value='';
 }
 
-// ── 운영일정 ──
-window.goSched=function(id){
-  currentSchedTab=id;
-  document.querySelectorAll('#app-sched .sub-tab').forEach((t,i)=>t.classList.toggle('on',['cal','list','stat'][i]===id));
-  document.querySelectorAll('#app-sched .pane').forEach(p=>p.classList.remove('on'));
-  document.getElementById('sc-'+id).classList.add('on');
-  if(id==='cal')renderCal();
-  if(id==='list')renderSchedList();
-  if(id==='stat')renderSchedStat();
-}
-
-function catColor(c){
-  if(c==='상담')return{bg:'#DCFCE7',color:'#166534'};
-  if(c==='홍보')return{bg:'#F3E8FF',color:'#7E22CE'};
-  return{bg:'#F2F0EC',color:'#6B6560'};
-}
-function catClass(c){if(c==='상담')return 'b-consult';if(c==='홍보')return 'b-pr';return 'b-other2';}
-function statusClass(s){if(s==='계획')return 'b-plan';if(s==='확정')return 'b-confirm';return 'b-sdone';}
-function seqLabel(s){return s?s+'차':'-';}
-function calcHours(t){if(!t)return null;const m=t.match(/(\d{1,2}):(\d{2})\s*[~\-]\s*(\d{1,2}):(\d{2})/);if(!m)return null;const diff=(parseInt(m[3])*60+parseInt(m[4]))-(parseInt(m[1])*60+parseInt(m[2]));return diff>0?diff/60:null;}
-function lecText(lecs){if(!lecs||!lecs.length)return '-';return lecs.map(l=>l.name).join(', ');}
-function fmtDateSched(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
-
-function renderCal(){
-  document.getElementById('cal-title').textContent=`${curYear}년 ${curMonth+1}월`;
-  const grid=document.getElementById('cal-grid');grid.innerHTML='';
-  const first=new Date(curYear,curMonth,1).getDay();
-  const last=new Date(curYear,curMonth+1,0).getDate();
-  const today=new Date();
-  const todayStr=`${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-  for(let i=0;i<first;i++){const pm=new Date(curYear,curMonth,0-(first-1-i));grid.appendChild(makeCalCell(pm.getFullYear(),pm.getMonth(),pm.getDate(),true,null));}
-  for(let d=1;d<=last;d++){
-    const dateStr=`${curYear}-${String(curMonth+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const dow=(first+d-1)%7;
-    const cell=makeCalCell(curYear,curMonth,d,false,dateStr);
-    if(dateStr===todayStr)cell.classList.add('today');
-    if(dow===0)cell.classList.add('is-sun');if(dow===6)cell.classList.add('is-sat');
-    const dayEvs=events.filter(e=>e.date===dateStr).sort((a,b)=>a.cat.localeCompare(b.cat));
-    dayEvs.slice(0,3).forEach(ev=>{
-      const col=catColor(ev.cat);const isDone=ev.status==='완료';
-      const tag=document.createElement('div');tag.className='cal-event';
-      tag.style.background=isDone?'#DBEAFE':col.bg;tag.style.color=isDone?'#1e40af':col.color;
-      tag.style.opacity=isDone?.85:1;
-      const busIcon=ev.hasBus?'🚌 ':'';
-      const seqTxt=ev.seq?ev.seq+'차 ':'';
-      const timeTxt=ev.time?ev.time:'';
-      const lecTxt=ev.lecturers&&ev.lecturers.length?ev.lecturers.map(l=>l.name).join(', '):'';
-      const descTxt=ev.desc||'';
-      tag.innerHTML=`<div class="cal-event-title">${busIcon}${seqTxt}[${ev.cat}] ${ev.place}</div>`
-        +(timeTxt?`<div class="cal-event-detail">⏱ ${timeTxt}</div>`:'')
-        +(descTxt?`<div class="cal-event-detail">📌 ${descTxt}</div>`:'')
-        +(lecTxt?`<div class="cal-event-detail">👤 ${lecTxt}</div>`:'');
-      tag.title=[ev.place,timeTxt,descTxt,lecTxt].filter(Boolean).join(' | ');
-      tag.onclick=(e)=>{e.stopPropagation();openSchedDetail(ev.id);};cell.appendChild(tag);
-    });
-    if(dayEvs.length>3){const more=document.createElement('div');more.className='cal-more';more.textContent=`+${dayEvs.length-3}개`;cell.appendChild(more);}
-    grid.appendChild(cell);
-  }
-  const remain=42-(first+last);
-  for(let d=1;d<=remain;d++)grid.appendChild(makeCalCell(curYear,curMonth+1,d,true,null));
-}
-function makeCalCell(y,m,d,other,dateStr){
-  const cell=document.createElement('div');cell.className='cal-cell'+(other?' other-month':'');
-  const el=document.createElement('div');el.className='cal-date';el.textContent=d;cell.appendChild(el);
-  if(!other&&dateStr){cell.onclick=()=>{openSchedAddModal();document.getElementById('f-mon').value=dateStr.slice(5,7);document.getElementById('f-day').value=dateStr.slice(8,10);};}
-  return cell;
-}
-window.moveMonth=function(dir){curMonth+=dir;if(curMonth<0){curMonth=11;curYear--;}if(curMonth>11){curMonth=0;curYear++;}renderCal();}
-window.goToday=function(){const t=new Date();curYear=t.getFullYear();curMonth=t.getMonth();renderCal();}
-
-function renderSchedList(){
-  const q=(document.getElementById('sl-search').value||'').toLowerCase();
-  const msel=document.getElementById('sl-month');const mf=msel.value,cf=document.getElementById('sl-cat').value,sf=document.getElementById('sl-status').value,bf=document.getElementById('sl-bus').value;
-  const months=[...new Set(events.map(e=>e.date.slice(0,7)))].sort();const mv=msel.value;
-  msel.innerHTML='<option value="">전체 월</option>'+months.map(m=>{const[y,mo]=m.split('-');return`<option value="${m}">${y}년 ${parseInt(mo)}월</option>`;}).join('');
-  if(mv)msel.value=mv;
-  let list=[...events].filter(e=>(!q||e.place.toLowerCase().includes(q)||(e.desc||'').toLowerCase().includes(q)||lecText(e.lecturers).toLowerCase().includes(q))&&(!mf||e.date.startsWith(mf))&&(!cf||e.cat===cf)&&(!sf||e.status===sf)&&(bf===''?true:(bf==='1'?e.hasBus:!e.hasBus))).sort((a,b)=>a.date.localeCompare(b.date));
-  document.getElementById('sl-empty').style.display=list.length?'none':'block';
-  document.getElementById('sl-body').innerHTML=list.map((e,i)=>`<tr>
-    <td style="color:var(--text3);">${i+1}</td>
-    <td style="color:var(--text2);">${seqLabel(e.seq)}</td>
-    <td><span class="badge ${catClass(e.cat)}">${e.cat}</span></td>
-    <td>${e.hasBus?'<span class="badge b-bus">🚌</span>':'-'}</td>
-    <td style="font-size:11px;">${e.date}</td>
-    <td style="white-space:nowrap;" title="${e.place}">${e.place.length>10?e.place.slice(0,10)+'…':e.place}</td>
-    <td>${e.count||'-'}</td>
-    <td style="white-space:nowrap;" title="${e.desc||''}">${(e.desc||'').length>12?(e.desc||'').slice(0,12)+'…':(e.desc||'-')}</td>
-    <td style="white-space:nowrap;font-size:11px;">${e.time||'-'}${e.hours?' ('+e.hours+'h)':''}</td>
-    <td style="white-space:nowrap;">${(e.org||'-').length>8?(e.org||'').slice(0,8)+'…':(e.org||'-')}</td>
-    <td>${e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name).join(', '):'-'}</td>
-    <td><span class="badge ${statusClass(e.status)}">${e.status}</span></td>
-    <td><div class="action-btns">
-      <button class="btn-sm btn-blue" onclick="openSchedEdit(${e.id})">✏️</button>
-      <button class="btn-sm btn-red" onclick="deleteEvent(${e.id})">🗑</button>
-    </div></td>
-  </tr>`).join('');
-}
-
-function renderSchedStat(){
-  const total=events.length,plan=events.filter(e=>e.status==='계획').length,confirm=events.filter(e=>e.status==='확정').length,done=events.filter(e=>e.status==='완료').length;
-  const totalPeople=events.reduce((s,e)=>s+(parseInt(e.count)||0),0);
-  const totalFee=events.reduce((s,e)=>{if(!e.lecturers||!e.lecturers.length)return s;return s+e.lecturers.reduce((ss,l)=>ss+(parseInt(l.fee)||0),0);},0);
-  const fpct=Math.min(100,Math.round(totalFee/GOAL_FEE*100));
-  const fcolor=fpct>90?'#C62828':fpct>70?'#B45309':'#1A6FD4';
-  const consultDone=events.filter(e=>e.cat==='상담'&&e.status==='완료').length;
-  const prDone=events.filter(e=>e.cat==='홍보'&&e.status==='완료').length;
-  const cpct=Math.min(100,Math.round(consultDone/GOAL_CONSULT*100));
-  const ppct=Math.min(100,Math.round(prDone/GOAL_PR*100));
-  document.getElementById('stat-cards').innerHTML=`
-    <div class="mc"><div class="mc-lbl">전체 일정</div><div class="mc-val">${total}건</div></div>
-    <div class="mc"><div class="mc-lbl">계획</div><div class="mc-val" style="color:var(--blue);">${plan}건</div></div>
-    <div class="mc"><div class="mc-lbl">확정</div><div class="mc-val" style="color:var(--amber);">${confirm}건</div></div>
-    <div class="mc"><div class="mc-lbl">완료</div><div class="mc-val" style="color:var(--green);">${done}건</div></div>
-    <div class="mc"><div class="mc-lbl">총 인원</div><div class="mc-val">${totalPeople.toLocaleString()}명</div></div>
-    <div class="mc"><div class="mc-lbl">강사수당</div><div class="mc-val" style="font-size:16px;color:${fcolor};">${Math.round(totalFee/10000)}만원</div><div class="mc-sub">${fpct}%</div></div>
-    <div class="mc"><div class="mc-lbl">버스 운행</div><div class="mc-val">${events.filter(e=>e.hasBus).length}건</div></div>
-  `;
-  const months={};
-  events.forEach(e=>{const m=e.date.slice(0,7);if(!months[m])months[m]={total:0,done:0,count:0,bus:0};months[m].total++;if(e.status==='완료')months[m].done++;months[m].count+=parseInt(e.count)||0;if(e.hasBus)months[m].bus++;});
-  const monthRows=Object.entries(months).sort((a,b)=>a[0].localeCompare(b[0])).map(([m,d])=>{const[y,mo]=m.split('-');return`<tr><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${y}년 ${parseInt(mo)}월</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.total}건</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.done}건</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.count}명</td><td style="padding:7px 8px;border-bottom:1px solid var(--border);">${d.bus}건</td></tr>`;}).join('');
-  document.getElementById('stat-detail').innerHTML=`
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
-      <div class="sec" style="margin-bottom:14px;">회차 달성 현황</div>
-      <div style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span><span class="badge b-consult">상담소</span></span><span style="font-weight:600;">${consultDone} / ${GOAL_CONSULT}회 (${cpct}%)</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${cpct}%;background:#166534;"></div></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px;">완료 ${consultDone}회 / 목표 ${GOAL_CONSULT}회</div>
-      </div>
-      <div style="margin-bottom:16px;">
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span><span class="badge b-pr">홍보단</span></span><span style="font-weight:600;">${prDone} / ${GOAL_PR}회 (${ppct}%)</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${ppct}%;background:#7E22CE;"></div></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px;">완료 ${prDone}회 / 목표 ${GOAL_PR}회</div>
-      </div>
-      <hr class="divider">
-      <div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:5px;"><span style="font-weight:500;">💰 강사수당</span><span style="font-weight:600;color:${fcolor};">${totalFee.toLocaleString()}원 / 3,000만원 (${fpct}%)</span></div>
-        <div class="progress-bar"><div class="progress-fill" style="width:${fpct}%;background:${fcolor};"></div></div>
-        <div style="font-size:11px;color:var(--text3);margin-top:3px;">잔액 ${(GOAL_FEE-totalFee).toLocaleString()}원</div>
-      </div>
-    </div>
-    <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;">
-      <div class="sec" style="margin-bottom:12px;">월별 현황</div>
-      <table style="width:100%;font-size:12px;">
-        <thead><tr><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">월</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">건수</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">완료</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">인원</th><th style="padding:6px 8px;border-bottom:1px solid var(--border);text-align:left;color:var(--text2);">버스</th></tr></thead>
-        <tbody>${monthRows||'<tr><td colspan="5" style="text-align:center;padding:12px;color:var(--text3);">데이터 없음</td></tr>'}</tbody>
-      </table>
-    </div>`;
-}
-
-// 강사 행
-let lecRows=[];
-window.addLecRow=function(name='',phone='',fee=''){
-  const idx=lecRows.length;lecRows.push({name,phone,fee});
-  const list=document.getElementById('lecturer-list');
-  const div=document.createElement('div');div.className='lecturer-item';div.dataset.idx=idx;
-  div.innerHTML=`<input type="text" placeholder="강사명" value="${name}" oninput="updateLec(${idx},'name',this.value)" style="flex:2;"><input type="text" placeholder="연락처" value="${phone}" oninput="updateLec(${idx},'phone',this.value)" style="flex:2;"><input type="number" placeholder="수당(원)" value="${fee}" oninput="updateLec(${idx},'fee',this.value)" style="flex:2;" min="0"><button type="button" class="btn-sm btn-red" onclick="removeLec(${idx},this.parentElement)">✕</button>`;
-  list.appendChild(div);
-}
-window.updateLec=function(idx,key,val){if(lecRows[idx])lecRows[idx][key]=val;}
-window.removeLec=function(idx,el){lecRows[idx]=null;el.remove();}
-function clearLec(){lecRows=[];document.getElementById('lecturer-list').innerHTML='';}
-function getLecs(){return lecRows.filter(l=>l&&l.name);}
-
-window.openSchedAddModal=function(){
-  document.getElementById('form-title').textContent='📅 일정 등록';
-  document.getElementById('f-id').value='';
-  ['f-mon','f-day','f-seq','f-place','f-desc','f-time','f-org','f-manager','f-memo'].forEach(id=>{document.getElementById(id).value='';});
-  document.getElementById('f-count').value='';
-  document.getElementById('f-cat').value='상담';
-  document.getElementById('f-status').value='계획';
-  document.getElementById('f-bus').checked=false;
-  document.getElementById('time-result').textContent='';
-  document.getElementById('f-msg').textContent='';
-  clearLec();addLecRow();
-  document.getElementById('modal-sched').style.display='flex';
-}
-window.openSchedEdit=function(id){
-  const e=events.find(x=>x.id===id);if(!e)return;
-  document.getElementById('form-title').textContent='✏️ 일정 수정';
-  document.getElementById('f-id').value=id;
-  document.getElementById('f-mon').value=e.date.slice(5,7);
-  document.getElementById('f-day').value=e.date.slice(8,10);
-  document.getElementById('f-seq').value=e.seq||'';
-  document.getElementById('f-cat').value=e.cat;
-  document.getElementById('f-status').value=e.status;
-  document.getElementById('f-bus').checked=!!e.hasBus;
-  document.getElementById('f-place').value=e.place;
-  document.getElementById('f-count').value=e.count||'';
-  document.getElementById('f-time').value=e.time||'';
-  document.getElementById('f-desc').value=e.desc||'';
-  document.getElementById('f-org').value=e.org||'';
-  document.getElementById('f-manager').value=e.manager||'';
-  document.getElementById('f-memo').value=e.memo||'';
-  const h=calcHours(e.time||'');document.getElementById('time-result').textContent=h?`→ ${h}시간`:'';
-  clearLec();(e.lecturers&&e.lecturers.length?e.lecturers:[{name:'',phone:'',fee:''}]).forEach(l=>addLecRow(l.name,l.phone,l.fee||''));
-  document.getElementById('f-msg').textContent='';
-  document.getElementById('modal-sched').style.display='flex';
-}
-window.saveSchedForm=async function(){
-  const mo=document.getElementById('f-mon').value.trim().padStart(2,'0');
-  const dy=document.getElementById('f-day').value.trim().padStart(2,'0');
-  const place=document.getElementById('f-place').value.trim();
-  if(!mo||!dy||!place){document.getElementById('f-msg').textContent='날짜(월·일)와 장소는 필수예요';return;}
-  const date=`2026-${mo}-${dy}`;
-  const timeVal=document.getElementById('f-time').value.trim();
-  const hours=calcHours(timeVal);
-  const id=parseInt(document.getElementById('f-id').value)||null;
-  const obj={
-    id:id||schedNextId++,date,
-    seq:parseInt(document.getElementById('f-seq').value)||null,
-    cat:document.getElementById('f-cat').value,
-    status:document.getElementById('f-status').value,
-    hasBus:document.getElementById('f-bus').checked,
-    place,count:parseInt(document.getElementById('f-count').value)||0,
-    time:timeVal,hours,desc:document.getElementById('f-desc').value.trim(),
-    org:document.getElementById('f-org').value.trim(),
-    manager:document.getElementById('f-manager').value.trim(),
-    lecturers:getLecs(),memo:document.getElementById('f-memo').value.trim(),
-  };
-  if(id){const idx=events.findIndex(x=>x.id===id);if(idx>-1)events[idx]=obj;}else events.push(obj);
-  await persist();
-  document.getElementById('modal-sched').style.display='none';
-  if(currentSchedTab==='cal')renderCal();
-  if(currentSchedTab==='list')renderSchedList();
-  if(currentSchedTab==='stat')renderSchedStat();
-}
-window.openSchedDetail=function(id){
-  const e=events.find(x=>x.id===id);if(!e)return;
-  document.getElementById('modal-inner').innerHTML=`<div class="modal-sm">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-      <span class="badge ${catClass(e.cat)}">${e.cat}</span>
-      <span class="badge ${statusClass(e.status)}">${e.status}</span>
-      ${e.seq?`<span style="font-size:12px;color:var(--text2);">${e.seq}차</span>`:''}
-      ${e.hasBus?'<span class="badge b-bus">🚌 버스운행</span>':''}
-    </div>
-    <div style="font-size:18px;font-weight:700;margin-bottom:14px;">${e.place}</div>
-    ${[['일자',e.date],['운영시간',(e.time||'-')+(e.hours?' ('+e.hours+'시간)':'')],['인원',e.count?e.count+'명':'-'],['내용',e.desc||'-'],['협업기관',e.org||'-'],['담당자',e.manager||'-'],['강사',e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name+(l.phone?' ('+l.phone+')':'')+(l.fee?' '+parseInt(l.fee).toLocaleString()+'원':'')).join('<br>'):'-'],['메모',e.memo||'-']].map(([k,v])=>`<div class="detail-row"><span class="detail-key">${k}</span><span style="font-size:13px;">${v}</span></div>`).join('')}
-    <div style="display:flex;gap:8px;margin-top:16px;">
-      <button class="btn-sm btn-blue" onclick="openSchedEdit(${id})">✏️ 수정</button>
-      <button class="btn-sm btn-red" onclick="deleteEvent(${id})">🗑 삭제</button>
-      <button class="btn-sm" onclick="closeModal()" style="margin-left:auto;">닫기</button>
-    </div>
-  </div>`;
-  document.getElementById('modal-wrap').style.display='flex';
-}
-window.deleteEvent=async function(id){
-  if(!confirm('삭제할까요?'))return;
-  events=events.filter(e=>e.id!==id);await persist();
-  closeModal();
-  if(currentSchedTab==='cal')renderCal();
-  if(currentSchedTab==='list')renderSchedList();
-  if(currentSchedTab==='stat')renderSchedStat();
-}
-window.calcTime=function(){
-  const h=calcHours(document.getElementById('f-time').value);
-  document.getElementById('time-result').textContent=h?`→ ${h}시간`:'';
-}
-window.exportSchedCSV=function(){
-  if(!events.length){alert('일정이 없어요');return;}
-  const BOM='\uFEFF';
-  const header=['연번','회차','구분','버스운행','일자','장소','인원','내용','운영시간','시간(h)','협업기관','담당자','강사명','상태','메모'];
-  const rows=[...events].sort((a,b)=>a.date.localeCompare(b.date)).map((e,i)=>[i+1,e.seq?e.seq+'차':'',e.cat,e.hasBus?'O':'',fmtDateSched(e.date),e.place,e.count||'',e.desc||'',e.time||'',e.hours||'',e.org||'',e.manager||'',e.lecturers&&e.lecturers.length?e.lecturers.map(l=>l.name).join('/'):'-',e.status,e.memo||''].map(v=>`"${String(v).replace(/"/g,'""')}"`).join(','));
-  const csv=BOM+[header.join(','),...rows].join('\n');
-  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`일자리버스_일정_${new Date().toISOString().slice(0,10)}.csv`;a.click();URL.revokeObjectURL(a.href);
-}
-window.backupSched=function(){
-  const blob=new Blob([JSON.stringify({events,schedNextId},null,2)],{type:'application/json'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`일정백업_${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(a.href);
-}
-window.loadSchedData=async function(e){
-  const file=e.target.files[0];if(!file)return;
-  const reader=new FileReader();
-  reader.onload=async function(ev){
-    try{const d=JSON.parse(ev.target.result);if(d.events)events=d.events;if(d.schedNextId)schedNextId=d.schedNextId;await persist();renderCal();alert('✅ 복원 완료!');}
-    catch(err){alert('❌ 파일 오류');}
-  };reader.readAsText(file);e.target.value='';
-}
-
 // ── 공통 모달 ──
 window.closeModal=function(){document.getElementById('modal-wrap').style.display='none';}
 document.getElementById('modal-wrap').addEventListener('click',function(e){if(e.target===this)closeModal();});
-document.getElementById('modal-sched').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
 
 function showMsg(id,txt,type){const el=document.getElementById(id);if(!el)return;el.textContent=txt;el.className='msg '+type;setTimeout(()=>{el.textContent='';},2500);}
 
@@ -2027,7 +1672,26 @@ window.saveBudgetData=function(){
   a.download = `예산백업_${new Date().toISOString().slice(0,10)}.json`;
   a.click();URL.revokeObjectURL(a.href);
 }
-// loadBudgetData() 를 사용
+window.loadBudgetData=async function(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=async function(ev){
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.budgetExpenses)budgetExpenses=d.budgetExpenses;
+      if(d.budgetNextId)budgetNextId=d.budgetNextId;
+      if(d.totalBudget)BUDGET_TOTAL=d.totalBudget;
+      if(d.budgetCats)d.budgetCats.forEach((c,i)=>{
+        if(!BUDGET_CATS[i])return;
+        BUDGET_CATS[i].budget=c.budget;
+        (c.subs||[]).forEach((sb,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=sb.budget;});
+      });
+      await persist();
+      renderBudgetDash();renderBudgetList();
+      alert('✅ 복원 완료!');
+    }catch(err){alert('❌ 파일 오류');}
+  };reader.readAsText(file);e.target.value='';
+}
 
 // 엑셀 내보내기
 window.exportBudgetCSV=function(){
@@ -2118,64 +1782,6 @@ window.exportBudgetCSV=function(){
 // 예산 초기화 - Firebase onSnapshot에서 자동 처리
 </script>
 
-<!-- 일정 등록/수정 모달 (별도) -->
-<div class="modal-bg" id="modal-sched">
-  <div class="modal-box">
-    <div class="modal-title" id="form-title" style="font-weight:700;font-size:16px;margin-bottom:18px;">📅 일정 등록</div>
-    <input type="hidden" id="f-id">
-    <div class="sec" style="margin-top:0;">기본 정보</div>
-    <div class="grid3">
-      <div class="fg"><label>일자 * <span style="font-size:11px;color:var(--text3);">(월-일)</span></label>
-        <div style="display:flex;align-items:center;gap:4px;">
-          <span style="font-size:13px;font-weight:600;color:var(--text2);background:var(--surface2);padding:8px 10px;border-radius:8px;border:1px solid var(--border2);">2026</span>
-          <span style="color:var(--text3);">-</span>
-          <input type="text" id="f-mon" placeholder="MM" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" oninput="this.value=this.value.replace(/\D/g,'');if(this.value.length===2)document.getElementById('f-day').focus();" onblur="if(this.value.length===1)this.value='0'+this.value;">
-          <span style="color:var(--text3);">-</span>
-          <input type="text" id="f-day" placeholder="DD" maxlength="2" inputmode="numeric" style="width:44px;text-align:center;" onblur="if(this.value.length===1)this.value='0'+this.value;">
-        </div>
-      </div>
-      <div class="fg"><label>구분 *</label>
-        <select id="f-cat"><option value="상담">💬 상담</option><option value="홍보">📢 홍보</option><option value="기타">📌 기타</option></select>
-      </div>
-      <div class="fg"><label>상태</label>
-        <select id="f-status"><option value="계획">계획</option><option value="확정">확정</option><option value="완료">완료</option></select>
-      </div>
-    </div>
-    <label style="display:flex;align-items:center;gap:8px;padding:10px 12px;background:var(--blue-bg);border:1px solid #9DC4F5;border-radius:8px;cursor:pointer;margin-bottom:12px;">
-      <input type="checkbox" id="f-bus" style="width:16px;height:16px;accent-color:var(--blue);">
-      <span style="font-size:13px;font-weight:500;color:var(--blue);">🚌 버스 운행</span>
-    </label>
-    <div class="grid2">
-      <div class="fg"><label>회차 <span style="font-size:11px;color:var(--text3);">(숫자만)</span></label><input type="number" id="f-seq" placeholder="예: 3 → 3차" min="1"></div>
-      <div class="fg"><label>장소 *</label><input type="text" id="f-place" placeholder="장소명 입력"></div>
-      <div class="fg"><label>인원</label><input type="number" id="f-count" placeholder="0" min="0"></div>
-      <div class="fg"><label>운영시간</label>
-        <input type="text" id="f-time" placeholder="예: 10:00~12:00" oninput="calcTime()">
-        <div class="time-calc" id="time-result"></div>
-      </div>
-    </div>
-    <div class="fg"><label>내용(목적)</label><input type="text" id="f-desc" placeholder="프로그램 내용"></div>
-    <hr class="divider">
-    <div class="sec">협업 기관</div>
-    <div class="grid2">
-      <div class="fg"><label>협업기관</label><input type="text" id="f-org" placeholder="기관명"></div>
-      <div class="fg"><label>담당자</label><input type="text" id="f-manager" placeholder="담당자명"></div>
-    </div>
-    <hr class="divider">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
-      <div class="sec" style="margin:0;">강사 정보</div>
-      <button type="button" class="btn-sm btn-green" onclick="addLecRow()">➕ 강사 추가</button>
-    </div>
-    <div id="lecturer-list"></div>
-    <hr class="divider">
-    <div class="fg"><label>메모/비고</label><textarea id="f-memo" placeholder="특이사항, 비고"></textarea></div>
-    <div style="display:flex;gap:8px;margin-top:4px;align-items:center;">
-      <button class="btn" onclick="saveSchedForm()">💾 저장</button>
-      <button class="btn-sm" onclick="document.getElementById('modal-sched').style.display='none'">취소</button>
-      <span id="f-msg" class="msg"></span>
-    </div>
-  </div>
-</div>
 
 </body>
 </html>
