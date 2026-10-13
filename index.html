@@ -620,7 +620,7 @@ function loadData(uid){
        budgetExpenses.forEach(e=>{if(seen.has(e.id)){e.id=++mx;dup=true;}seen.add(e.id);if(e.id>=mx)mx=e.id;});
        if(dup){budgetNextId=mx+1;persist();}}
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
-      if(d.BUDGET_CATS)BUDGET_CATS.forEach((c,i)=>{if(d.BUDGET_CATS[i]){BUDGET_CATS[i].budget=d.BUDGET_CATS[i].budget;d.BUDGET_CATS[i].subs.forEach((s,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=s.budget;});}});
+      if(d.BUDGET_CATS&&d.BUDGET_CATS.length)BUDGET_CATS=d.BUDGET_CATS;
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
@@ -1129,7 +1129,7 @@ function showMsg(id,txt,type){const el=document.getElementById(id);if(!el)return
 
 // ── 예산 정의 ──
 let BUDGET_TOTAL = 153000000;
-const BUDGET_CATS = [
+let BUDGET_CATS = [
   {name:'인건비', budget:80400000, subs:[
     {name:'전담인력 인건비', budget:74400000},
     {name:'전담인력 평가급', budget:6000000},
@@ -1449,15 +1449,15 @@ window.goBudget=function(id){
 }
 
 window.renderBudgetSetup=function(){
-  // 총 예산
   document.getElementById('bs-total').value = BUDGET_TOTAL;
 
-  // 예산과목별 입력
   document.getElementById('bs-cats').innerHTML = BUDGET_CATS.map((cat,ci)=>`
     <div class="card" style="margin-bottom:12px;">
-      <div style="font-weight:700;font-size:14px;margin-bottom:12px;display:flex;align-items:center;gap:8px;">
-        ${cat.name}
-        <span style="font-size:12px;color:var(--text2);font-weight:400;">현재 예산: ${cat.budget.toLocaleString()}원</span>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap;">
+        <input type="text" id="cn-${ci}" value="${(cat.name||'').replace(/"/g,'&quot;')}" placeholder="대분류명"
+          style="font-weight:700;font-size:14px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:200px;">
+        <span style="font-size:12px;color:var(--text2);">소분류 합계: <strong>${cat.subs.reduce((a,b)=>a+(b.budget||0),0).toLocaleString()}원</strong></span>
+        <button class="btn-sm btn-red" style="margin-left:auto;" onclick="removeBudgetCat(${ci})">과목 삭제</button>
       </div>
       <div class="fg" style="max-width:280px;margin-bottom:10px;">
         <label>대분류 예산 (원)</label>
@@ -1465,17 +1465,24 @@ window.renderBudgetSetup=function(){
       </div>
       <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;">소분류 예산</div>
       ${cat.subs.map((sub,si)=>`
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;flex-wrap:wrap;">
-          <label style="font-size:12px;color:var(--text2);min-width:180px;">${sub.name}</label>
-          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0" style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:160px;">
-          <span style="font-size:11px;color:var(--text3);">현재: ${sub.budget.toLocaleString()}원</span>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <input type="text" id="sn-${ci}-${si}" value="${(sub.name||'').replace(/"/g,'&quot;')}" placeholder="소분류명"
+            style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:200px;">
+          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0"
+            style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:150px;">
+          <button class="btn-sm btn-red" onclick="removeBudgetSub(${ci},${si})">삭제</button>
         </div>`).join('')}
-      <div style="margin-top:4px;">
+      <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <button class="btn-sm" onclick="addBudgetSub(${ci})">+ 소분류 추가</button>
         <button class="btn-sm btn-blue" onclick="saveBudgetCat(${ci})">💾 저장</button>
         <span id="sc-msg-${ci}" class="msg"></span>
       </div>
     </div>
-  `).join('');
+  `).join('') + `
+    <div style="margin:4px 0 20px;">
+      <button class="btn-sm btn-blue" onclick="addBudgetCat()">+ 예산과목(대분류) 추가</button>
+      <span style="font-size:11px;color:var(--text3);margin-left:8px;">과목명을 바꾸면 기존 지출 내역의 과목도 함께 바뀝니다.</span>
+    </div>`;
 }
 
 window.saveBudgetTotal = function(){
@@ -1487,15 +1494,74 @@ window.saveBudgetTotal = function(){
   renderBudgetDash();
 }
 
-window.saveBudgetCat = function(ci){
-  const catBudget = parseInt(document.getElementById(`sc-${ci}`).value)||0;
-  BUDGET_CATS[ci].budget = catBudget;
-  BUDGET_CATS[ci].subs.forEach((sub,si)=>{
-    const v = parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0;
-    BUDGET_CATS[ci].subs[si].budget = v;
+// 과목/소분류 이름이 바뀌면 기존 지출 내역의 연결도 함께 갱신
+function renameInExpenses(oldCat,newCat,oldSub,newSub){
+  budgetExpenses.forEach(e=>{
+    if(oldSub!==undefined){
+      if(e.cat===oldCat && e.sub===oldSub){e.cat=newCat;e.sub=newSub;}
+    }else if(e.cat===oldCat){e.cat=newCat;}
   });
+}
+
+window.saveBudgetCat = function(ci){
+  const cat = BUDGET_CATS[ci];
+  const newName = (document.getElementById(`cn-${ci}`).value||'').trim();
+  if(!newName){showMsg(`sc-msg-${ci}`,'과목명을 입력해 주세요','err');return;}
+  if(BUDGET_CATS.some((c,i)=>i!==ci && c.name===newName)){showMsg(`sc-msg-${ci}`,'같은 이름의 과목이 있어요','err');return;}
+
+  const newSubs = cat.subs.map((sub,si)=>({
+    name:(document.getElementById(`sn-${ci}-${si}`).value||'').trim(),
+    budget:parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0
+  }));
+  if(newSubs.some(s=>!s.name)){showMsg(`sc-msg-${ci}`,'소분류명을 모두 입력해 주세요','err');return;}
+
+  // 이름 변경분을 기존 지출에 반영
+  cat.subs.forEach((sub,si)=>renameInExpenses(cat.name,newName,sub.name,newSubs[si].name));
+  renameInExpenses(cat.name,newName);
+
+  cat.name = newName;
+  cat.budget = parseInt(document.getElementById(`sc-${ci}`).value)||0;
+  cat.subs = newSubs;
+
   saveBudgetToStorage();
   showMsg(`sc-msg-${ci}`,'✅ 저장 완료!','ok');
+  renderBudgetSetup();
+  renderBudgetDash();
+  renderBudgetList();
+}
+
+window.addBudgetCat = function(){
+  BUDGET_CATS.push({name:'새 과목', budget:0, subs:[{name:'새 세부항목', budget:0}]});
+  saveBudgetToStorage();
+  renderBudgetSetup();
+  renderBudgetDash();
+}
+
+window.removeBudgetCat = function(ci){
+  const cat = BUDGET_CATS[ci];
+  const used = budgetExpenses.filter(e=>e.cat===cat.name).length;
+  if(used){alert(`"${cat.name}" 과목으로 등록된 지출이 ${used}건 있어요.\n먼저 해당 지출을 옮기거나 지운 뒤 삭제해 주세요.`);return;}
+  if(!confirm(`"${cat.name}" 과목을 삭제할까요?`))return;
+  BUDGET_CATS.splice(ci,1);
+  saveBudgetToStorage();
+  renderBudgetSetup();
+  renderBudgetDash();
+}
+
+window.addBudgetSub = function(ci){
+  BUDGET_CATS[ci].subs.push({name:'새 세부항목', budget:0});
+  saveBudgetToStorage();
+  renderBudgetSetup();
+}
+
+window.removeBudgetSub = function(ci,si){
+  const cat = BUDGET_CATS[ci], sub = cat.subs[si];
+  if(cat.subs.length<=1){alert('소분류는 최소 1개가 필요해요.');return;}
+  const used = budgetExpenses.filter(e=>e.cat===cat.name&&e.sub===sub.name).length;
+  if(used){alert(`"${sub.name}" 으로 등록된 지출이 ${used}건 있어요.\n먼저 해당 지출을 옮기거나 지운 뒤 삭제해 주세요.`);return;}
+  if(!confirm(`"${sub.name}" 을 삭제할까요?`))return;
+  cat.subs.splice(si,1);
+  saveBudgetToStorage();
   renderBudgetSetup();
   renderBudgetDash();
 }
@@ -1686,11 +1752,7 @@ window.loadBudgetData=async function(e){
       if(d.budgetExpenses)budgetExpenses=d.budgetExpenses;
       if(d.budgetNextId)budgetNextId=d.budgetNextId;
       if(d.totalBudget)BUDGET_TOTAL=d.totalBudget;
-      if(d.budgetCats)d.budgetCats.forEach((c,i)=>{
-        if(!BUDGET_CATS[i])return;
-        BUDGET_CATS[i].budget=c.budget;
-        (c.subs||[]).forEach((sb,j)=>{if(BUDGET_CATS[i].subs[j])BUDGET_CATS[i].subs[j].budget=sb.budget;});
-      });
+      if(d.budgetCats&&d.budgetCats.length)BUDGET_CATS=d.budgetCats;
       await persist();
       renderBudgetDash();renderBudgetList();
       alert('✅ 복원 완료!');
