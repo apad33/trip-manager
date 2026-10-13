@@ -340,7 +340,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div id="tp-list" class="pane">
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
           <button class="btn-sm btn-blue" onclick="goTrip('add')">➕ 출장 등록</button>
-          <input type="text" id="l-search" placeholder="이름 또는 출장지 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderList()">
+          <input type="text" id="l-search" placeholder="이름·출장지·사업·목적 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderList()">
           <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
           <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
             <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
@@ -742,7 +742,7 @@ function renderDash(){
   </table></div>`;
 }
 
-function renderMonthly(){
+window.renderMonthly=function(){
   const bsel=document.getElementById('m-biz');
   const psel=document.getElementById('m-person');
   const bf=bsel.value,pf=psel.value;
@@ -897,13 +897,18 @@ window.addTrip=async function(){
   showMsg('a-msg',`✅ ${newTrips.length}건 등록 완료!`,'ok');
   setTimeout(()=>goTrip('list'),1000);
 }
-function renderList(){
+window.renderList=function(){
   const q=(document.getElementById('l-search').value||'').toLowerCase();
   const bsel=document.getElementById('l-biz');
   const bf=bsel.value,vf=document.getElementById('l-vehicle').value,sf=document.getElementById('l-status').value;
   bsel.innerHTML='<option value="">전체 사업</option>'+allBiz().map(b=>`<option value="${b.id}">${bizLabel(b.id)}</option>`).join('');
   if(bf)bsel.value=bf;
-  let list=[...trips].filter(t=>(!q||t.person.toLowerCase().includes(q)||t.dest.toLowerCase().includes(q))&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!vf||t.vehicle===vf)&&(!sf||t.status===sf)).sort((a,b)=>b.start.localeCompare(a.start));
+  const hit=t=>{
+    if(!q)return true;
+    const hay=[t.person,t.dest,t.purpose,t.memo,bizLabel(t.bizId)].filter(Boolean).join(' ').toLowerCase();
+    return hay.includes(q);
+  };
+  let list=[...trips].filter(t=>hit(t)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!vf||t.vehicle===vf)&&(!sf||t.status===sf)).sort((a,b)=>b.start.localeCompare(a.start));
   document.getElementById('l-empty').style.display=list.length?'none':'block';
   document.getElementById('l-body').innerHTML=list.map(t=>`<tr>
     <td>${t.person}</td>
@@ -1607,7 +1612,7 @@ window.openBudgetEdit=function(id){
   document.getElementById('modal-wrap').style.display='flex';
 }
 
-function updateEditSubs(){
+window.updateEditSubs=function(){
   const cat = BUDGET_CATS.find(c=>c.name===document.getElementById('e-cat').value);
   const sel = document.getElementById('e-subcat');
   sel.innerHTML = '<option value="">선택</option>' + (cat?cat.subs.map(s=>`<option value="${s.name}">${s.name}</option>`).join(''):'');
