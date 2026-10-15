@@ -419,6 +419,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       <button class="sub-tab on" onclick="goBudget('dash')">📊 대시보드</button>
       <button class="sub-tab" onclick="goBudget('list')">📋 지출 목록</button>
       <button class="sub-tab" onclick="goBudget('monthly')">📅 월별 현황</button>
+      <button class="sub-tab" onclick="goBudget('income')">💰 수입 기록</button>
       <button class="sub-tab" onclick="goBudget('check')">💳 잔액 대사</button>
       <button class="sub-tab" onclick="goBudget('setup')">⚙️ 예산 설정</button>
     </div>
@@ -492,7 +493,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
             </div>
             <div class="grid2" style="margin-bottom:20px;">
               <div class="fg"><label>내역 *</label><input type="text" id="ba-desc" placeholder="지출 내역 입력"></div>
-              <div class="fg"><label>금액 (원) *</label><input type="number" id="ba-amount" placeholder="0" min="0" style="font-size:15px;font-weight:600;"></div>
+              <div class="fg"><label>금액 (원) *</label><input type="number" id="ba-amount" placeholder="0" style="font-size:15px;font-weight:600;"><div style="font-size:11px;color:var(--text3);margin-top:3px;">여입·반납은 마이너스로 입력</div></div>
             </div>
             <hr class="divider" style="margin:20px 0;">
             <div class="grid3" style="margin-bottom:20px;">
@@ -531,6 +532,35 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
             </div>
           </div>
         </div>
+      </div>
+
+      <div id="bp-income" class="pane">
+        <div class="sec">수입 등록</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
+            이자, 유류포인트처럼 들어오는 돈을 기록합니다. 집행액과 잔액 계산에는 섞이지 않고 따로 쌓입니다.
+          </div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>입금 일자</label><input type="date" id="bi-date"></div>
+            <div class="fg"><label>구분</label>
+              <select id="bi-type">
+                <option>이자</option><option>유류포인트</option><option>여입</option><option>기타</option>
+              </select>
+            </div>
+          </div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>금액 (원)</label><input type="number" id="bi-amount" placeholder="0"></div>
+            <div class="fg"><label>관련 예산과목 (선택)</label><select id="bi-cat"></select></div>
+          </div>
+          <div class="fg" style="margin-bottom:12px;"><label>비고</label><input type="text" id="bi-memo" placeholder="예: 3분기 통장이자"></div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <button class="btn-sm btn-blue" onclick="addIncome()">💾 등록하기</button>
+            <span id="bi-msg" class="msg"></span>
+          </div>
+        </div>
+        <div id="bi-summary"></div>
+        <div class="sec">수입 내역</div>
+        <div id="bi-list"></div>
       </div>
 
       <div id="bp-check" class="pane">
@@ -1154,6 +1184,7 @@ function loadData(uid){
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
       if(d.balanceChecks)balanceChecks=d.balanceChecks;
       if(d.balanceSeeded)balanceSeeded=d.balanceSeeded;
+      if(d.budgetIncomes)budgetIncomes=d.budgetIncomes;
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length)BUDGET_CATS=d.BUDGET_CATS;
       seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
     }
@@ -1168,7 +1199,7 @@ async function persist(){
   if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -1710,6 +1741,7 @@ let BUDGET_CATS = [
 
 let budgetExpenses = [];
 let balanceChecks = [];   // 업무지원시스템 잔액 확인 기록
+let budgetIncomes = [];   // 이자·유류포인트 등 수입 (집행액과 분리)
 let balanceSeeded = false;
 let budgetNextId = 300;
 
@@ -1746,6 +1778,7 @@ window.renderBudgetDash=function(){
     <div class="mc"><div class="mc-lbl">잔액</div><div class="mc-val" style="color:var(--green);font-size:16px;">${remain.toLocaleString()}원</div><div class="mc-sub">${Math.round(remain/1000).toLocaleString()}천원</div></div>
     <div class="mc"><div class="mc-lbl">결재완료</div><div class="mc-val" style="color:var(--blue);font-size:16px;">${approved.toLocaleString()}원</div></div>
     <div class="mc"><div class="mc-lbl">미결재·결재중</div><div class="mc-val" style="color:var(--amber);font-size:16px;">${pending.toLocaleString()}원</div></div>
+    <div class="mc"><div class="mc-lbl">수입(이자·포인트 등)</div><div class="mc-val" style="color:var(--blue);font-size:16px;">${totalIncome().toLocaleString()}원</div><div class="mc-sub">집행액과 별도</div></div>
     <div class="mc"><div class="mc-lbl">지출 건수</div><div class="mc-val">${budgetExpenses.length}건</div></div>
   `;
 
@@ -1859,7 +1892,7 @@ window.renderBudgetList=function(){
     <td style="font-size:11px;color:var(--text2);white-space:nowrap;">${(e.subcat||'-').length>8?(e.subcat||'-').slice(0,8)+'…':(e.subcat||'-')}</td>
     <td style="max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${e.desc}">${e.desc}</td>
     <td style="white-space:nowrap;">${e.payee||'-'}</td>
-    <td style="font-weight:600;white-space:nowrap;">${parseInt(e.amount).toLocaleString()}</td>
+    <td style="font-weight:600;white-space:nowrap;${parseInt(e.amount)<0?'color:var(--blue);':''}">${parseInt(e.amount).toLocaleString()}</td>
     <td style="white-space:nowrap;">${approvalBadge(e.approval, e.id, e.approvalDate)}</td>
     <td style="white-space:nowrap;">${submitBadge(e.submit||'미제출', e.id, e.submitDate)}</td>
     <td style="white-space:nowrap;">${spendBadge(e.spend, e.id, e.spendDate)}</td>
@@ -1981,13 +2014,14 @@ window.renderBudgetMonthly=function(){
 
 window.goBudget=function(id){
   currentBudgetTab=id;
-  document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','check','setup'][i]===id));
+  document.querySelectorAll('#app-budget .sub-tab').forEach((t,i)=>t.classList.toggle('on',['dash','list','monthly','income','check','setup'][i]===id));
   document.querySelectorAll('#app-budget .pane').forEach(p=>p.classList.remove('on'));
   const pane=document.getElementById('bp-'+id);
   if(pane)pane.classList.add('on');
   if(id==='dash')renderBudgetDash();
   if(id==='list')renderBudgetList();
   if(id==='monthly')renderBudgetMonthly();
+  if(id==='income')renderIncome();
   if(id==='check')renderBalanceCheck();
   if(id==='setup')renderBudgetSetup();
 }
@@ -2012,6 +2046,74 @@ window.appRemainFor=function(scope){
 window.scopeLabel=function(scope){
   if(scope==='전체')return '전체 (총예산)';
   return scope.indexOf('::')>-1 ? scope.split('::')[1] : scope;
+}
+
+/* ───── 수입 기록 (집행액과 분리) ───── */
+
+window.totalIncome=function(){return budgetIncomes.reduce((s,x)=>s+(parseInt(x.amount)||0),0);}
+
+window.renderIncome=function(){
+  const sel=document.getElementById('bi-cat');
+  const keep=sel.value;
+  sel.innerHTML='<option value="">해당 없음</option>'+BUDGET_CATS.map(c=>`<option>${c.name}</option>`).join('');
+  if(keep)sel.value=keep;
+  if(!document.getElementById('bi-date').value){
+    document.getElementById('bi-date').value=new Date().toISOString().slice(0,10);
+  }
+
+  const byType={};
+  budgetIncomes.forEach(x=>{byType[x.type]=(byType[x.type]||0)+(parseInt(x.amount)||0);});
+  const types=Object.keys(byType);
+  document.getElementById('bi-summary').innerHTML = budgetIncomes.length ? `
+    <div class="metric-row">
+      <div class="mc"><div class="mc-lbl">수입 합계</div>
+        <div class="mc-val" style="font-size:16px;color:var(--blue);">${totalIncome().toLocaleString()}원</div>
+        <div class="mc-sub">${budgetIncomes.length}건</div></div>
+      ${types.map(t=>`<div class="mc"><div class="mc-lbl">${t}</div>
+        <div class="mc-val" style="font-size:16px;">${byType[t].toLocaleString()}원</div></div>`).join('')}
+    </div>` : '';
+
+  const list=[...budgetIncomes].sort((a,b)=>b.date.localeCompare(a.date));
+  document.getElementById('bi-list').innerHTML = list.length ? `
+    <div class="tbl-wrap"><table><thead><tr>
+      <th>입금일자</th><th>구분</th><th>금액</th><th>관련 예산과목</th><th>비고</th><th></th>
+    </tr></thead><tbody>${list.map(x=>`<tr>
+      <td style="white-space:nowrap;">${x.date}</td>
+      <td><span class="chip">${x.type}</span></td>
+      <td style="text-align:right;font-weight:600;color:var(--blue);">${(parseInt(x.amount)||0).toLocaleString()}원</td>
+      <td style="font-size:12px;color:var(--text2);">${x.cat||'-'}</td>
+      <td style="font-size:12px;color:var(--text2);">${x.memo||''}</td>
+      <td><button class="btn-sm btn-red" onclick="delIncome(${x.id})">삭제</button></td>
+    </tr>`).join('')}</tbody></table></div>`
+    : '<div class="card" style="text-align:center;color:var(--text3);font-size:13px;">아직 기록이 없습니다.</div>';
+}
+
+window.addIncome=async function(){
+  const date=document.getElementById('bi-date').value;
+  const amount=parseInt(document.getElementById('bi-amount').value);
+  if(!date){showMsg('bi-msg','입금 일자를 입력해 주세요','err');return;}
+  if(isNaN(amount)||amount===0){showMsg('bi-msg','금액을 입력해 주세요','err');return;}
+  budgetIncomes.push({
+    id:Date.now(), date,
+    type:document.getElementById('bi-type').value,
+    amount,
+    cat:document.getElementById('bi-cat').value,
+    memo:document.getElementById('bi-memo').value.trim()
+  });
+  await persist();
+  document.getElementById('bi-amount').value='';
+  document.getElementById('bi-memo').value='';
+  showMsg('bi-msg','✅ 등록했어요','ok');
+  renderIncome(); renderBudgetDash();
+}
+
+window.delIncome=async function(id){
+  const x=budgetIncomes.find(v=>v.id===id);
+  if(!x)return;
+  if(!confirm(`${x.date} ${x.type} ${(parseInt(x.amount)||0).toLocaleString()}원 기록을 삭제할까요?`))return;
+  budgetIncomes=budgetIncomes.filter(v=>v.id!==id);
+  await persist();
+  renderIncome(); renderBudgetDash();
 }
 
 // 10.15 업무지원시스템 예산현액 — 최초 1회만 기록으로 넣는다
@@ -2308,7 +2410,7 @@ window.openBudgetEdit=function(id){
     </div>
     <div class="fg" style="margin-bottom:12px;"><label>내역</label><input type="text" id="e-desc" value="${e.desc}"></div>
     <div class="grid2" style="margin-bottom:12px;">
-      <div class="fg"><label>금액 (원)</label><input type="number" id="e-amount" value="${e.amount}" min="0" style="font-size:14px;font-weight:600;"></div>
+      <div class="fg"><label>금액 (원)</label><input type="number" id="e-amount" value="${e.amount}" style="font-size:14px;font-weight:600;"></div>
       <div class="fg"><label>지급처(사용처)</label><input type="text" id="e-payee" value="${e.payee||''}" placeholder="예: 김새별, 예산군청"></div>
     </div>
     <div class="grid3" style="margin-bottom:12px;">
@@ -2412,7 +2514,7 @@ window.loadBudgetFromStorage=function(){
 
 // 백업/복원
 window.saveBudgetData=function(){
-  const blob = new Blob([JSON.stringify({budgetExpenses,budgetNextId,totalBudget:BUDGET_TOTAL,budgetCats:BUDGET_CATS,balanceChecks},null,2)],{type:'application/json'});
+  const blob = new Blob([JSON.stringify({budgetExpenses,budgetNextId,totalBudget:BUDGET_TOTAL,budgetCats:BUDGET_CATS,balanceChecks,budgetIncomes},null,2)],{type:'application/json'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `예산백업_${new Date().toISOString().slice(0,10)}.json`;
@@ -2429,6 +2531,7 @@ window.loadBudgetData=async function(e){
       if(d.totalBudget)BUDGET_TOTAL=d.totalBudget;
       if(d.budgetCats&&d.budgetCats.length)BUDGET_CATS=d.budgetCats;
       if(d.balanceChecks)balanceChecks=d.balanceChecks;
+      if(d.budgetIncomes)budgetIncomes=d.budgetIncomes;
       await persist();
       renderBudgetDash();renderBudgetList();
       alert('✅ 복원 완료!');
