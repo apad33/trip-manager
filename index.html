@@ -181,7 +181,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:14px;line-height:1.55;}#app-todo :focus-visible{outline:2px solid var(--moss);outline-offset:2px;}
 @media(prefers-reduced-motion:reduce){#app-todo *{transition:none!important;}}#app-todo .shell{max-width:1180px;margin:0 auto;padding:0 20px 128px;}#app-todo /* 헤더 */
 .head{display:flex;align-items:center;gap:10px;padding:20px 0 16px;flex-wrap:wrap;}#app-todo .head .mo{font-size:22px;font-weight:700;letter-spacing:-.02em;}#app-todo .head .yr{font-size:13px;color:var(--ink3);}#app-todo .navb{display:flex;gap:4px;margin-left:4px;}#app-todo .head .tools{margin-left:auto;display:flex;gap:6px;}#app-todo .ghost{background:none;border:1px solid var(--line2);color:var(--ink2);border-radius:9px;
-  padding:5px 11px;font-size:12px;cursor:pointer;}#app-todo .ghost:hover{background:var(--card);color:var(--ink);}#app-todo .sync{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface2,#F2F0EC);color:var(--ink2);border:1px solid var(--line);}#app-todo .sync.on{background:var(--moss-soft);color:var(--moss);border-color:#CFE5D9;}#app-todo .sync.busy{background:var(--amber-soft);color:var(--amber);border-color:#EEDDB2;}#app-todo .sync.err{background:var(--alert-soft);color:var(--alert);border-color:#F0D4D1;}#app-todo .tally{display:flex;align-items:baseline;gap:7px;padding:0 10px;border-left:1px solid var(--line);}#app-todo .tally b{font-size:22px;font-weight:700;letter-spacing:-.02em;}#app-todo .tally span{font-size:12px;color:var(--ink2);}#app-todo .tally .od{color:var(--alert);}#app-todo /* 2단 */
+  padding:5px 11px;font-size:12px;cursor:pointer;}#app-todo .ghost:hover{background:var(--card);color:var(--ink);}#app-todo .sync{font-size:11px;padding:3px 10px;border-radius:20px;background:var(--surface2,#F2F0EC);color:var(--ink2);border:1px solid var(--line);}#app-todo .sync.on{background:var(--moss-soft);color:var(--moss);border-color:#CFE5D9;}#app-todo .sync.busy{background:var(--amber-soft);color:var(--amber);border-color:#EEDDB2;}#app-todo .sync.err{background:var(--alert-soft);color:var(--alert);border-color:#F0D4D1;cursor:pointer;}
+#app-todo .sync.busy{cursor:pointer;}#app-todo .tally{display:flex;align-items:baseline;gap:7px;padding:0 10px;border-left:1px solid var(--line);}#app-todo .tally b{font-size:22px;font-weight:700;letter-spacing:-.02em;}#app-todo .tally span{font-size:12px;color:var(--ink2);}#app-todo .tally .od{color:var(--alert);}#app-todo /* 2단 */
 .board{display:grid;grid-template-columns:400px 1fr;gap:18px;align-items:start;}#app-todo /* 달력 */
 .calcard{background:var(--card);border:1px solid var(--line2);border-radius:14px;padding:12px 13px 13px;}#app-todo .calcap{font-size:12px;font-weight:700;color:var(--ink2);padding:0 2px 9px;}#app-todo .cal{display:grid;grid-template-columns:repeat(7,1fr);gap:0;
   border-top:1px solid var(--line);border-left:1px solid var(--line);border-radius:8px;overflow:hidden;}#app-todo .dow{text-align:center;font-size:11px;font-weight:700;color:var(--ink2);padding:6px 0;
@@ -616,7 +617,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
     </span>
     <span class="tally" id="tally"></span>
     <span class="tools">
-      <span id="syncbadge" class="sync">연결 안 됨</span>
+      <span id="syncbadge" class="sync" onclick="retrySync()" title="눌러서 다시 시도">연결 안 됨</span>
       <button class="ghost" onclick="openRoutine()">반복업무</button>
       <button class="ghost" onclick="pullNow()">새로고침</button>
       <button class="ghost" onclick="openLink()">연결</button>
@@ -725,18 +726,21 @@ function push(){
   pushing=true;
   badge('busy','저장 중…');
   pushPromise=(async()=>{
+    const ctrl=new AbortController();
+    const timer=setTimeout(()=>ctrl.abort(),20000);   // 20초 안에 응답이 없으면 끊는다
     try{
       const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body:JSON.stringify({action:'save',todos,routines})});
+        body:JSON.stringify({action:'save',todos,routines}),signal:ctrl.signal});
       const d=await res.json();
       if(d&&d.error)throw new Error(d.error);
       badge('on','시트에 저장됨');
       return true;
     }catch(e){
       dirty=true;                       // 실패분은 다시 보낼 대상으로 남겨둔다
-      badge('err','저장 실패 — 인터넷 확인 후 다시 시도');
+      badge('err','저장 실패 — 눌러서 다시 시도');
       return false;
     }finally{
+      clearTimeout(timer);
       pushing=false; pushPromise=null;
     }
   })();
@@ -754,8 +758,10 @@ async function pull(){
     }
   }
   badge('busy','불러오는 중…');
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),20000);
   try{
-    const res=await fetch(API,{method:'GET'});
+    const res=await fetch(API,{method:'GET',signal:ctrl.signal});
     const d=await res.json();
     if(!d||d.error)throw new Error(d&&d.error);
     todos=d.todos||[]; routines=d.routines||[];
@@ -767,11 +773,18 @@ async function pull(){
     return true;
   }catch(e){
     ready=false;
-    badge('err','불러오기 실패 — 연결 주소를 확인하세요');
+    badge('err','불러오기 실패 — 눌러서 다시 시도');
     return false;
+  }finally{
+    clearTimeout(timer);
   }
 }
 window.pullNow=function(){clearTimeout(saveTimer);saveTimer=null;pull();}
+window.retrySync=function(){
+  if(!API){openLink();return;}
+  if(dirty||pushing){clearTimeout(saveTimer);saveTimer=null;push();}
+  else pull();
+}
 window.openLink=function(){
   document.getElementById('lk-url').value=API;
   document.getElementById('v-link').style.display='flex';
@@ -1184,8 +1197,11 @@ function loadData(uid){
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
       if(d.balanceChecks)balanceChecks=d.balanceChecks;
       if(d.balanceSeeded)balanceSeeded=d.balanceSeeded;
+      if(d.baseSeeded)baseSeeded=d.baseSeeded;
+      if(d.BUDGET_BASE_TOTAL)BUDGET_BASE_TOTAL=d.BUDGET_BASE_TOTAL;
       if(d.budgetIncomes)budgetIncomes=d.budgetIncomes;
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length)BUDGET_CATS=d.BUDGET_CATS;
+      seedBudgetBase();
       seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
     }
     setSyncStatus('ok','✓ 동기화됨');
@@ -1199,7 +1215,7 @@ async function persist(){
   if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -1742,7 +1758,9 @@ let BUDGET_CATS = [
 let budgetExpenses = [];
 let balanceChecks = [];   // 업무지원시스템 잔액 확인 기록
 let budgetIncomes = [];   // 이자·유류포인트 등 수입 (집행액과 분리)
+let BUDGET_BASE_TOTAL = 153000000;   // 본예산(당초 교부액) 총액
 let balanceSeeded = false;
+let baseSeeded = false;   // 본예산(당초 교부액) 최초 입력 여부
 let budgetNextId = 300;
 
 // 세부항목 연동
@@ -2048,6 +2066,21 @@ window.scopeLabel=function(scope){
   return scope.indexOf('::')>-1 ? scope.split('::')[1] : scope;
 }
 
+/* ───── 당초 교부예산 ───── */
+// 처음 한 번, 그때의 예산 설정값을 당초 교부액으로 떠둔다.
+// (업무지원시스템의 '예산금액' = 교부예산. 이후 전용·변경이 있어도 이 값은 그대로 남는다)
+async function seedBudgetBase(){
+  if(baseSeeded)return;
+  baseSeeded=true;
+  BUDGET_BASE_TOTAL = BUDGET_TOTAL;
+  BUDGET_CATS.forEach(c=>{
+    if(c.base===undefined)c.base = c.budget||0;
+    c.subs.forEach(sub=>{ if(sub.base===undefined)sub.base = sub.budget||0; });
+  });
+  await persist();
+  if(currentBudgetTab==='setup')renderBudgetSetup();
+}
+
 /* ───── 수입 기록 (집행액과 분리) ───── */
 
 window.totalIncome=function(){return budgetIncomes.reduce((s,x)=>s+(parseInt(x.amount)||0),0);}
@@ -2236,17 +2269,21 @@ window.renderBudgetSetup=function(){
         <span style="font-size:12px;color:var(--text2);">소분류 합계: <strong>${cat.subs.reduce((a,b)=>a+(b.budget||0),0).toLocaleString()}원</strong></span>
         <button class="btn-sm btn-red" style="margin-left:auto;" onclick="removeBudgetCat(${ci})">과목 삭제</button>
       </div>
-      <div class="fg" style="max-width:280px;margin-bottom:10px;">
-        <label>대분류 예산 (원)</label>
-        <input type="number" id="sc-${ci}" value="${cat.budget}" min="0" style="font-size:13px;">
+      <div class="grid2" style="max-width:580px;margin-bottom:10px;">
+        <div class="fg"><label>대분류 예산 (원) · 현재</label>
+          <input type="number" id="sc-${ci}" value="${cat.budget}" min="0" style="font-size:13px;"></div>
+        <div class="fg"><label>당초 교부액 (원)</label>
+          <input type="number" id="bn-${ci}" value="${cat.base||0}" min="0" style="font-size:13px;color:var(--text2);"></div>
       </div>
-      <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;">소분류 예산</div>
+      <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;">소분류 예산 <span style="font-weight:400;color:var(--text3);">(이름 · 현재 · 당초)</span></div>
       ${cat.subs.map((sub,si)=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <input type="text" id="sn-${ci}-${si}" value="${(sub.name||'').replace(/"/g,'&quot;')}" placeholder="소분류명"
             style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:200px;">
-          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0"
-            style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:150px;">
+          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0" title="현재 예산"
+            style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:140px;">
+          <input type="number" id="bn-${ci}-${si}" value="${sub.base||0}" min="0" title="당초 교부액"
+            style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:140px;color:var(--text2);">
           <button class="btn-sm btn-red" onclick="removeBudgetSub(${ci},${si})">삭제</button>
         </div>`).join('')}
       <div style="margin-top:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
@@ -2259,7 +2296,37 @@ window.renderBudgetSetup=function(){
     <div style="margin:4px 0 20px;">
       <button class="btn-sm btn-blue" onclick="addBudgetCat()">+ 예산과목(대분류) 추가</button>
       <span style="font-size:11px;color:var(--text3);margin-left:8px;">과목명을 바꾸면 기존 지출 내역의 과목도 함께 바뀝니다.</span>
-    </div>`;
+    </div>`
+    + renderBudgetChangeTable();
+}
+
+// 정산보고서의 "예산 변경내역" 표
+window.renderBudgetChangeTable=function(){
+  const baseSum=BUDGET_CATS.reduce((a,c)=>a+(c.base||0),0);
+  const nowSum =BUDGET_CATS.reduce((a,c)=>a+(c.budget||0),0);
+  const rows=BUDGET_CATS.map(c=>{
+    const d=(c.budget||0)-(c.base||0);
+    return `<tr>
+      <td>${c.name}</td>
+      <td style="text-align:right;color:var(--text2);">${(c.base||0).toLocaleString()}</td>
+      <td style="text-align:right;font-weight:600;">${(c.budget||0).toLocaleString()}</td>
+      <td style="text-align:right;font-weight:600;color:${d>0?'var(--blue)':d<0?'var(--red)':'var(--text3)'};">
+        ${d===0?'-':(d>0?'+':'')+d.toLocaleString()}</td>
+    </tr>`;}).join('');
+  const dSum=nowSum-baseSum;
+  return `<div class="sec">예산 변경내역</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">
+      연말 정산보고서에 들어가는 표입니다. 당초 교부액은 처음 저장된 값이 그대로 남고, 전용·변경이 생기면 현재 예산만 바뀝니다.
+    </div>
+    <div class="tbl-wrap"><table><thead><tr>
+      <th>예산과목</th><th style="text-align:right;">교부예산</th><th style="text-align:right;">현재 예산</th><th style="text-align:right;">증△감</th>
+    </tr></thead><tbody>${rows}
+      <tr style="border-top:2px solid var(--border2);font-weight:700;">
+        <td>총 계</td>
+        <td style="text-align:right;">${baseSum.toLocaleString()}</td>
+        <td style="text-align:right;">${nowSum.toLocaleString()}</td>
+        <td style="text-align:right;color:${dSum===0?'var(--text3)':'var(--red)'};">${dSum===0?'-':(dSum>0?'+':'')+dSum.toLocaleString()}</td>
+      </tr></tbody></table></div>`;
 }
 
 window.saveBudgetTotal = function(){
@@ -2288,7 +2355,8 @@ window.saveBudgetCat = function(ci){
 
   const newSubs = cat.subs.map((sub,si)=>({
     name:(document.getElementById(`sn-${ci}-${si}`).value||'').trim(),
-    budget:parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0
+    budget:parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0,
+    base:parseInt(document.getElementById(`bn-${ci}-${si}`).value)||0
   }));
   if(newSubs.some(s=>!s.name)){showMsg(`sc-msg-${ci}`,'소분류명을 모두 입력해 주세요','err');return;}
 
@@ -2298,6 +2366,7 @@ window.saveBudgetCat = function(ci){
 
   cat.name = newName;
   cat.budget = parseInt(document.getElementById(`sc-${ci}`).value)||0;
+  cat.base = parseInt(document.getElementById(`bn-${ci}`).value)||0;
   cat.subs = newSubs;
 
   saveBudgetToStorage();
@@ -2308,7 +2377,7 @@ window.saveBudgetCat = function(ci){
 }
 
 window.addBudgetCat = function(){
-  BUDGET_CATS.push({name:'새 과목', budget:0, subs:[{name:'새 세부항목', budget:0}]});
+  BUDGET_CATS.push({name:'새 과목', budget:0, base:0, subs:[{name:'새 세부항목', budget:0, base:0}]});
   saveBudgetToStorage();
   renderBudgetSetup();
   renderBudgetDash();
@@ -2326,7 +2395,7 @@ window.removeBudgetCat = function(ci){
 }
 
 window.addBudgetSub = function(ci){
-  BUDGET_CATS[ci].subs.push({name:'새 세부항목', budget:0});
+  BUDGET_CATS[ci].subs.push({name:'새 세부항목', budget:0, base:0});
   saveBudgetToStorage();
   renderBudgetSetup();
 }
