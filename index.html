@@ -645,7 +645,7 @@ function shift(s,n){const d=pd(s);d.setDate(d.getDate()+n);return ymd(d);}
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 const URLKEY='todo-sheet-url';
 let API=localStorage.getItem(URLKEY)||'';
-let saveTimer=null, pushing=false, dirty=false;
+let saveTimer=null, pushing=false, dirty=false, ready=false, pushPromise=null;
 
 function cacheLocal(){try{localStorage.setItem(KEY,JSON.stringify({todos,routines,nextId,TAGS}));}catch(e){}}
 function badge(state,text){
@@ -656,30 +656,48 @@ function badge(state,text){
 function save(){            // 화면이 바뀔 때마다 호출됨
   cacheLocal();
   if(!API){badge('', '이 브라우저에만 저장');return;}
+  if(!ready)return;         // 시트에서 아직 못 불러왔으면 보내지 않는다
   dirty=true;
   badge('busy','저장 중…');
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(push,700);   // 연속 조작은 묶어서 한 번만 보냄
+  saveTimer=setTimeout(function(){saveTimer=null;push();},700);   // 연속 조작은 묶어서 한 번만 보냄
 }
-async function push(){
-  if(!API||pushing)return;
+function push(){
+  if(!API)return Promise.resolve(true);
+  // 이미 보내는 중이면 그게 끝난 뒤에 이어서 보낸다
+  if(pushPromise)return pushPromise.then(()=>dirty?push():true);
+  dirty=false;
   pushing=true;
-  try{
-    const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'save',todos,routines})});
-    const d=await res.json();
-    if(d&&d.error)throw new Error(d.error);
-    dirty=false;
-    badge('on','시트에 저장됨');
-  }catch(e){
-    badge('err','저장 실패 — 다시 시도하려면 새로고침');
-  }finally{
-    pushing=false;
-    if(dirty){dirty=false;clearTimeout(saveTimer);saveTimer=setTimeout(push,700);}
-  }
+  badge('busy','저장 중…');
+  pushPromise=(async()=>{
+    try{
+      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body:JSON.stringify({action:'save',todos,routines})});
+      const d=await res.json();
+      if(d&&d.error)throw new Error(d.error);
+      badge('on','시트에 저장됨');
+      return true;
+    }catch(e){
+      dirty=true;                       // 실패분은 다시 보낼 대상으로 남겨둔다
+      badge('err','저장 실패 — 인터넷 확인 후 다시 시도');
+      return false;
+    }finally{
+      pushing=false; pushPromise=null;
+    }
+  })();
+  return pushPromise;
 }
 async function pull(){
   if(!API)return false;
+  // 아직 시트로 못 보낸 내용이 있으면 먼저 보내고 불러온다
+  if(ready&&(dirty||pushing)){
+    clearTimeout(saveTimer); saveTimer=null;
+    const sent=await push();
+    if(!sent){
+      alert('아직 시트에 저장되지 않은 내용이 있어 새로고침을 멈췄습니다.\n인터넷 상태를 확인한 뒤 다시 눌러 주세요.');
+      return false;
+    }
+  }
   badge('busy','불러오는 중…');
   try{
     const res=await fetch(API,{method:'GET'});
@@ -688,15 +706,17 @@ async function pull(){
     todos=d.todos||[]; routines=d.routines||[];
     if(d.tags&&d.tags.length)TAGS=d.tags;
     nextId=Math.max(200,...todos.map(t=>t.id||0),...routines.map(r=>r.id||0))+1;
+    ready=true; dirty=false; clearTimeout(saveTimer);
     cacheLocal(); fillSelects(); render();
     badge('on','시트와 연결됨');
     return true;
   }catch(e){
+    ready=false;
     badge('err','불러오기 실패 — 연결 주소를 확인하세요');
     return false;
   }
 }
-window.pullNow=function(){pull();}
+window.pullNow=function(){clearTimeout(saveTimer);saveTimer=null;pull();}
 window.openLink=function(){
   document.getElementById('lk-url').value=API;
   document.getElementById('v-link').style.display='flex';
@@ -707,16 +727,17 @@ window.saveLink=function(){
     alert('웹 앱 주소가 아닌 것 같습니다. /exec 로 끝나는 주소를 넣어 주세요.');return;
   }
   API=v; localStorage.setItem(URLKEY,v); closeAll();
-  if(API)pull(); else badge('', '이 브라우저에만 저장');
+  if(API){ready=false;pull();} else {ready=true;badge('', '이 브라우저에만 저장');}
 }
 window.clearLink=function(){
   API=''; localStorage.removeItem(URLKEY); closeAll();
-  badge('', '이 브라우저에만 저장');
+  ready=true; badge('', '이 브라우저에만 저장');
 }
 function load(){
   try{const d=JSON.parse(localStorage.getItem(KEY)||'null');
-    if(d){todos=d.todos||[];routines=d.routines||[];nextId=d.nextId||1;if(d.TAGS&&d.TAGS.length)TAGS=d.TAGS;}else seed();
-  }catch(e){seed();}
+    if(d){todos=d.todos||[];routines=d.routines||[];nextId=d.nextId||1;if(d.TAGS&&d.TAGS.length)TAGS=d.TAGS;}
+    else if(!API)seed();     // 시트에 연결돼 있으면 예시를 만들지 않는다
+  }catch(e){if(!API)seed();}
 }
 function seed(){
   const t=today();
@@ -733,7 +754,7 @@ function seed(){
     {id:102,title:'주간 업무 계획 정리',type:'weekly',days:[1],day:1,tag:'기타',when:'오전',done:{},active:true},
     {id:103,title:'월간 예산 집행 점검',type:'monthly',days:[],day:25,tag:'정산·회계',when:'아무때나',done:{},active:true},
   ];
-  nextId=200;save();
+  nextId=200;cacheLocal();
 }
 
 const WD=['일','월','화','수','목','금','토'];
@@ -989,7 +1010,7 @@ function fillSelects(){
 }
 document.querySelectorAll('.veil').forEach(v=>v.addEventListener('click',function(e){if(e.target===this)closeAll();}));
 load();fillSelects();document.getElementById('q-date').value=selDate;render();
-if(API){pull();}else{badge('', '이 브라우저에만 저장');}
+if(API){pull();}else{ready=true;badge('', '이 브라우저에만 저장');}
 window.todoBoot=function(){ if(selDate!==today()){ } render(); };
 window.addEventListener('beforeunload',e=>{if(dirty||pushing){e.preventDefault();e.returnValue='';}});
 
