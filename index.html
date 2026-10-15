@@ -1153,7 +1153,9 @@ function loadData(uid){
        if(dup){budgetNextId=mx+1;persist();}}
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
       if(d.balanceChecks)balanceChecks=d.balanceChecks;
+      if(d.balanceSeeded)balanceSeeded=d.balanceSeeded;
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length)BUDGET_CATS=d.BUDGET_CATS;
+      seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
@@ -1166,7 +1168,7 @@ async function persist(){
   if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -1708,6 +1710,7 @@ let BUDGET_CATS = [
 
 let budgetExpenses = [];
 let balanceChecks = [];   // 업무지원시스템 잔액 확인 기록
+let balanceSeeded = false;
 let budgetNextId = 300;
 
 // 세부항목 연동
@@ -1725,6 +1728,10 @@ document.getElementById('ba-cat').addEventListener('change', function(){
 window.totalSpent=function(){return budgetExpenses.filter(e=>e.spend==='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
 window.totalApproved=function(){return budgetExpenses.filter(e=>e.approval==='결재완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
 window.catSpent=function(name){return budgetExpenses.filter(e=>e.cat===name&&e.spend==="지출완료").reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
+window.subSpentOf=function(catName,subName){
+  return budgetExpenses.filter(e=>e.cat===catName&&e.subcat===subName&&e.spend==='지출완료')
+    .reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+}
 window.catTotal=function(name){return budgetExpenses.filter(e=>e.cat===name).reduce((s,e)=>s+(parseInt(e.amount)||0),0);}
 
 window.renderBudgetDash=function(){
@@ -1988,19 +1995,62 @@ window.goBudget=function(id){
 /* ───── 업무지원시스템 잔액 대사 ───── */
 
 // 앱이 계산한 잔액: 대상이 '전체'면 총예산 기준, 아니면 해당 과목 기준
+// scope: '전체' | '대분류명' | '대분류명::세부항목명'
 window.appRemainFor=function(scope){
   if(scope==='전체')return BUDGET_TOTAL - totalSpent();
+  if(scope.indexOf('::')>-1){
+    const [cn,sn]=scope.split('::');
+    const cat=BUDGET_CATS.find(c=>c.name===cn);
+    const sub=cat&&cat.subs.find(x=>x.name===sn);
+    if(!sub)return 0;
+    return (sub.budget||0) - subSpentOf(cn,sn);
+  }
   const cat = BUDGET_CATS.find(c=>c.name===scope);
   if(!cat)return 0;
   return (cat.budget||0) - catSpent(cat.name);
+}
+window.scopeLabel=function(scope){
+  if(scope==='전체')return '전체 (총예산)';
+  return scope.indexOf('::')>-1 ? scope.split('::')[1] : scope;
+}
+
+// 10.15 업무지원시스템 예산현액 — 최초 1회만 기록으로 넣는다
+const BALANCE_SEED = [
+  ['인건비::전담인력 인건비', 30863900],
+  ['퇴직금',                  7000000],
+  ['인건비::전담인력 평가급',  6000000],
+  ['사무관리비',              2503000],
+  ['공공운영비',               131086],
+  ['행사운영비',              4000000],
+  ['교육훈련비',              2020000],
+  ['복리후생비',              1045000],
+  ['국내여비',                 356710],
+  ['연금부담금',              1179450],
+];
+async function seedBalanceChecks(){
+  if(balanceSeeded)return;
+  balanceSeeded=true;
+  if(!balanceChecks.length){
+    BALANCE_SEED.forEach(([scope,amount],i)=>{
+      balanceChecks.push({id:Date.now()+i, date:'2026-10-15', scope, amount,
+        appRemain:appRemainFor(scope), memo:'업무지원시스템 확인'});
+    });
+  }
+  await persist();
+  if(currentBudgetTab==='check')renderBalanceCheck();
 }
 
 window.renderBalanceCheck=function(){
   // 대상 드롭다운
   const sel=document.getElementById('bc-scope');
   const keep=sel.value;
-  sel.innerHTML='<option value="전체">전체 (총예산)</option>'+
-    BUDGET_CATS.map(c=>`<option value="${c.name}">${c.name}</option>`).join('');
+  sel.innerHTML='<option value="전체">전체 (총예산)</option>'
+    +'<optgroup label="예산과목(대분류)">'
+    + BUDGET_CATS.map(c=>`<option value="${c.name}">${c.name}</option>`).join('')
+    +'</optgroup><optgroup label="세부항목">'
+    + BUDGET_CATS.map(c=>c.subs.map(x=>
+        `<option value="${c.name}::${x.name}">${x.name} &nbsp;(${c.name})</option>`).join('')).join('')
+    +'</optgroup>';
   if(keep)sel.value=keep;
   if(!document.getElementById('bc-date').value){
     document.getElementById('bc-date').value=new Date().toISOString().slice(0,10);
@@ -2016,7 +2066,7 @@ window.renderBalanceCheck=function(){
       const c=latest[k], now=appRemainFor(k), gap=c.amount-now;
       const col = gap===0?'var(--green)':Math.abs(gap)<10000?'var(--amber)':'var(--red)';
       return `<div class="mc">
-        <div class="mc-lbl">${k}</div>
+        <div class="mc-lbl">${scopeLabel(k)}</div>
         <div class="mc-val" style="font-size:15px;">${c.amount.toLocaleString()}원</div>
         <div class="mc-sub">앱 기준 ${now.toLocaleString()}원</div>
         <div class="mc-sub" style="color:${col};font-weight:600;">
@@ -2035,7 +2085,7 @@ window.renderBalanceCheck=function(){
       const col = gap===0?'var(--green)':'var(--red)';
       return `<tr>
         <td style="white-space:nowrap;">${c.date}</td>
-        <td>${c.scope}</td>
+        <td>${scopeLabel(c.scope)}</td>
         <td style="text-align:right;font-weight:600;">${c.amount.toLocaleString()}원</td>
         <td style="text-align:right;color:var(--text2);">${(c.appRemain||0).toLocaleString()}원</td>
         <td style="text-align:right;color:${col};font-weight:600;">${gap===0?'0':(gap>0?'+':'')+gap.toLocaleString()}</td>
@@ -2067,7 +2117,7 @@ window.addBalanceCheck=async function(){
 window.delBalanceCheck=async function(id){
   const c=balanceChecks.find(x=>x.id===id);
   if(!c)return;
-  if(!confirm(`${c.date} ${c.scope} 기록을 삭제할까요?`))return;
+  if(!confirm(`${c.date} ${scopeLabel(c.scope)} 기록을 삭제할까요?`))return;
   balanceChecks=balanceChecks.filter(x=>x.id!==id);
   await persist();
   renderBalanceCheck();
