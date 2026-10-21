@@ -716,7 +716,7 @@ function save(){            // 화면이 바뀔 때마다 호출됨
   dirty=true;
   badge('busy','저장 중…');
   clearTimeout(saveTimer);
-  saveTimer=setTimeout(function(){saveTimer=null;push();},700);   // 연속 조작은 묶어서 한 번만 보냄
+  saveTimer=setTimeout(function(){saveTimer=null;syncPush();},700);   // 연속 조작은 묶어서 한 번만 보냄
 }
 /* 바뀐 줄만 골라 GET 으로 하나씩 보낸다 (POST 가 막히는 환경 대응) */
 let synced={t:{},r:{},ord:''};
@@ -765,9 +765,9 @@ async function sendOp(op){
   }finally{ clearTimeout(timer); }
 }
 
-function push(){
+function syncPush(){
   if(!API)return Promise.resolve(true);
-  if(pushPromise)return pushPromise.then(()=>dirty?push():true);
+  if(pushPromise)return pushPromise.then(()=>dirty?syncPush():true);
   dirty=false;
   pushing=true;
   pushPromise=(async()=>{
@@ -796,7 +796,7 @@ async function pull(){
   // 아직 시트로 못 보낸 내용이 있으면 먼저 보내고 불러온다
   if(ready&&(dirty||pushing)){
     clearTimeout(saveTimer); saveTimer=null;
-    const sent=await push();
+    const sent=await syncPush();
     if(!sent){
       alert('아직 시트에 저장되지 않은 내용이 있어 새로고침을 멈췄습니다.\n인터넷 상태를 확인한 뒤 다시 눌러 주세요.');
       return false;
@@ -828,7 +828,7 @@ async function pull(){
 window.pullNow=function(){clearTimeout(saveTimer);saveTimer=null;pull();}
 window.retrySync=function(){
   if(!API){openLink();return;}
-  if(dirty||pushing){clearTimeout(saveTimer);saveTimer=null;push();}
+  if(dirty||pushing){clearTimeout(saveTimer);saveTimer=null;syncPush();}
   else pull();
 }
 window.openLink=function(){
