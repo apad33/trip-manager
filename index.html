@@ -718,29 +718,74 @@ function save(){            // 화면이 바뀔 때마다 호출됨
   clearTimeout(saveTimer);
   saveTimer=setTimeout(function(){saveTimer=null;push();},700);   // 연속 조작은 묶어서 한 번만 보냄
 }
+/* 바뀐 줄만 골라 GET 으로 하나씩 보낸다 (POST 가 막히는 환경 대응) */
+let synced={t:{},r:{},ord:''};
+const snapT=t=>JSON.stringify([t.done?1:0,t.title,t.date,t.when,t.tag,t.key?1:0,t.note||'']);
+const snapR=r=>JSON.stringify([r.active?1:0,r.title,r.type,(r.days||[]).join(','),r.day,r.when,r.tag,r.done||{}]);
+
+function markSynced(){
+  synced={t:{},r:{},ord:todos.map(t=>t.id).join(',')};
+  todos.forEach(t=>synced.t[t.id]=snapT(t));
+  routines.forEach(r=>synced.r[r.id]=snapR(r));
+}
+
+function buildOps(){
+  const ops=[], curT={}, curR={};
+  todos.forEach(t=>{
+    curT[t.id]=snapT(t);
+    if(synced.t[t.id]!==curT[t.id])
+      ops.push({a:'ut',d:JSON.stringify({id:t.id,done:!!t.done,title:t.title,date:t.date,
+        when:t.when,tag:t.tag,key:!!t.key,note:t.note||'',order:t.order||0})});
+  });
+  Object.keys(synced.t).forEach(id=>{ if(!(id in curT)) ops.push({a:'dt',id}); });
+
+  routines.forEach(r=>{
+    curR[r.id]=snapR(r);
+    if(synced.r[r.id]!==curR[r.id]) ops.push({a:'ur',d:JSON.stringify(r)});
+  });
+  Object.keys(synced.r).forEach(id=>{ if(!(id in curR)) ops.push({a:'dr',id}); });
+
+  // 순서는 끌어다 놓기로 바뀐 경우에만 따로 보낸다
+  const now=todos.map(t=>t.id).filter(id=>String(id) in synced.t).join(',');
+  const before=(synced.ord?synced.ord.split(','):[]).filter(id=>id in curT).join(',');
+  if(now!==before && now) ops.push({a:'ord',ids:now});
+  return ops;
+}
+
+async function sendOp(op){
+  const q=Object.keys(op).filter(k=>k!=='a')
+    .map(k=>`&${k}=${encodeURIComponent(op[k])}`).join('');
+  const ctrl=new AbortController();
+  const timer=setTimeout(()=>ctrl.abort(),20000);
+  try{
+    const res=await fetch(`${API}?action=${op.a}${q}`,{method:'GET',signal:ctrl.signal});
+    const d=await res.json();
+    if(d&&d.error)throw new Error(d.error);
+    return true;
+  }finally{ clearTimeout(timer); }
+}
+
 function push(){
   if(!API)return Promise.resolve(true);
-  // 이미 보내는 중이면 그게 끝난 뒤에 이어서 보낸다
   if(pushPromise)return pushPromise.then(()=>dirty?push():true);
   dirty=false;
   pushing=true;
-  badge('busy','저장 중…');
   pushPromise=(async()=>{
-    const ctrl=new AbortController();
-    const timer=setTimeout(()=>ctrl.abort(),20000);   // 20초 안에 응답이 없으면 끊는다
     try{
-      const res=await fetch(API,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body:JSON.stringify({action:'save',todos,routines}),signal:ctrl.signal});
-      const d=await res.json();
-      if(d&&d.error)throw new Error(d.error);
+      const ops=buildOps();
+      if(!ops.length){ badge('on','시트에 저장됨'); return true; }
+      for(let i=0;i<ops.length;i++){
+        badge('busy', ops.length>1?`저장 중… (${i+1}/${ops.length})`:'저장 중…');
+        await sendOp(ops[i]);
+      }
+      markSynced();
       badge('on','시트에 저장됨');
       return true;
     }catch(e){
-      dirty=true;                       // 실패분은 다시 보낼 대상으로 남겨둔다
+      dirty=true;
       badge('err','저장 실패 — 눌러서 다시 시도');
       return false;
     }finally{
-      clearTimeout(timer);
       pushing=false; pushPromise=null;
     }
   })();
@@ -768,6 +813,7 @@ async function pull(){
     if(d.tags&&d.tags.length)TAGS=d.tags;
     nextId=Math.max(200,...todos.map(t=>t.id||0),...routines.map(r=>r.id||0))+1;
     ready=true; dirty=false; clearTimeout(saveTimer);
+    markSynced();
     cacheLocal(); fillSelects(); render();
     badge('on','시트와 연결됨');
     return true;
