@@ -1246,7 +1246,7 @@ function loadData(uid){
       if(d.baseSeeded)baseSeeded=d.baseSeeded;
       if(d.BUDGET_BASE_TOTAL)BUDGET_BASE_TOTAL=d.BUDGET_BASE_TOTAL;
       if(d.budgetIncomes)budgetIncomes=d.budgetIncomes;
-      if(d.BUDGET_CATS&&d.BUDGET_CATS.length)BUDGET_CATS=d.BUDGET_CATS;
+      if(d.BUDGET_CATS&&d.BUDGET_CATS.length){BUDGET_CATS=d.BUDGET_CATS;BUDGET_CATS.forEach(syncCatFromSubs);}
       seedBudgetBase();
       seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
     }
@@ -2316,19 +2316,19 @@ window.renderBudgetSetup=function(){
         <button class="btn-sm btn-red" style="margin-left:auto;" onclick="removeBudgetCat(${ci})">과목 삭제</button>
       </div>
       <div class="grid2" style="max-width:580px;margin-bottom:10px;">
-        <div class="fg"><label>대분류 예산 (원) · 현재</label>
-          <input type="number" id="sc-${ci}" value="${cat.budget}" min="0" style="font-size:13px;"></div>
-        <div class="fg"><label>당초 교부액 (원)</label>
-          <input type="number" id="bn-${ci}" value="${cat.base||0}" min="0" style="font-size:13px;color:var(--text2);"></div>
+        <div class="fg"><label>대분류 예산 (원) · 소분류 합계 자동</label>
+          <input type="number" id="sc-${ci}" value="${cat.budget}" readonly style="font-size:13px;background:var(--surface2);"></div>
+        <div class="fg"><label>당초 교부액 (원) · 소분류 합계 자동</label>
+          <input type="number" id="bn-${ci}" value="${cat.base||0}" readonly style="font-size:13px;color:var(--text2);background:var(--surface2);"></div>
       </div>
       <div style="font-size:12px;color:var(--text2);font-weight:500;margin-bottom:8px;">소분류 예산 <span style="font-weight:400;color:var(--text3);">(이름 · 현재 · 당초)</span></div>
       ${cat.subs.map((sub,si)=>`
         <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <input type="text" id="sn-${ci}-${si}" value="${(sub.name||'').replace(/"/g,'&quot;')}" placeholder="소분류명"
             style="font-size:12px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:200px;">
-          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0" title="현재 예산"
+          <input type="number" id="sc-${ci}-${si}" value="${sub.budget}" min="0" title="현재 예산" oninput="liveCatSum(${ci})"
             style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:140px;">
-          <input type="number" id="bn-${ci}-${si}" value="${sub.base||0}" min="0" title="당초 교부액"
+          <input type="number" id="bn-${ci}-${si}" value="${sub.base||0}" min="0" title="당초 교부액" oninput="liveCatSum(${ci})"
             style="font-size:13px;padding:6px 10px;border:1px solid var(--border2);border-radius:8px;width:140px;color:var(--text2);">
           <button class="btn-sm btn-red" onclick="removeBudgetSub(${ci},${si})">삭제</button>
         </div>`).join('')}
@@ -2388,11 +2388,23 @@ window.saveBudgetTotal = function(){
 function renameInExpenses(oldCat,newCat,oldSub,newSub){
   budgetExpenses.forEach(e=>{
     if(oldSub!==undefined){
-      if(e.cat===oldCat && e.sub===oldSub){e.cat=newCat;e.sub=newSub;}
+      if(e.cat===oldCat && e.subcat===oldSub){e.cat=newCat;e.subcat=newSub;}
     }else if(e.cat===oldCat){e.cat=newCat;}
   });
 }
 
+// 대분류 예산·당초액은 소분류 합계로 맞춘다 (소분류가 기준)
+function syncCatFromSubs(c){
+  const b=c.subs.reduce((a,x)=>a+(parseInt(x.budget)||0),0);
+  const o=c.subs.reduce((a,x)=>a+(parseInt(x.base)||0),0);
+  if(b>0)c.budget=b;
+  if(o>0)c.base=o;
+}
+window.liveCatSum=function(ci){
+  const cat=BUDGET_CATS[ci];let b=0,o=0;
+  cat.subs.forEach((_,si)=>{b+=parseInt(document.getElementById(`sc-${ci}-${si}`).value)||0;o+=parseInt(document.getElementById(`bn-${ci}-${si}`).value)||0;});
+  document.getElementById(`sc-${ci}`).value=b;document.getElementById(`bn-${ci}`).value=o;
+};
 window.saveBudgetCat = function(ci){
   const cat = BUDGET_CATS[ci];
   const newName = (document.getElementById(`cn-${ci}`).value||'').trim();
@@ -2411,9 +2423,8 @@ window.saveBudgetCat = function(ci){
   renameInExpenses(cat.name,newName);
 
   cat.name = newName;
-  cat.budget = parseInt(document.getElementById(`sc-${ci}`).value)||0;
-  cat.base = parseInt(document.getElementById(`bn-${ci}`).value)||0;
   cat.subs = newSubs;
+  syncCatFromSubs(cat);
 
   saveBudgetToStorage();
   showMsg(`sc-msg-${ci}`,'✅ 저장 완료!','ok');
