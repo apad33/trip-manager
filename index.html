@@ -1240,10 +1240,24 @@ function loadData(uid){
       {const seen=new Set();let mx=budgetNextId;let dup=false;
        budgetExpenses.forEach(e=>{if(seen.has(e.id)){e.id=++mx;dup=true;}seen.add(e.id);if(e.id>=mx)mx=e.id;});
        if(dup){budgetNextId=mx+1;persist();}}
+      // 빈 칸이 '2026-00-00'으로 저장됐던 지난 버그 정리 (날짜가 없는데 지출완료·결재완료로 잡혀 있던 건)
+      {let fixed=[];
+       budgetExpenses.forEach(e=>{
+         const bad=v=>typeof v==='string'&&/-00(-|$)/.test(v);
+         let hit=false;
+         if(bad(e.spendDate)){e.spendDate='';e.spend='대기';hit=true;}
+         if(bad(e.approvalDate)){e.approvalDate='';if(e.approval==='결재완료')e.approval='미결재';hit=true;}
+         if(bad(e.submitDate)){e.submitDate='';e.submit='미제출';hit=true;}
+         if(hit)fixed.push(e.desc||('#'+e.id));
+       });
+       if(fixed.length){persist();
+         if(!window.__dateFixNoticed){window.__dateFixNoticed=true;
+           setTimeout(()=>alert(`날짜가 비어 있는데 '0월 0일'로 저장된 지출 ${fixed.length}건을 정리했어요.\n지출일자가 없던 건은 '대기'로 돌렸으니, 실제로 지출된 건이면 지출일자를 넣어 주세요.\n\n`+fixed.slice(0,15).join('\n')+(fixed.length>15?'\n…':'')),300);}}}
       if(d.BUDGET_TOTAL)BUDGET_TOTAL=d.BUDGET_TOTAL;
       if(d.balanceChecks)balanceChecks=d.balanceChecks;
       if(d.balanceSeeded)balanceSeeded=d.balanceSeeded;
       if(d.baseSeeded)baseSeeded=d.baseSeeded;
+      if(d.budgetChangedAt)budgetChangedAt=d.budgetChangedAt;
       if(d.BUDGET_BASE_TOTAL)BUDGET_BASE_TOTAL=d.BUDGET_BASE_TOTAL;
       if(d.budgetIncomes)budgetIncomes=d.budgetIncomes;
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length){BUDGET_CATS=d.BUDGET_CATS;BUDGET_CATS.forEach(syncCatFromSubs);}
@@ -1261,7 +1275,7 @@ async function persist(){
   if(!curUser)return;
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL,budgetChangedAt});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -1483,11 +1497,12 @@ window.addTripRow=function(){
   body.appendChild(tr);
 }
 
+function p2(id){const v=(document.getElementById(id).value||'').trim();return v?v.padStart(2,'0'):'';}
 window.addTrip=async function(){
-  const sm=document.getElementById('a-start-m').value.trim().padStart(2,'0');
-  const sd=document.getElementById('a-start-d').value.trim().padStart(2,'0');
-  const em=document.getElementById('a-end-m').value.trim().padStart(2,'0');
-  const ed=document.getElementById('a-end-d').value.trim().padStart(2,'0');
+  const sm=p2('a-start-m');
+  const sd=p2('a-start-d');
+  const em=p2('a-end-m');
+  const ed=p2('a-end-d');
   const start=sm&&sd&&sm!=='00'&&sd!=='00'?`2026-${sm}-${sd}`:'';
   const end=em&&ed&&em!=='00'&&ed!=='00'?`2026-${em}-${ed}`:'';
   const raw=document.getElementById('a-biz').value;
@@ -1606,10 +1621,10 @@ window.saveTripEdit=async function(id){
   const t=trips.find(x=>x.id===id);if(!t)return;
   const person=document.getElementById('e-person').value.trim();
   const dest=document.getElementById('e-dest').value.trim();
-  const sm=document.getElementById('e-sm').value.trim().padStart(2,'0');
-  const sd=document.getElementById('e-sd').value.trim().padStart(2,'0');
-  const em=document.getElementById('e-em').value.trim().padStart(2,'0');
-  const ed=document.getElementById('e-ed').value.trim().padStart(2,'0');
+  const sm=p2('e-sm');
+  const sd=p2('e-sd');
+  const em=p2('e-em');
+  const ed=p2('e-ed');
   const start=`2026-${sm}-${sd}`,end=`2026-${em}-${ed}`;
   if(!person||!dest||!sm||!sd||!em||!ed){showMsg('e-msg','필수 항목을 입력해 주세요','err');return;}
   const raw=document.getElementById('e-biz').value;
@@ -1806,6 +1821,7 @@ let balanceChecks = [];   // 업무지원시스템 잔액 확인 기록
 let budgetIncomes = [];   // 이자·유류포인트 등 수입 (집행액과 분리)
 let BUDGET_BASE_TOTAL = 153000000;   // 본예산(당초 교부액) 총액
 let balanceSeeded = false;
+let budgetChangedAt = '';  // 예산 설정을 마지막으로 바꾼 날
 let baseSeeded = false;   // 본예산(당초 교부액) 최초 입력 여부
 let budgetNextId = 300;
 
@@ -2094,6 +2110,18 @@ window.goBudget=function(id){
 
 // 앱이 계산한 잔액: 대상이 '전체'면 총예산 기준, 아니면 해당 과목 기준
 // scope: '전체' | '대분류명' | '대분류명::세부항목명'
+window.scopeBudget=function(scope){
+  if(scope==='전체')return BUDGET_TOTAL;
+  if(scope.indexOf('::')>-1){const [cn,sn]=scope.split('::');const c=BUDGET_CATS.find(x=>x.name===cn);const u=c&&c.subs.find(x=>x.name===sn);return u?(u.budget||0):0;}
+  const c=BUDGET_CATS.find(x=>x.name===scope);return c?(c.budget||0):0;
+}
+// 등록은 됐지만 아직 '지출완료'가 아닌 금액 (업무지원시스템은 결의 시점에 잔액을 빼는 경우가 많다)
+window.pendingFor=function(scope){
+  const hit=e=>{if(scope==='전체')return true;
+    if(scope.indexOf('::')>-1){const [cn,sn]=scope.split('::');return e.cat===cn&&e.subcat===sn;}
+    return e.cat===scope;};
+  return budgetExpenses.filter(e=>hit(e)&&e.spend!=='지출완료').reduce((s,e)=>s+(parseInt(e.amount)||0),0);
+}
 window.appRemainFor=function(scope){
   if(scope==='전체')return BUDGET_TOTAL - totalSpent();
   if(scope.indexOf('::')>-1){
@@ -2244,16 +2272,23 @@ window.renderBalanceCheck=function(){
   document.getElementById('bc-summary').innerHTML = keys.length ? `
     <div class="sec">최근 기록과 현재 대조</div>
     <div class="metric-row">${keys.map(k=>{
-      const c=latest[k], now=appRemainFor(k), gap=c.amount-now;
-      const col = gap===0?'var(--green)':Math.abs(gap)<10000?'var(--amber)':'var(--red)';
+      const c=latest[k], now=appRemainFor(k), pend=pendingFor(k), nowAll=now-pend;
+      const gap=c.amount-now, gapAll=c.amount-nowAll;
+      const matchAll = pend>0 && gapAll===0;
+      const g = matchAll?0:gap;
+      const col = g===0?'var(--green)':Math.abs(g)<10000?'var(--amber)':'var(--red)';
+      const old = c.date < (budgetChangedAt||'');
       return `<div class="mc">
         <div class="mc-lbl">${scopeLabel(k)}</div>
         <div class="mc-val" style="font-size:15px;">${c.amount.toLocaleString()}원</div>
-        <div class="mc-sub">앱 기준 ${now.toLocaleString()}원</div>
+        <div class="mc-sub">예산 ${scopeBudget(k).toLocaleString()}원</div>
+        <div class="mc-sub">앱 · 지출완료 기준 ${now.toLocaleString()}원</div>
+        ${pend>0?`<div class="mc-sub">앱 · 미지출 등록분 포함 ${nowAll.toLocaleString()}원</div>`:''}
         <div class="mc-sub" style="color:${col};font-weight:600;">
-          ${gap===0?'일치':(gap>0?'시스템이 '+gap.toLocaleString()+'원 많음':'시스템이 '+Math.abs(gap).toLocaleString()+'원 적음')}
+          ${matchAll?'일치 (미지출 등록분 포함 시)':g===0?'일치':(g>0?'시스템이 '+g.toLocaleString()+'원 많음':'시스템이 '+Math.abs(g).toLocaleString()+'원 적음')}
         </div>
-        <div class="mc-sub">${c.date} 확인</div>
+        ${!matchAll&&g!==0&&pend>0&&gapAll!==gap?`<div class="mc-sub">미지출 포함 시 차이 ${gapAll>0?'+':''}${gapAll.toLocaleString()}원</div>`:''}
+        <div class="mc-sub">${c.date} 확인${old?' · 예산 변경 전 기록':''}</div>
       </div>`;}).join('')}</div>` : '';
 
   // 기록 내역
@@ -2425,6 +2460,7 @@ window.saveBudgetCat = function(ci){
   cat.name = newName;
   cat.subs = newSubs;
   syncCatFromSubs(cat);
+  budgetChangedAt = new Date().toISOString().slice(0,10);
 
   saveBudgetToStorage();
   showMsg(`sc-msg-${ci}`,'✅ 저장 완료!','ok');
@@ -2460,7 +2496,7 @@ window.addBudgetSub = function(ci){
 window.removeBudgetSub = function(ci,si){
   const cat = BUDGET_CATS[ci], sub = cat.subs[si];
   if(cat.subs.length<=1){alert('소분류는 최소 1개가 필요해요.');return;}
-  const used = budgetExpenses.filter(e=>e.cat===cat.name&&e.sub===sub.name).length;
+  const used = budgetExpenses.filter(e=>e.cat===cat.name&&e.subcat===sub.name).length;
   if(used){alert(`"${sub.name}" 으로 등록된 지출이 ${used}건 있어요.\n먼저 해당 지출을 옮기거나 지운 뒤 삭제해 주세요.`);return;}
   if(!confirm(`"${sub.name}" 을 삭제할까요?`))return;
   cat.subs.splice(si,1);
@@ -2471,8 +2507,8 @@ window.removeBudgetSub = function(ci,si){
 
 window.addBudgetExpense=function(){
   const doc = document.getElementById('ba-doc').value.trim();
-  const mo = document.getElementById('ba-date-m').value.trim().padStart(2,'0');
-  const dy = document.getElementById('ba-date-d').value.trim().padStart(2,'0');
+  const mo = p2('ba-date-m');
+  const dy = p2('ba-date-d');
   const date = mo&&dy?`2026-${mo}-${dy}`:'';
   const cat = document.getElementById('ba-cat').value;
   const subcat = document.getElementById('ba-subcat').value;
@@ -2486,14 +2522,14 @@ window.addBudgetExpense=function(){
   const approvalDate = '';
 
   // 제출일자
-  const submM = document.getElementById('ba-subm-m').value.trim().padStart(2,'0');
-  const submD = document.getElementById('ba-subm-d').value.trim().padStart(2,'0');
+  const submM = p2('ba-subm-m');
+  const submD = p2('ba-subm-d');
   const submitDate = submM&&submD?`2026-${submM}-${submD}`:'';
   const submit = submitDate?'제출완료':'미제출';
 
   // 지출일자
-  const spendM = document.getElementById('ba-spend-m').value.trim().padStart(2,'0');
-  const spendD = document.getElementById('ba-spend-d').value.trim().padStart(2,'0');
+  const spendM = p2('ba-spend-m');
+  const spendD = p2('ba-spend-d');
   const spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
   const spend = spendDate?'지출완료':'대기';
 
@@ -2589,26 +2625,26 @@ window.updateEditSubs=function(){
 
 window.saveBudgetEdit=function(id){
   const e = budgetExpenses.find(x=>x.id===id);if(!e)return;
-  const mo = document.getElementById('e-dm').value.trim().padStart(2,'0');
-  const dy = document.getElementById('e-dd').value.trim().padStart(2,'0');
+  const mo = p2('e-dm');
+  const dy = p2('e-dd');
   e.doc = document.getElementById('e-doc').value.trim();
   e.date = `2026-${mo}-${dy}`;
   e.cat = document.getElementById('e-cat').value;
   e.subcat = document.getElementById('e-subcat').value;
   e.desc = document.getElementById('e-desc').value.trim();
   e.amount = parseInt(document.getElementById('e-amount').value)||0;
-  const apprM2 = document.getElementById('e-appr-m').value.trim().padStart(2,'0');
-  const apprD2 = document.getElementById('e-appr-d').value.trim().padStart(2,'0');
+  const apprM2 = p2('e-appr-m');
+  const apprD2 = p2('e-appr-d');
   e.approvalDate = apprM2&&apprD2?`2026-${apprM2}-${apprD2}`:'';
-  e.approval = e.approvalDate?'결재완료':'미결재';
+  e.approval = e.approvalDate?'결재완료':(e.approval==='결재중'?'결재중':'미결재');   // 결재중은 수정해도 유지
 
-  const submM = document.getElementById('e-subm-m').value.trim().padStart(2,'0');
-  const submD = document.getElementById('e-subm-d').value.trim().padStart(2,'0');
+  const submM = p2('e-subm-m');
+  const submD = p2('e-subm-d');
   e.submitDate = submM&&submD?`2026-${submM}-${submD}`:'';
   e.submit = e.submitDate?'제출완료':'미제출';
 
-  const spendM = document.getElementById('e-spend-m').value.trim().padStart(2,'0');
-  const spendD = document.getElementById('e-spend-d').value.trim().padStart(2,'0');
+  const spendM = p2('e-spend-m');
+  const spendD = p2('e-spend-d');
   e.spendDate = spendM&&spendD?`2026-${spendM}-${spendD}`:'';
   e.spend = e.spendDate?'지출완료':'대기';
   e.payee = document.getElementById('e-payee').value.trim();
