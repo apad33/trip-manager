@@ -210,6 +210,18 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
 @media(max-width:560px){#app-todo .shell{padding:0 12px 140px;}#app-todo .cell{min-height:52px;padding:4px;}#app-todo .head .mo{font-size:19px;}
 }
 
+
+/* 예산: 구글시트 연동 모드 (입력은 시트, 앱은 보기) */
+#app-budget .sheet-only{display:none;}
+#app-budget.sheet-mode .sheet-only{display:block;}
+#app-budget.sheet-mode .edit-only{display:none!important;}
+#app-budget.sheet-mode #bl-table th:last-child,#app-budget.sheet-mode #bl-table td:last-child{display:none;}
+#app-budget.sheet-mode #bl-table td:first-child input{pointer-events:none;border-color:transparent!important;background:transparent;}
+#app-budget.sheet-mode #bl-table [onclick^="cycle"]{pointer-events:none;cursor:default;}
+#app-budget.sheet-mode #bi-list .btn-red{display:none;}
+.sheet-bar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-right:auto;font-size:12px;color:var(--text2);}
+.sheet-dot{width:8px;height:8px;border-radius:50%;background:#9AA1B2;display:inline-block;}
+.sheet-dot.on{background:#1a8a4a;}.sheet-dot.err{background:#d23;}
 </style>
 </head>
 <body>
@@ -423,9 +435,12 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       <button class="sub-tab" onclick="goBudget('income')">💰 수입 기록</button>
       <button class="sub-tab" onclick="goBudget('check')">💳 잔액 대사</button>
       <button class="sub-tab" onclick="goBudget('setup')">⚙️ 예산 설정</button>
+      <button class="sub-tab" onclick="openBudgetSheet()" style="margin-left:auto;color:#1a7a43;font-weight:700;">📗 구글시트 열기</button>
     </div>
     <div class="wrap">
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
+        <div class="sheet-bar"><span class="sheet-dot" id="bsheet-dot"></span><span id="bsheet-status">구글시트 미연결 · 예산 설정에서 연결</span>
+          <button class="btn-sm" onclick="loadBudgetSheet(true)" style="display:none" id="bsheet-refresh">🔄 시트 새로고침</button></div>
         <button class="btn-sm" onclick="exportBudgetCSV()">📥 엑셀(일별수지)</button>
         <button class="btn-sm" onclick="saveBudgetData()">💾 백업</button>
         <button class="btn-sm" onclick="document.getElementById('loadBudgetFile').click()">📂 복원</button>
@@ -440,7 +455,8 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
 
       <div id="bp-list" class="pane">
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-          <button class="btn-sm btn-blue" onclick="goBudget('add')">➕ 지출 등록</button>
+          <button class="btn-sm btn-blue edit-only" onclick="goBudget('add')">➕ 지출 등록</button>
+          <button class="btn-sm sheet-only" onclick="openBudgetSheet()" style="color:#1a7a43;font-weight:700;">📗 시트에서 입력·수정</button>
           <input type="text" id="bl-search" placeholder="내역·품의번호 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderBudgetList()">
           <select id="bl-cat" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 과목</option></select>
           <select id="bl-submit" onchange="renderBudgetList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"><option value="">전체 제출</option><option value="제출완료">제출완료</option><option value="미제출">미제출</option></select>
@@ -536,8 +552,9 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       </div>
 
       <div id="bp-income" class="pane">
-        <div class="sec">수입 등록</div>
-        <div class="card" style="margin-bottom:14px;">
+        <div class="card sheet-only" style="margin-bottom:14px;font-size:13px;">수입은 구글시트의 <b>[수입]</b> 탭에 적어요. <button class="btn-sm" onclick="openBudgetSheet()" style="margin-left:6px;">📗 시트 열기</button></div>
+        <div class="sec edit-only">수입 등록</div>
+        <div class="card edit-only" style="margin-bottom:14px;">
           <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">
             이자, 유류포인트처럼 들어오는 돈을 기록합니다. 집행액과 잔액 계산에는 섞이지 않고 따로 쌓입니다.
           </div>
@@ -589,6 +606,21 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       </div>
 
       <div id="bp-setup" class="pane">
+        <div class="sec">구글시트 연결</div>
+        <div class="card" style="margin-bottom:20px;">
+          <div style="font-size:12px;color:var(--text2);margin-bottom:12px;line-height:1.6;">연결하면 예산·지출·수입을 구글시트에서 읽어 와서 대시보드와 월별 현황에 보여줍니다. 입력과 수정은 시트에서 하고, 앱은 보기만 해요. 잔액 대사 기록은 지금처럼 앱에 남습니다.</div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>웹 앱 주소</label><input type="text" id="bsh-url" placeholder="https://script.google.com/macros/s/.../exec"></div>
+            <div class="fg"><label>비밀키</label><input type="password" id="bsh-key" placeholder="스크립트의 KEY 와 같은 값"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn" onclick="connectBudgetSheet()">🔗 연결하고 불러오기</button>
+            <button class="btn-sm" onclick="disconnectBudgetSheet()">연결 끊기</button>
+            <span id="bsh-msg" class="msg"></span>
+          </div>
+        </div>
+        <div class="card sheet-only" style="margin-bottom:20px;font-size:13px;line-height:1.7;">예산(당초·현재)은 구글시트의 <b>[예산]</b> 탭에서 고쳐요. 아래 표는 그 값을 보여줍니다. <button class="btn-sm" onclick="openBudgetSheet()" style="margin-left:6px;">📗 시트 열기</button></div>
+        <div class="edit-only">
         <div class="sec">총 예산 설정</div>
         <div class="card" style="margin-bottom:20px;">
           <div class="fg" style="max-width:280px;margin-bottom:12px;"><label>총 예산액 (원)</label><input type="number" id="bs-total" min="0" style="font-size:15px;font-weight:600;"></div>
@@ -596,6 +628,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
         </div>
         <div class="sec">예산과목별 설정</div>
         <div style="font-size:12px;color:var(--text2);margin-bottom:12px;">⚠ 예산 변경 시 대시보드 잔액·집행률이 즉시 반영돼요.</div>
+        </div>
         <div id="bs-cats"></div>
       </div>
     </div>
@@ -1234,6 +1267,7 @@ function loadData(uid){
       {const seen=new Set();let mx=schedNextId;let dup=false;
        events.forEach(e=>{if(seen.has(e.id)){e.id=++mx;dup=true;}seen.add(e.id);if(e.id>=mx)mx=e.id;});
        if(dup){schedNextId=mx+1;persist();}}
+      inSnap=true;
       if(d.budgetExpenses)budgetExpenses=d.budgetExpenses;
       if(d.budgetNextId)budgetNextId=d.budgetNextId;
       // 예산 중복 id 수정
@@ -1263,6 +1297,9 @@ function loadData(uid){
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length){BUDGET_CATS=d.BUDGET_CATS;BUDGET_CATS.forEach(syncCatFromSubs);}
       seedBudgetBase();
       seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
+      captureFbBudget();
+      inSnap=false;
+      if(sheetData)applyBudgetSheet(sheetData);
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
@@ -1273,9 +1310,14 @@ function loadData(uid){
 
 async function persist(){
   if(!curUser)return;
+  // 시트 모드: 화면의 예산 데이터는 시트에서 온 것이므로, 저장할 때는 Firebase 에 있던 원래 예산 데이터를 그대로 둔다
+  if(sheetMode&&!inSnap&&!fbBudget)return;   // 아직 Firebase 를 한 번도 못 읽었으면 저장 보류
+  const B=(sheetMode&&!inSnap)?fbBudget:{budgetExpenses,BUDGET_CATS,budgetIncomes,BUDGET_TOTAL,BUDGET_BASE_TOTAL};
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,budgetExpenses,budgetNextId,BUDGET_TOTAL,BUDGET_CATS,balanceChecks,balanceSeeded,budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL,budgetChangedAt});
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,
+      budgetExpenses:B.budgetExpenses,budgetNextId,BUDGET_TOTAL:B.BUDGET_TOTAL,BUDGET_CATS:B.BUDGET_CATS,balanceChecks,balanceSeeded,
+      budgetIncomes:B.budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL:B.BUDGET_BASE_TOTAL,budgetChangedAt});
     setSyncStatus('ok','✓ 동기화됨');
   }catch(e){setSyncStatus('err','저장 실패');}
 }
@@ -2788,6 +2830,115 @@ window.exportBudgetCSV=function(){
 
 
 // 예산 초기화 - Firebase onSnapshot에서 자동 처리
+
+/* ═════════ 예산: 구글시트 연동 (입력은 시트, 앱은 보기) ═════════ */
+var sheetMode=false, inSnap=false, fbBudget=null, sheetData=null, sheetLoadedAt=0;
+const BSH_URL='budget-sheet-url', BSH_KEY='budget-sheet-key', BSH_LINK='budget-sheet-link';
+const lsGet=k=>{try{return localStorage.getItem(k)||'';}catch(e){return '';}};
+const lsSet=(k,v)=>{try{v?localStorage.setItem(k,v):localStorage.removeItem(k);}catch(e){}};
+
+function captureFbBudget(){
+  fbBudget={budgetExpenses,BUDGET_CATS,budgetIncomes,BUDGET_TOTAL,BUDGET_BASE_TOTAL};
+}
+function sheetStatus(state,text){
+  const dot=document.getElementById('bsheet-dot'),st=document.getElementById('bsheet-status');
+  if(dot)dot.className='sheet-dot '+(state||'');
+  if(st)st.textContent=text;
+}
+function setSheetMode(on){
+  sheetMode=on;
+  document.getElementById('app-budget').classList.toggle('sheet-mode',on);
+  const rb=document.getElementById('bsheet-refresh');if(rb)rb.style.display=on?'inline-block':'none';
+}
+// 시트 내용을 앱이 쓰는 모양(BUDGET_CATS·budgetExpenses·budgetIncomes)으로 바꿔 끼운다
+function applyBudgetSheet(d){
+  const cats=[],byName={},catOf={};
+  (d.budget||[]).forEach(b=>{
+    if(!byName[b.cat]){byName[b.cat]={name:b.cat,budget:0,base:0,subs:[]};cats.push(byName[b.cat]);}
+    const c=byName[b.cat];
+    c.subs.push({name:b.sub,budget:b.budget||0,base:b.base||0});
+    c.budget+=b.budget||0;c.base+=b.base||0;catOf[b.sub]=b.cat;
+  });
+  BUDGET_CATS=cats;
+  BUDGET_TOTAL=cats.reduce((a,c)=>a+c.budget,0);
+  BUDGET_BASE_TOTAL=cats.reduce((a,c)=>a+c.base,0);
+  budgetExpenses=(d.expenses||[]).map(e=>({
+    id:e.row, seq:e.no||'', doc:e.doc, date:e.date||e.spendDate||e.submitDate||'',
+    cat:catOf[e.sub]||'(세목 확인)', subcat:e.sub, desc:e.desc||'', amount:e.amount||0, payee:e.payee,
+    approval:e.approval||'미결재', approvalDate:'',
+    submit:e.submitDate?'제출완료':'미제출', submitDate:e.submitDate,
+    spend:e.spendDate?'지출완료':'대기', spendDate:e.spendDate,
+    memo:[e.memo,e.resolNo].filter(Boolean).join(' · ')
+  }));
+  budgetIncomes=(d.incomes||[]).map(x=>({id:x.row,date:x.date,type:x.type,amount:x.amount,cat:'',memo:[x.desc,x.memo].filter(Boolean).join(' · ')}));
+  setSheetMode(true);
+  const t=new Date(sheetLoadedAt);
+  sheetStatus('on',`구글시트 연동 · ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')} 불러옴 · 지출 ${budgetExpenses.length}건`);
+  if(document.getElementById('app-budget').style.display!=='none')goBudget(currentBudgetTab);
+}
+window.loadBudgetSheet=async function(manual){
+  const url=lsGet(BSH_URL),key=lsGet(BSH_KEY);
+  if(!url||!key)return false;
+  sheetStatus('', '구글시트 불러오는 중…');
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),25000);
+  try{
+    const res=await fetch(url+'?k='+encodeURIComponent(key),{signal:ctrl.signal});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    sheetData=d;sheetLoadedAt=Date.now();
+    if(d.sheetUrl)lsSet(BSH_LINK,d.sheetUrl);
+    applyBudgetSheet(d);
+    return true;
+  }catch(e){
+    sheetStatus('err','구글시트를 못 불러왔어요'+(sheetData?' · 지난번 내용 표시 중':'')+' · '+(e.name==='AbortError'?'시간 초과':e.message));
+    if(manual)alert('구글시트를 불러오지 못했어요.\n'+(e.name==='AbortError'?'응답이 늦어요. 잠시 뒤 다시 눌러 주세요.':e.message));
+    return false;
+  }finally{clearTimeout(timer);}
+}
+window.connectBudgetSheet=async function(){
+  const url=document.getElementById('bsh-url').value.trim(),key=document.getElementById('bsh-key').value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url)){showMsg('bsh-msg','/exec 로 끝나는 웹 앱 주소를 넣어 주세요','err');return;}
+  if(!key){showMsg('bsh-msg','비밀키를 입력해 주세요','err');return;}
+  lsSet(BSH_URL,url);lsSet(BSH_KEY,key);
+  showMsg('bsh-msg','불러오는 중…','ok');
+  const ok=await loadBudgetSheet(true);
+  showMsg('bsh-msg',ok?'✅ 연결됐어요':'연결 실패',ok?'ok':'err');
+}
+window.disconnectBudgetSheet=function(){
+  if(!confirm('구글시트 연결을 끊을까요?\n앱에 원래 저장돼 있던 예산 데이터로 돌아가요. 시트 내용은 그대로 남아요.'))return;
+  lsSet(BSH_URL,'');lsSet(BSH_KEY,'');sheetData=null;
+  if(fbBudget){({budgetExpenses,BUDGET_CATS,budgetIncomes,BUDGET_TOTAL,BUDGET_BASE_TOTAL}=fbBudget);}
+  setSheetMode(false);sheetStatus('','구글시트 미연결 · 예산 설정에서 연결');
+  goBudget(currentBudgetTab);
+}
+window.openBudgetSheet=function(){
+  const link=lsGet(BSH_LINK);
+  if(!link){alert('먼저 [예산 설정]에서 구글시트를 연결해 주세요.');goBudget('setup');return;}
+  window.open(link,'_blank');
+}
+// 시트 모드에서는 앱에서 예산 데이터를 고치는 기능을 막는다
+;['addBudgetCat','addBudgetExpense','addBudgetSub','addIncome','cycleApproval','cycleSpend','cycleSubmit',
+ 'delIncome','deleteBudgetExpense','loadBudgetData','removeBudgetCat','removeBudgetSub','saveBudgetCat',
+ 'saveBudgetEdit','saveBudgetTotal','setBudgetSeq','openBudgetEdit'].forEach(n=>{
+  const f=window[n];if(typeof f!=='function')return;
+  window[n]=function(...a){
+    if(sheetMode){alert('지금은 구글시트와 연동 중이에요.\n입력과 수정은 시트에서 해 주세요. (상단 📗 구글시트 열기)');return;}
+    return f.apply(this,a);
+  };
+});
+// 예산 설정: 시트 모드에서는 편집 칸 없이 예산 변경내역 표만 보여준다
+{const orig=window.renderBudgetSetup;
+ window.renderBudgetSetup=function(){
+   if(!sheetMode)return orig.apply(this,arguments);
+   document.getElementById('bs-cats').innerHTML=renderBudgetChangeTable();
+ };}
+// 예산 설정 화면에 저장된 연결값 채우기
+{const u=document.getElementById('bsh-url'),k=document.getElementById('bsh-key');if(u)u.value=lsGet(BSH_URL);if(k)k.value=lsGet(BSH_KEY);}
+// 처음 열 때, 그리고 시트에서 고치고 돌아왔을 때 다시 읽는다
+if(lsGet(BSH_URL))loadBudgetSheet(false);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&sheetMode&&Date.now()-sheetLoadedAt>30000)loadBudgetSheet(false);
+});
 </script>
 
 
