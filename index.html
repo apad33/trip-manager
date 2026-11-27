@@ -212,6 +212,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
 
 
 /* 예산: 구글시트 연동 모드 (입력은 시트, 앱은 보기) */
+#app-trip .badge.b-ex{background:#ECECEC;color:#777;}
 #app-trip .sheet-only{display:none;}
 #app-trip.sheet-mode .sheet-only{display:block;}
 #app-trip.sheet-mode button.sheet-only{display:inline-block;}
@@ -426,7 +427,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
             <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차(동승 포함)</option>
           </select>
           <select id="l-status" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
-            <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
+            <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option><option value="excluded">지급제외</option>
           </select>
         </div>
         <div class="tbl-wrap">
@@ -1393,7 +1394,9 @@ function refreshTripView(id){
   if(id==='settle')renderSettle();
 }
 
-function tTotal(t){return(t.da||0)+(t.me||0)+(t.tr||0);}
+function tRaw(t){return(t.da||0)+(t.me||0)+(t.tr||0);}
+function tTotal(t){return t.status==='excluded'?0:tRaw(t);}   // 지급제외 건은 금액 합계에서 뺀다
+function tAmt(t){return t.status==='excluded'?`<s style="color:var(--text3);font-weight:400;">${fmt(tRaw(t))}</s>`:fmt(tTotal(t));}
 function shortBiz(id){
   if(id==='my'){const n=myBiz.name||'내 사업';return n.length>9?n.slice(0,9)+'…':n;}
   const b=otherBiz.find(x=>x.id===id);if(!b)return '?';
@@ -1417,6 +1420,7 @@ function renderDash(){
     <div class="mc"><div class="mc-lbl">전체 출장</div><div class="mc-val">${trips.length}건</div></div>
     <div class="mc"><div class="mc-lbl">미정산</div><div class="mc-val" style="color:var(--red);">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:var(--red);">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
     <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:var(--green);">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:var(--green);">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
+    ${(()=>{const ex=trips.filter(t=>t.status==='excluded');return ex.length?`<div class="mc"><div class="mc-lbl">지급제외</div><div class="mc-val" style="color:var(--text3);">${ex.length}건</div><div class="mc-sub">${fmt(ex.reduce((s,t)=>s+tRaw(t),0))} · 합계에서 뺌</div></div>`:'';})()}
     <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='관차').length}건</div></div>
     <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>(t.vehicle||'').startsWith('자차')).length}건</div></div>
   `;
@@ -1470,7 +1474,8 @@ window.renderMonthly=function(){
   const months={};
   filtered.forEach(t=>{
     const m=t.start.slice(0,7);
-    if(!months[m])months[m]={da:0,me:0,tr:0,total:0,count:0,pend:0,done:0,gov:0,own:0};
+    if(!months[m])months[m]={da:0,me:0,tr:0,total:0,count:0,pend:0,done:0,gov:0,own:0,ex:0,exAmt:0};
+    if(t.status==='excluded'){months[m].ex++;months[m].exAmt+=tRaw(t);return;}
     months[m].da+=t.da||0;months[m].me+=t.me||0;months[m].tr+=t.tr||0;
     months[m].total+=tTotal(t);months[m].count++;
     if(t.status==='pending')months[m].pend++;else months[m].done++;
@@ -1485,6 +1490,7 @@ window.renderMonthly=function(){
     </div>
     <div style="display:flex;gap:16px;margin-top:8px;font-size:12px;color:var(--text2);flex-wrap:wrap;">
       <span>총 ${filtered.length}건</span>
+      ${(()=>{const n=sm.reduce((s,m)=>s+months[m].ex,0);return n?`<span>지급제외 ${n}건 (${fmt(sm.reduce((s,m)=>s+months[m].exAmt,0))}, 합계에서 뺌)</span>`:'';})()}
       <span>일비 ${fmt(sm.reduce((s,m)=>s+months[m].da,0))}</span>
       <span>식비 ${fmt(sm.reduce((s,m)=>s+months[m].me,0))}</span>
       <span>교통비 ${fmt(sm.reduce((s,m)=>s+months[m].tr,0))}</span>
@@ -1495,6 +1501,7 @@ window.renderMonthly=function(){
     html+=`<div class="month-card">
       <div class="month-card-hd"><span style="font-size:14px;font-weight:700;">${y}년 ${parseInt(mo)}월</span><span style="font-size:15px;font-weight:700;">${fmt(d.total)}</span></div>
       <div class="month-detail-row"><span>출장 건수</span><span>${d.count}건 (관차 ${d.gov}/자차 ${d.own})</span></div>
+      ${d.ex?`<div class="month-detail-row" style="color:var(--text3);"><span>지급제외</span><span>${d.ex}건 · <s>${fmt(d.exAmt)}</s></span></div>`:''}
       <div class="month-detail-row"><span>💵 일비</span><span>${fmt(d.da)}</span></div>
       <div class="month-detail-row"><span>🍱 식비</span><span>${fmt(d.me)}</span></div>
       <div class="month-detail-row"><span>🚆 교통비</span><span>${fmt(d.tr)}</span></div>
@@ -1502,6 +1509,7 @@ window.renderMonthly=function(){
       <div class="month-detail-row"><span>정산</span><span>
         ${d.pend>0?`<span class="badge b-pend" style="font-size:10px;">미정산 ${d.pend}</span> `:''}
         ${d.done>0?`<span class="badge b-done" style="font-size:10px;">완료 ${d.done}</span>`:''}
+        ${d.ex>0?`<span class="badge b-ex" style="font-size:10px;">제외 ${d.ex}</span>`:''}
       </span></div>
     </div>`;
   });
@@ -1632,8 +1640,8 @@ window.renderList=function(){
     <td style="font-size:11px;">${t.start.slice(5)}~${t.end.slice(5)}</td>
     <td><span class="badge ${t.vehicle==='관차'?'b-gov':'b-own'}" style="font-size:10px;">${t.vehicle||'-'}</span></td>
     <td>${(t.da||0).toLocaleString()}</td><td>${(t.me||0).toLocaleString()}</td><td>${(t.tr||0).toLocaleString()}</td>
-    <td style="font-weight:600;">${fmt(tTotal(t))}</td>
-    <td>${t.status==='done'?'<span class="badge b-done">✓</span>':'<span class="badge b-pend">미정산</span>'}</td>
+    <td style="font-weight:600;">${tAmt(t)}</td>
+    <td>${t.status==='done'?'<span class="badge b-done">✓</span>':t.status==='excluded'?'<span class="badge b-ex">지급제외</span>':'<span class="badge b-pend">미정산</span>'}</td>
     <td><div class="action-btns">
       <button class="btn-sm btn-blue" onclick="openTripEdit(${t.id})">✏️</button>
       <button class="btn-sm btn-red" onclick="deleteTrip(${t.id})">🗑</button>
@@ -1740,6 +1748,7 @@ function renderSettle(){
         <div style="display:flex;gap:6px;flex-wrap:wrap;">
           ${pendAmt>0?`<span class="badge b-pend">미정산 ${fmt(pendAmt)}</span>`:''}
           ${doneAmt>0?`<span class="badge b-done">완료 ${fmt(doneAmt)}</span>`:''}
+          ${(()=>{const e=ts.filter(t=>t.status==='excluded');return e.length?`<span class="badge b-ex">지급제외 ${fmt(e.reduce((s,t)=>s+tRaw(t),0))}</span>`:'';})()}
         </div>
       </div>
       ${ts.map(t=>`<div style="border-top:1px solid #f0f0ee;padding:10px 0;display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap;">
@@ -1748,9 +1757,9 @@ function renderSettle(){
           <div style="font-size:11px;color:var(--text3);margin-top:3px;">${t.start}${t.end!==t.start?' ~ '+t.end:''} · 일비 ${(t.da||0).toLocaleString()} · 식비 ${(t.me||0).toLocaleString()} · 교통 ${(t.tr||0).toLocaleString()}${t.memo?' · '+t.memo:''}</div>
         </div>
         <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-          <span style="font-weight:700;font-size:14px;">${fmt(tTotal(t))}</span>
+          <span style="font-weight:700;font-size:14px;">${tAmt(t)}</span>
           <button class="btn-sm btn-blue" style="padding:4px 8px;font-size:11px;" onclick="openTripEdit(${t.id})">✏️</button>
-          ${t.status==='done'?`<span class="badge b-done">✓ 완료 (${fmt(t.settled)})</span><button class="btn-sm btn-red" onclick="unSettle(${t.id});renderSettle();">취소</button>`:`<button class="btn-sm" onclick="openSettle(${t.id})">정산</button>`}
+          ${t.status==='excluded'?'<span class="badge b-ex">지급제외</span>':t.status==='done'?`<span class="badge b-done">✓ 완료 (${fmt(t.settled)})</span><button class="btn-sm btn-red" onclick="unSettle(${t.id});renderSettle();">취소</button>`:`<button class="btn-sm" onclick="openSettle(${t.id})">정산</button>`}
         </div>
       </div>`).join('')}
       <hr class="divider">
@@ -1811,7 +1820,7 @@ window.doExportTripCSV=function(){
   const mf=document.getElementById('ex-month').value,pf=document.getElementById('ex-person').value,bf=document.getElementById('ex-biz').value;
   function fd(d){if(!d)return '';const p=d.split('-');return p[0].slice(2)+'-'+p[1]+'-'+p[2];}
   function fb(id){if(id==='my'){const n=myBiz.name||'';if(n.includes('소통공간'))return '소통공간';return n;}const b=otherBiz.find(x=>x.id===id);return b?b.name:'';}
-  let filtered=[...trips].filter(t=>(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))).sort((a,b)=>a.start.localeCompare(b.start));
+  let filtered=[...trips].filter(t=>t.status!=='excluded'&&(!mf||t.start.startsWith(mf))&&(!pf||t.person===pf)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))).sort((a,b)=>a.start.localeCompare(b.start));
   if(!filtered.length){alert('해당 조건의 내역이 없어요.');return;}
   const BOM='\uFEFF';
   const header=['출장구분','사업비','출장시작일자','출장종료일자','출장지','목적','일비','식비','교통비','합계'];
@@ -2997,11 +3006,11 @@ function tripBizId(name,extra){
 function applyTripSheet(d){
   const extra=[];
   trips=(d.trips||[]).map(r=>{
-    const paid=r.pay==='지급';
+    const paid=r.pay==='지급',ex=r.pay==='지급제외';
     return {id:r.row,person:r.person,dest:r.dest||'',start:r.date,end:r.date,bizId:tripBizId(r.biz,extra),
       purpose:r.purpose||'',vehicle:r.vehicle||'',da:r.da||0,me:r.me||0,tr:r.tr||0,
-      memo:[r.pay&&r.pay!=='지급'&&r.pay!=='미지급'?r.pay:'',r.time,r.memo].filter(Boolean).join(' · '),
-      status:paid?'done':'pending',settled:paid?(r.total||(r.da||0)+(r.me||0)+(r.tr||0)):0,pay:r.pay};
+      memo:[r.pay==='확인필요'?r.pay:'',r.time,r.memo].filter(Boolean).join(' · '),
+      status:ex?'excluded':paid?'done':'pending',settled:paid?(r.total||(r.da||0)+(r.me||0)+(r.tr||0)):0,pay:r.pay};
   });
   otherBiz=[...((fbTrip&&fbTrip.otherBiz)||[]),...extra];
   setTripMode(true);
