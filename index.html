@@ -212,6 +212,11 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
 
 
 /* 예산: 구글시트 연동 모드 (입력은 시트, 앱은 보기) */
+#app-trip .sheet-only{display:none;}
+#app-trip.sheet-mode .sheet-only{display:block;}
+#app-trip.sheet-mode button.sheet-only{display:inline-block;}
+#app-trip.sheet-mode .edit-only{display:none!important;}
+#app-trip.sheet-mode [onclick^="openSettle"],#app-trip.sheet-mode [onclick^="unSettle"],#app-trip.sheet-mode [onclick^="openTripEdit"],#app-trip.sheet-mode [onclick^="deleteTrip"]{display:none!important;}
 #app-budget .sheet-only{display:none;}
 #app-budget.sheet-mode .sheet-only{display:block;}
 #app-budget.sheet-mode .edit-only{display:none!important;}
@@ -276,10 +281,13 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       <button class="sub-tab" onclick="goTrip('settle')">🧾 정산 현황</button>
     </div>
     <div class="wrap">
-      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;">
+      <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;justify-content:flex-end;align-items:center;">
+        <div class="sheet-bar"><span class="sheet-dot" id="tsheet-dot"></span><span id="tsheet-status">구글시트 미연결 · 설정에서 연결</span>
+          <button class="btn-sm" id="tsheet-refresh" onclick="loadTripSheet(true)" style="display:none;">🔄 시트 새로고침</button></div>
+        <button class="btn-sm" onclick="openTripSheet()" style="color:#1a7a43;font-weight:700;">📗 구글시트 열기</button>
         <button class="btn-sm" onclick="exportTripCSV()">📥 엑셀</button>
-        <button class="btn-sm" onclick="backupTrip()">💾 백업</button>
-        <button class="btn-sm" onclick="document.getElementById('loadTripFile').click()">📂 복원</button>
+        <button class="btn-sm edit-only" onclick="backupTrip()">💾 백업</button>
+        <button class="btn-sm edit-only" onclick="document.getElementById('loadTripFile').click()">📂 복원</button>
         <input type="file" id="loadTripFile" accept=".json" style="display:none" onchange="loadTripData(event)">
       </div>
       <div id="tp-dash" class="pane on">
@@ -298,6 +306,22 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
         <div id="monthly-content"></div>
       </div>
       <div id="tp-setup" class="pane">
+        <div class="sec">구글시트 연결</div>
+        <div class="card" style="margin-bottom:14px;">
+          <div style="font-size:12px;color:var(--text2);line-height:1.7;margin-bottom:12px;">
+            <b>★ 2026년 근태·출장관리</b> 시트의 [출장] 탭을 읽어 와서 대시보드·월별 합계·목록·정산 현황에 보여줘요.
+            연결하면 출장 등록·수정·정산은 시트에서 하고, 앱은 보기만 해요. 앱에 원래 있던 출장 기록은 지우지 않고 그대로 둬요.
+          </div>
+          <div class="grid2" style="margin-bottom:12px;">
+            <div class="fg"><label>웹 앱 주소 (/exec)</label><input type="text" id="tsh-url" placeholder="https://script.google.com/macros/s/…/exec"></div>
+            <div class="fg"><label>비밀키</label><input type="password" id="tsh-key" placeholder="Apps Script 의 KEY"></div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;">
+            <button class="btn" onclick="connectTripSheet()">🔗 연결하고 불러오기</button>
+            <button class="btn-sm sheet-only" onclick="disconnectTripSheet()">연결 끊기</button>
+            <span id="tsh-msg" class="msg"></span>
+          </div>
+        </div>
         <div class="sec">내 사업 설정</div>
         <div class="card">
           <div class="banner"><span>🏢</span><span id="cur-mybiz-text">내 사업 미설정</span></div>
@@ -311,8 +335,9 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
             <span id="mb-msg" class="msg"></span>
           </div>
         </div>
-        <div class="sec">타 사업 등록</div>
-        <div class="card">
+        <div class="card sheet-only" style="font-size:13px;line-height:1.7;margin-top:14px;">시트 연동 중에는 [출장] 탭의 <b>사업비</b> 칸 값으로 사업을 나눠요. 내 사업명에 사업비 이름(예: 소통공간)이 들어 있으면 '내 사업'으로 잡혀요.</div>
+        <div class="sec edit-only">타 사업 등록</div>
+        <div class="card edit-only">
           <div class="grid2" style="margin-bottom:12px;">
             <div class="fg"><label>사업명</label><input type="text" id="ob-name" placeholder="사업명"></div>
             <div class="fg"><label>담당자</label><input type="text" id="ob-owner" placeholder="담당자명"></div>
@@ -322,7 +347,7 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
             <span id="ob-msg" class="msg"></span>
           </div>
         </div>
-        <div id="other-biz-list"></div>
+        <div id="other-biz-list" class="edit-only"></div>
       </div>
       <div id="tp-add" class="pane">
         <div style="max-width:1000px;margin:0 auto;">
@@ -393,11 +418,12 @@ font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--ink);font-size:1
       </div>
       <div id="tp-list" class="pane">
         <div style="display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:center;">
-          <button class="btn-sm btn-blue" onclick="goTrip('add')">➕ 출장 등록</button>
+          <button class="btn-sm btn-blue edit-only" onclick="goTrip('add')">➕ 출장 등록</button>
+          <button class="btn-sm sheet-only" onclick="openTripSheet()" style="color:#1a7a43;font-weight:700;">📗 시트에서 입력·수정</button>
           <input type="text" id="l-search" placeholder="이름·출장지·사업·목적 검색" style="flex:1;min-width:140px;font-size:13px;padding:8px 10px;border:1px solid var(--border2);border-radius:8px;outline:none;" oninput="renderList()">
           <select id="l-biz" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;"></select>
           <select id="l-vehicle" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
-            <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차</option>
+            <option value="">전체 차량</option><option value="관차">관차</option><option value="자차">자차(동승 포함)</option>
           </select>
           <select id="l-status" onchange="renderList()" style="font-size:13px;padding:7px 10px;border:1px solid var(--border2);border-radius:8px;">
             <option value="">전체 상태</option><option value="pending">미정산</option><option value="done">정산완료</option>
@@ -1249,6 +1275,7 @@ function loadData(uid){
   unsub=onSnapshot(ref,(snap)=>{
     if(snap.exists()){
       const d=snap.data();
+      inSnap=true;
       if(d.myBiz)myBiz=d.myBiz;
       if(d.otherBiz)otherBiz=d.otherBiz;
       if(d.trips)trips=d.trips;
@@ -1297,9 +1324,10 @@ function loadData(uid){
       if(d.BUDGET_CATS&&d.BUDGET_CATS.length){BUDGET_CATS=d.BUDGET_CATS;BUDGET_CATS.forEach(syncCatFromSubs);}
       seedBudgetBase();
       seedBalanceChecks();   // 과목 구조를 불러온 뒤에 실행해야 잔액이 맞게 계산된다
-      captureFbBudget();
+      captureFbBudget();captureFbTrip();
       inSnap=false;
       if(sheetData)applyBudgetSheet(sheetData);
+      if(tripData)applyTripSheet(tripData);
     }
     setSyncStatus('ok','✓ 동기화됨');
     document.getElementById('topbar-biz').textContent=myBiz.name||'⚙️ 설정에서 사업명 등록';
@@ -1311,11 +1339,12 @@ function loadData(uid){
 async function persist(){
   if(!curUser)return;
   // 시트 모드: 화면의 예산 데이터는 시트에서 온 것이므로, 저장할 때는 Firebase 에 있던 원래 예산 데이터를 그대로 둔다
-  if(sheetMode&&!inSnap&&!fbBudget)return;   // 아직 Firebase 를 한 번도 못 읽었으면 저장 보류
+  if(!inSnap&&((sheetMode&&!fbBudget)||(tripMode&&!fbTrip)))return;   // 아직 Firebase 를 한 번도 못 읽었으면 저장 보류
   const B=(sheetMode&&!inSnap)?fbBudget:{budgetExpenses,BUDGET_CATS,budgetIncomes,BUDGET_TOTAL,BUDGET_BASE_TOTAL};
+  const T=(tripMode&&!inSnap)?fbTrip:{trips,tripNextId,otherBiz};
   setSyncStatus('ing','저장 중...');
   try{
-    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz,trips,tripNextId,events,schedNextId,
+    await setDoc(doc(db,'users',curUser.uid,'data','tripdata'),{myBiz,otherBiz:T.otherBiz,trips:T.trips,tripNextId:T.tripNextId,events,schedNextId,
       budgetExpenses:B.budgetExpenses,budgetNextId,BUDGET_TOTAL:B.BUDGET_TOTAL,BUDGET_CATS:B.BUDGET_CATS,balanceChecks,balanceSeeded,
       budgetIncomes:B.budgetIncomes,baseSeeded,BUDGET_BASE_TOTAL:B.BUDGET_BASE_TOTAL,budgetChangedAt});
     setSyncStatus('ok','✓ 동기화됨');
@@ -1389,7 +1418,7 @@ function renderDash(){
     <div class="mc"><div class="mc-lbl">미정산</div><div class="mc-val" style="color:var(--red);">${Math.round(tPend/10000)}만원</div><div class="mc-sub" style="color:var(--red);">${fmt(tPend)}</div><div class="mc-sub">${pend.length}건</div></div>
     <div class="mc"><div class="mc-lbl">정산 완료</div><div class="mc-val" style="color:var(--green);">${Math.round(tDone/10000)}만원</div><div class="mc-sub" style="color:var(--green);">${fmt(tDone)}</div><div class="mc-sub">${done.length}건</div></div>
     <div class="mc"><div class="mc-lbl">관차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='관차').length}건</div></div>
-    <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>t.vehicle==='자차').length}건</div></div>
+    <div class="mc"><div class="mc-lbl">자차</div><div class="mc-val">${trips.filter(t=>(t.vehicle||'').startsWith('자차')).length}건</div></div>
   `;
   const myTrips=trips.filter(t=>t.bizId==='my');
   const used=myTrips.reduce((s,t)=>s+tTotal(t),0);
@@ -1595,7 +1624,7 @@ window.renderList=function(){
     const hay=[t.person,t.dest,t.purpose,t.memo,bizLabel(t.bizId)].filter(Boolean).join(' ').toLowerCase();
     return hay.includes(q);
   };
-  let list=[...trips].filter(t=>hit(t)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!vf||t.vehicle===vf)&&(!sf||t.status===sf)).sort((a,b)=>b.start.localeCompare(a.start));
+  let list=[...trips].filter(t=>hit(t)&&(!bf||(bf==='my'?t.bizId==='my':t.bizId===parseInt(bf)))&&(!vf||(t.vehicle||'').startsWith(vf))&&(!sf||t.status===sf)).sort((a,b)=>b.start.localeCompare(a.start));
   document.getElementById('l-empty').style.display=list.length?'none':'block';
   document.getElementById('l-body').innerHTML=list.map(t=>`<tr>
     <td>${t.person}</td>
@@ -2938,6 +2967,102 @@ window.openBudgetSheet=function(){
 if(lsGet(BSH_URL))loadBudgetSheet(false);
 document.addEventListener('visibilitychange',()=>{
   if(document.visibilityState==='visible'&&sheetMode&&Date.now()-sheetLoadedAt>30000)loadBudgetSheet(false);
+});
+
+/* ═════════ 출장: 구글시트 연동 (입력은 [근태·출장관리] 시트, 앱은 보기) ═════════ */
+var tripMode=false, fbTrip=null, tripData=null, tripLoadedAt=0;
+const TSH_URL='trip-sheet-url', TSH_KEY='trip-sheet-key', TSH_LINK='trip-sheet-link';
+function captureFbTrip(){ fbTrip={trips,tripNextId,otherBiz}; }
+function tripStatus(state,text){
+  const dot=document.getElementById('tsheet-dot'),st=document.getElementById('tsheet-status');
+  if(dot)dot.className='sheet-dot '+(state||'');
+  if(st)st.textContent=text;
+}
+function setTripMode(on){
+  tripMode=on;
+  document.getElementById('app-trip').classList.toggle('sheet-mode',on);
+  const rb=document.getElementById('tsheet-refresh');if(rb)rb.style.display=on?'inline-block':'none';
+}
+// 시트의 '사업비' 이름을 앱의 사업(내 사업 / 타 사업)에 맞춘다. 맞는 게 없으면 화면용 사업을 임시로 만든다
+function tripBizId(name,extra){
+  if(!name)return 'my';
+  const has=(a,b)=>a&&b&&(a.includes(b)||b.includes(a));
+  if(has(myBiz.name||'',name))return 'my';
+  const base=(fbTrip&&fbTrip.otherBiz)||[];
+  const o=base.find(b=>has(b.name,name));if(o)return o.id;
+  let x=extra.find(b=>b.name===name);
+  if(!x){x={id:900000+extra.length,name,owner:'시트'};extra.push(x);}
+  return x.id;
+}
+function applyTripSheet(d){
+  const extra=[];
+  trips=(d.trips||[]).map(r=>{
+    const paid=r.pay==='지급';
+    return {id:r.row,person:r.person,dest:r.dest||'',start:r.date,end:r.date,bizId:tripBizId(r.biz,extra),
+      purpose:r.purpose||'',vehicle:r.vehicle||'',da:r.da||0,me:r.me||0,tr:r.tr||0,
+      memo:[r.pay&&r.pay!=='지급'&&r.pay!=='미지급'?r.pay:'',r.time,r.memo].filter(Boolean).join(' · '),
+      status:paid?'done':'pending',settled:paid?(r.total||(r.da||0)+(r.me||0)+(r.tr||0)):0,pay:r.pay};
+  });
+  otherBiz=[...((fbTrip&&fbTrip.otherBiz)||[]),...extra];
+  setTripMode(true);
+  const t=new Date(tripLoadedAt);
+  tripStatus('on',`구글시트 연동 · ${t.getHours()}:${String(t.getMinutes()).padStart(2,'0')} 불러옴 · 출장 ${trips.length}건`);
+  if(document.getElementById('app-trip').style.display!=='none')refreshTripView(currentTripTab);
+}
+window.loadTripSheet=async function(manual){
+  const url=lsGet(TSH_URL),key=lsGet(TSH_KEY);
+  if(!url||!key)return false;
+  tripStatus('','구글시트 불러오는 중…');
+  const ctrl=new AbortController(),timer=setTimeout(()=>ctrl.abort(),25000);
+  try{
+    const res=await fetch(url+'?k='+encodeURIComponent(key),{signal:ctrl.signal});
+    const d=await res.json();
+    if(d.error)throw new Error(d.error);
+    if(!Array.isArray(d.trips))throw new Error('출장 시트 주소가 아닌 것 같아요');
+    tripData=d;tripLoadedAt=Date.now();
+    if(d.sheetUrl)lsSet(TSH_LINK,d.sheetUrl);
+    applyTripSheet(d);
+    return true;
+  }catch(e){
+    tripStatus('err','구글시트를 못 불러왔어요'+(tripData?' · 지난번 내용 표시 중':'')+' · '+(e.name==='AbortError'?'시간 초과':e.message));
+    if(manual)alert('구글시트를 불러오지 못했어요.\n'+(e.name==='AbortError'?'응답이 늦어요. 잠시 뒤 다시 눌러 주세요.':e.message));
+    return false;
+  }finally{clearTimeout(timer);}
+}
+window.connectTripSheet=async function(){
+  const url=document.getElementById('tsh-url').value.trim(),key=document.getElementById('tsh-key').value.trim();
+  if(!/^https:\/\/script\.google\.com\/macros\/s\/.+\/exec$/.test(url)){showMsg('tsh-msg','/exec 로 끝나는 웹 앱 주소를 넣어 주세요','err');return;}
+  if(!key){showMsg('tsh-msg','비밀키를 입력해 주세요','err');return;}
+  if(url===lsGet(BSH_URL)){showMsg('tsh-msg','예산관리 시트 주소예요. 근태·출장관리 시트의 주소를 넣어 주세요','err');return;}
+  lsSet(TSH_URL,url);lsSet(TSH_KEY,key);
+  showMsg('tsh-msg','불러오는 중…','ok');
+  const ok=await loadTripSheet(true);
+  showMsg('tsh-msg',ok?'✅ 연결됐어요':'연결 실패',ok?'ok':'err');
+}
+window.disconnectTripSheet=function(){
+  if(!confirm('출장 구글시트 연결을 끊을까요?\n앱에 원래 저장돼 있던 출장 기록으로 돌아가요. 시트 내용은 그대로 남아요.'))return;
+  lsSet(TSH_URL,'');lsSet(TSH_KEY,'');tripData=null;
+  if(fbTrip){({trips,tripNextId,otherBiz}=fbTrip);}
+  setTripMode(false);tripStatus('','구글시트 미연결 · 설정에서 연결');
+  refreshTripView(currentTripTab);
+}
+window.openTripSheet=function(){
+  const link=lsGet(TSH_LINK);
+  if(!link){alert('먼저 [설정]에서 근태·출장관리 시트를 연결해 주세요.');goTrip('setup');return;}
+  window.open(link,'_blank');
+}
+// 시트 모드에서는 앱에서 출장 기록을 고치는 기능을 막는다
+;['addTrip','openTripEdit','saveTripEdit','deleteTrip','openSettle','doSettle','unSettle','loadTripData','addOtherBiz','delOther'].forEach(n=>{
+  const f=window[n];if(typeof f!=='function')return;
+  window[n]=function(...a){
+    if(tripMode){alert('지금은 근태·출장관리 시트와 연동 중이에요.\n출장 입력·수정·지급 표시는 시트에서 해 주세요. (📗 구글시트 열기)');return;}
+    return f.apply(this,a);
+  };
+});
+{const u=document.getElementById('tsh-url'),k=document.getElementById('tsh-key');if(u)u.value=lsGet(TSH_URL);if(k)k.value=lsGet(TSH_KEY);}
+if(lsGet(TSH_URL))loadTripSheet(false);
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='visible'&&tripMode&&Date.now()-tripLoadedAt>30000)loadTripSheet(false);
 });
 </script>
 
